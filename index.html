@@ -7,78 +7,93 @@
   <style>
     body {
       font-family: sans-serif;
+      background: #f5f5f5;
       padding: 20px;
-      background: #f0f8ff;
       text-align: center;
     }
-    video, canvas {
-      max-width: 100%;
-      border-radius: 10px;
-    }
     input, button {
-      margin: 10px;
       padding: 10px;
-      font-size: 16px;
+      margin: 10px;
+    }
+    video, canvas {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 10px;
+      margin: 10px auto;
+    }
+    #lokasi {
+      margin: 10px 0;
+      color: green;
     }
   </style>
 </head>
 <body>
   <h2>Absensi Driver</h2>
-  <form id="absenForm">
-    <input type="text" id="nama" placeholder="Nama Anda" required /><br/>
-    <video id="video" autoplay playsinline width="300"></video><br/>
-    <button type="button" onclick="ambilFoto()">Ambil Foto</button><br/>
-    <canvas id="canvas" style="display:none;"></canvas>
-    <input type="hidden" id="lokasi" name="lokasi"/>
-    <input type="hidden" id="fotoBase64" name="foto"/>
-    <button type="submit">Kirim Absen</button>
-  </form>
-
-  <p id="status"></p>
+  <input type="text" id="nama" placeholder="Masukkan Nama" required />
+  <div>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas><br>
+    <button onclick="ambilFoto()">Ambil Foto</button>
+  </div>
+  <div id="lokasi">Mendeteksi lokasi...</div>
+  <button onclick="submitData()">Kirim Absensi</button>
 
   <script>
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const lokasiInput = document.getElementById('lokasi');
-    const fotoBase64 = document.getElementById('fotoBase64');
-    const statusText = document.getElementById('status');
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    let imageData = "";
+    let lokasi = "";
 
+    // Aktifkan kamera
     navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream)
-      .catch(err => alert("Gagal akses kamera: " + err));
+      .then(stream => {
+        video.srcObject = stream;
+      }).catch(error => {
+        alert("Tidak dapat mengakses kamera: " + error.message);
+      });
 
+    // Ambil lokasi
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        lokasi = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+        document.getElementById("lokasi").innerText = "📍 Lokasi: " + lokasi;
+      }, err => {
+        document.getElementById("lokasi").innerText = "Gagal mendapatkan lokasi";
+      });
+    } else {
+      document.getElementById("lokasi").innerText = "Geolocation tidak didukung.";
+    }
+
+    // Ambil foto dari kamera
     function ambilFoto() {
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext("2d").drawImage(video, 0, 0);
-      const data = canvas.toDataURL("image/png");
-      fotoBase64.value = data;
+      imageData = canvas.toDataURL("image/jpeg");
+      alert("Foto berhasil diambil!");
     }
 
-    navigator.geolocation.getCurrentPosition(pos => {
-      const { latitude, longitude } = pos.coords;
-      lokasiInput.value = `${latitude},${longitude}`;
-    });
-
-    document.getElementById('absenForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      statusText.innerText = "Mengirim...";
-      const formData = new FormData(e.target);
-      const data = Object.fromEntries(formData.entries());
-
-      const url = "https://script.google.com/macros/s/AKfycbyZ_AeaHMh9hh2dRXSxAlRF2Sms_Ee0qIv4nosxjWp_EfiS4OcuDjtuPkE2elEUOtDi/exec";
-      try {
-        await fetch(url, {
-          method: "POST",
-          body: JSON.stringify(data),
-          headers: { "Content-Type": "application/json" },
-        });
-        statusText.innerText = "Absen berhasil!";
-        e.target.reset();
-      } catch (err) {
-        statusText.innerText = "Gagal kirim absen.";
+    // Kirim data ke Google Sheets
+    function submitData() {
+      const nama = document.getElementById("nama").value;
+      if (!nama || !imageData || !lokasi) {
+        alert("Isi semua data, ambil foto & pastikan lokasi tersedia!");
+        return;
       }
-    });
+
+      fetch("https://script.google.com/macros/s/AKfycbyZ_AeaHMh9hh2dRXSxAlRF2Sms_Ee0qIv4nosxjWp_EfiS4OcuDjtuPkE2elEUOtDi/exec", {
+        method: "POST",
+        body: new URLSearchParams({ nama, lokasi, foto: imageData }),
+      })
+      .then(res => res.text())
+      .then(data => {
+        alert("Absensi berhasil!");
+        document.getElementById("nama").value = "";
+      })
+      .catch(err => {
+        alert("Gagal mengirim data: " + err.message);
+      });
+    }
   </script>
 </body>
 </html>
