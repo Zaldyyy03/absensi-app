@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Data Absensi</title>
   <style>
     body {
@@ -60,11 +61,9 @@
     button:hover {
       background-color: #388e3c;
     }
-    img {
-      border-radius: 5px;
-    }
   </style>
 </head>
+
 <body>
   <div class="header">
     <img src="https://upload.wikimedia.org/wikipedia/id/thumb/f/f3/Pertamina_Logo.svg/2560px-Pertamina_Logo.svg.png" alt="Logo Pertamina">
@@ -99,16 +98,21 @@
 
     async function fetchData() {
       const sheetUrl = 'https://script.google.com/macros/s/AKfycbz7HkUk0s4Bdjf3wwcR6ToVRCy0WBgNCt9ORmfAJps-PKyhpDdyQsEdHcV5Pv4_sVFN/exec';
-      const response = await fetch(sheetUrl);
-      const json = await response.json();
-      const rows = json.values.slice(1); // skip header
-      return rows.map((row, i) => ({
-        no: i + 1,
-        nama: row[1],
-        tanggal: row[2],
-        lokasi: row[3],
-        foto: row[4]
-      }));
+      try {
+        const response = await fetch(sheetUrl);
+        const json = await response.json();
+        const rows = json.values.slice(1); // hilangkan header
+        return rows.map((row, i) => ({
+          no: i + 1,
+          nama: row[1],
+          tanggal: row[2],
+          lokasi: row[3],
+          foto: row[4]
+        }));
+      } catch (err) {
+        console.error("Gagal mengambil data:", err);
+        return [];
+      }
     }
 
     async function renderTable() {
@@ -127,7 +131,7 @@
           <td>${item.nama}</td>
           <td>${item.tanggal}</td>
           <td>${item.lokasi || "-"}</td>
-          <td><img src="${item.foto}" width="80"/></td>
+          <td><img src="${item.foto}" width="80" onerror="this.src='https://via.placeholder.com/80?text=No+Image';" /></td>
         `;
         tableBody.appendChild(row);
       });
@@ -172,4 +176,5 @@
     }
   </script>
 </body>
+
 </html>
