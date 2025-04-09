@@ -113,7 +113,7 @@
           nama: row[1],
           tanggal: row[2],
           lokasi: row[3],
-          foto: row[4]
+          foto: row[4]?.startsWith("data:image") ? row[4] : null
         }));
       } catch (err) {
         console.error("Gagal mengambil data:", err);
@@ -132,12 +132,16 @@
 
       filtered.forEach(item => {
         const row = document.createElement("tr");
+        const fotoHTML = item.foto
+          ? `<img class="foto-preview" src="${item.foto}" alt="foto" />`
+          : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
+
         row.innerHTML = `
           <td>${item.no}</td>
           <td>${item.nama}</td>
           <td>${item.tanggal}</td>
           <td>${item.lokasi || "-"}</td>
-          <td><img class="foto-preview" src="${item.foto}" alt="foto" onerror="this.src='https://via.placeholder.com/80?text=No+Image';" /></td>
+          <td>${fotoHTML}</td>
         `;
         tableBody.appendChild(row);
       });
