@@ -61,6 +61,10 @@
     button:hover {
       background-color: #388e3c;
     }
+    img.foto-preview {
+      max-width: 80px;
+      max-height: 80px;
+    }
   </style>
 </head>
 
@@ -101,8 +105,10 @@
       try {
         const response = await fetch(sheetUrl);
         const json = await response.json();
-        const rows = json.values.slice(1); // hilangkan header
-        return rows.map((row, i) => ({
+        const rows = json.data || json.values || [];
+        const dataRows = rows.length > 0 && rows[0][0] === "Timestamp" ? rows.slice(1) : rows;
+
+        return dataRows.map((row, i) => ({
           no: i + 1,
           nama: row[1],
           tanggal: row[2],
@@ -131,7 +137,7 @@
           <td>${item.nama}</td>
           <td>${item.tanggal}</td>
           <td>${item.lokasi || "-"}</td>
-          <td><img src="${item.foto}" width="80" onerror="this.src='https://via.placeholder.com/80?text=No+Image';" /></td>
+          <td><img class="foto-preview" src="${item.foto}" alt="foto" onerror="this.src='https://via.placeholder.com/80?text=No+Image';" /></td>
         `;
         tableBody.appendChild(row);
       });
