@@ -96,19 +96,33 @@
     const tableBody = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
 
-    function renderTable() {
-      tableBody.innerHTML = "";
-      const data = JSON.parse(localStorage.getItem("absensiData")) || [];
-      const tanggalFilter = filterTanggal.value;
+    async function fetchData() {
+      const sheetUrl = 'https://script.google.com/macros/s/AKfycbyZ_AeaHMh9hh2dRXSxAlRF2Sms_Ee0qIv4nosxjWp_EfiS4OcuDjtuPkE2elEUOtDi/exec';
+      const response = await fetch(sheetUrl);
+      const json = await response.json();
+      const rows = json.values.slice(1); // hilangkan header
+      return rows.map((row, i) => ({
+        no: i + 1,
+        nama: row[1],
+        tanggal: row[2],
+        lokasi: row[3],
+        foto: row[4]
+      }));
+    }
 
-      const filteredData = tanggalFilter
+    async function renderTable() {
+      tableBody.innerHTML = "";
+      const tanggalFilter = filterTanggal.value;
+      const data = await fetchData();
+
+      const filtered = tanggalFilter
         ? data.filter(d => new Date(d.tanggal).toLocaleDateString('en-CA') === tanggalFilter)
         : data;
 
-      filteredData.forEach((item, index) => {
+      filtered.forEach(item => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${index + 1}</td>
+          <td>${item.no}</td>
           <td>${item.nama}</td>
           <td>${item.tanggal}</td>
           <td>${item.lokasi || "-"}</td>
@@ -124,10 +138,13 @@
     function exportExcel() {
       const wb = XLSX.utils.book_new();
       const ws_data = [["No", "Nama", "Tanggal", "Lokasi"]];
-      const data = JSON.parse(localStorage.getItem("absensiData")) || [];
-      data.forEach((item, index) => {
-        ws_data.push([index + 1, item.nama, item.tanggal, item.lokasi || "-"]);
-      });
+      const rows = Array.from(tableBody.children).map(row => [
+        row.children[0].textContent,
+        row.children[1].textContent,
+        row.children[2].textContent,
+        row.children[3].textContent
+      ]);
+      ws_data.push(...rows);
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, "Absensi");
       XLSX.writeFile(wb, "Data_Absensi.xlsx");
@@ -136,26 +153,20 @@
     async function exportPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      const data = JSON.parse(localStorage.getItem("absensiData")) || [];
-
       doc.setFontSize(16);
       doc.text("Data Absensi Driver", 20, 20);
-
       let y = 30;
-      for (let i = 0; i < data.length; i++) {
-        const item = data[i];
+      Array.from(tableBody.children).forEach((row, i) => {
         doc.setFontSize(10);
-        doc.text(`${i + 1}. Nama: ${item.nama}`, 20, y);
-        doc.text(`Tanggal: ${item.tanggal}`, 20, y + 5);
-        doc.text(`Lokasi: ${item.lokasi || '-'}`, 20, y + 10);
+        doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
+        doc.text(`Tanggal: ${row.children[2].textContent}`, 20, y + 5);
+        doc.text(`Lokasi: ${row.children[3].textContent}`, 20, y + 10);
         y += 20;
-
         if (y > 270) {
           doc.addPage();
           y = 20;
         }
-      }
-
+      });
       doc.save("Data_Absensi.pdf");
     }
   </script>
