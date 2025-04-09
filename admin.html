@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Data Absensi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #fdfcfb, #e2d1c3);
+      padding: 20px;
+      color: #333;
+    }
+    h2 {
+      text-align: center;
+      color: #d32f2f;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .header img {
+      height: 50px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f44336;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .filters {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <img src="https://upload.wikimedia.org/wikipedia/id/thumb/f/f3/Pertamina_Logo.svg/2560px-Pertamina_Logo.svg.png" alt="Logo Pertamina">
+    <h2>Data Absensi Driver</h2>
+  </div>
+
+  <div class="filters">
+    <label for="filter-tanggal">Filter Tanggal: </label>
+    <input type="date" id="filter-tanggal" />
+    <button onclick="exportExcel()">Export Excel</button>
+    <button onclick="exportPDF()">Export PDF</button>
+  </div>
+
+  <table id="absensi-table">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Tanggal</th>
+        <th>Lokasi</th>
+        <th>Foto</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+  <script>
+    const tableBody = document.querySelector("#absensi-table tbody");
+    const filterTanggal = document.getElementById("filter-tanggal");
+
+    function renderTable() {
+      tableBody.innerHTML = "";
+      const data = JSON.parse(localStorage.getItem("absensiData")) || [];
+      const tanggalFilter = filterTanggal.value;
+
+      const filteredData = tanggalFilter
+        ? data.filter(d => new Date(d.tanggal).toLocaleDateString('en-CA') === tanggalFilter)
+        : data;
+
+      filteredData.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.nama}</td>
+          <td>${item.tanggal}</td>
+          <td>${item.lokasi || "-"}</td>
+          <td><img src="${item.foto}" width="80" /></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    filterTanggal.addEventListener("change", renderTable);
+    window.addEventListener("load", renderTable);
+
+    function exportExcel() {
+      const wb = XLSX.utils.book_new();
+      const ws_data = [["No", "Nama", "Tanggal", "Lokasi"]];
+      const data = JSON.parse(localStorage.getItem("absensiData")) || [];
+      data.forEach((item, index) => {
+        ws_data.push([index + 1, item.nama, item.tanggal, item.lokasi || "-"]);
+      });
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "Absensi");
+      XLSX.writeFile(wb, "Data_Absensi.xlsx");
+    }
+
+    async function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const data = JSON.parse(localStorage.getItem("absensiData")) || [];
+
+      doc.setFontSize(16);
+      doc.text("Data Absensi Driver", 20, 20);
+
+      let y = 30;
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        doc.setFontSize(10);
+        doc.text(`${i + 1}. Nama: ${item.nama}`, 20, y);
+        doc.text(`Tanggal: ${item.tanggal}`, 20, y + 5);
+        doc.text(`Lokasi: ${item.lokasi || '-'}`, 20, y + 10);
+        y += 20;
+
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+      }
+
+      doc.save("Data_Absensi.pdf");
+    }
+  </script>
+</body>
+
+</html>

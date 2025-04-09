@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Absensi Driver</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #f9f9f9, #e0f7fa);
+      padding: 20px;
+      color: #333;
+      text-align: center;
+    }
+    h2 {
+      color: #00796b;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      display: inline-block;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    input, button {
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 16px;
+      width: 100%;
+    }
+    video, canvas {
+      border-radius: 10px;
+      margin-top: 10px;
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Form Absensi</h2>
+  <form onsubmit="simpanAbsensi(event)">
+    <input type="text" id="nama" placeholder="Masukkan nama" required /><br />
+    <video id="video" autoplay playsinline width="300"></video><br />
+    <button type="button" onclick="ambilFoto()">Ambil Foto</button><br />
+    <canvas id="canvas" width="300" height="200" style="display:none;"></canvas><br />
+    <button type="submit">Simpan Absensi</button>
+  </form>
+
+  <script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const context = canvas.getContext("2d");
+
+    // Akses webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => alert("Webcam tidak tersedia"));
+
+    let fotoData = "";
+
+    function ambilFoto() {
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      fotoData = canvas.toDataURL("image/png");
+      canvas.style.display = "block";
+    }
+
+    function simpanAbsensi(e) {
+      e.preventDefault();
+      const nama = document.getElementById("nama").value;
+      const tanggal = new Date().toLocaleString("id-ID");
+      const dataLama = JSON.parse(localStorage.getItem("absensiData")) || [];
+
+      if (!fotoData) return alert("Silakan ambil foto terlebih dahulu.");
+
+      // Ambil lokasi
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude.toFixed(5);
+        const lon = pos.coords.longitude.toFixed(5);
+        const lokasi = `Lat: ${lat}, Lon: ${lon}`;
+
+        dataLama.push({ nama, tanggal, lokasi, foto: fotoData });
+        localStorage.setItem("absensiData", JSON.stringify(dataLama));
+        alert("Absensi berhasil disimpan!");
+        window.location.reload();
+      }, () => {
+        alert("Gagal mendapatkan lokasi.");
+      });
+    }
+  </script>
+</body>
+</html>
