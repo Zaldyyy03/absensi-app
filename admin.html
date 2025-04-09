@@ -104,16 +104,16 @@
       const sheetUrl = 'https://script.google.com/macros/s/AKfycbz7HkUk0s4Bdjf3wwcR6ToVRCy0WBgNCt9ORmfAJps-PKyhpDdyQsEdHcV5Pv4_sVFN/exec';
       try {
         const response = await fetch(sheetUrl);
-        const json = await response.json();
-        const rows = json.data || json.values || [];
+        const result = await response.json();
+        const rows = result.data || result.values || [];
         const dataRows = rows.length > 0 && rows[0][0] === "Timestamp" ? rows.slice(1) : rows;
 
         return dataRows.map((row, i) => ({
           no: i + 1,
           nama: row[1],
-          tanggal: row[2],
+          tanggal: row[2].split(",")[0],
           lokasi: row[3],
-          foto: row[4]?.startsWith("data:image") ? row[4] : null
+          foto: row[4] || null
         }));
       } catch (err) {
         console.error("Gagal mengambil data:", err);
@@ -127,12 +127,15 @@
       const data = await fetchData();
 
       const filtered = tanggalFilter
-        ? data.filter(d => new Date(d.tanggal).toLocaleDateString('en-CA') === tanggalFilter)
+        ? data.filter(d => {
+            const [dMonth, dDay, dYear] = d.tanggal.split("/");
+            return `${dYear}-${dMonth.padStart(2, '0')}-${dDay.padStart(2, '0')}` === tanggalFilter;
+          })
         : data;
 
       filtered.forEach(item => {
         const row = document.createElement("tr");
-        const fotoHTML = item.foto
+        const fotoHTML = item.foto && item.foto.startsWith("data:image")
           ? `<img class="foto-preview" src="${item.foto}" alt="foto" />`
           : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
 
@@ -140,7 +143,7 @@
           <td>${item.no}</td>
           <td>${item.nama}</td>
           <td>${item.tanggal}</td>
-          <td>${item.lokasi || "-"}</td>
+          <td><a href="${item.lokasi}" target="_blank">Lihat Lokasi</a></td>
           <td>${fotoHTML}</td>
         `;
         tableBody.appendChild(row);
