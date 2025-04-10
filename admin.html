@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,8 +37,7 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    th,
-    td {
+    th, td {
       border: 1px solid #ccc;
       padding: 10px;
       text-align: center;
@@ -79,7 +77,6 @@
     }
   </style>
 </head>
-
 <body>
   <div class="header">
     <img src="https://upload.wikimedia.org/wikipedia/id/thumb/f/f3/Pertamina_Logo.svg/2560px-Pertamina_Logo.svg.png" alt="Logo Pertamina">
@@ -113,49 +110,37 @@
     const tableBody = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
 
-    async function fetchData() {
+    function formatTimestamp(isoString) {
       try {
-        const response = await fetch(endpoint);
-        const result = await response.json();
-        console.log("Data dari Sheets:", result);
-        return result;
-      } catch (err) {
-        console.error("Gagal mengambil data:", err);
-        return [];
+        const date = new Date(isoString);
+        const hari = String(date.getDate()).padStart(2, '0');
+        const bulan = String(date.getMonth() + 1).padStart(2, '0');
+        const tahun = date.getFullYear();
+        const jam = String(date.getHours()).padStart(2, '0');
+        const menit = String(date.getMinutes()).padStart(2, '0');
+        const detik = String(date.getSeconds()).padStart(2, '0');
+        return `${hari}/${bulan}/${tahun} ${jam}:${menit}:${detik} WIB`;
+      } catch {
+        return isoString;
       }
     }
 
-    function formatTanggalKeInput(tglJam) {
-      const date = new Date(tglJam);
-      if (isNaN(date)) return "";
+    function formatTanggalKeInput(isoString) {
+      const date = new Date(isoString);
       const yyyy = date.getFullYear();
       const mm = String(date.getMonth() + 1).padStart(2, '0');
       const dd = String(date.getDate()).padStart(2, '0');
       return `${yyyy}-${mm}-${dd}`;
     }
 
-    function formatWaktuIndonesia(isoString) {
+    async function fetchData() {
       try {
-        const date = new Date(isoString);
-        if (isNaN(date.getTime())) return isoString;
-
-        const formatter = new Intl.DateTimeFormat("id-ID", {
-          timeZone: "Asia/Jakarta",
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false
-        });
-
-        const parts = formatter.formatToParts(date);
-        const get = (type) => parts.find(p => p.type === type)?.value || "";
-
-        return `${get("day")}/${get("month")}/${get("year")} ${get("hour")}:${get("minute")}:${get("second")} WIB`;
-      } catch (e) {
-        return isoString;
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        return data;
+      } catch (err) {
+        console.error("Gagal mengambil data:", err);
+        return [];
       }
     }
 
@@ -178,7 +163,7 @@
         row.innerHTML = `
           <td>${index + 1}</td>
           <td>${item.Nama || "-"}</td>
-          <td>${formatWaktuIndonesia(item.Timestamp)}</td>
+          <td>${formatTimestamp(item.Timestamp) || "-"}</td>
           <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
           <td>${fotoHTML}</td>
         `;
@@ -225,5 +210,4 @@
     }
   </script>
 </body>
-
 </html>
