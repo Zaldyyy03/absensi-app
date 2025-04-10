@@ -41,12 +41,18 @@
       color: white;
       padding: 15px;
       position: fixed;
-      top: 20px;
+      top: 30px;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      z-index: 1000;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      z-index: 999;
+      animation: fadein 0.5s;
+    }
+
+    @keyframes fadein {
+      from { opacity: 0; top: 0px; }
+      to { opacity: 1; top: 30px; }
     }
 
     .loading {
@@ -61,9 +67,25 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
       font-size: 18px;
       font-weight: bold;
       color: #333;
+    }
+
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #e53935;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -79,14 +101,22 @@
   <br>
   <button onclick="ambilFoto()">Ambil Foto & Absen</button>
 
-  <div id="popup" class="popup">Absensi berhasil!</div>
-  <div id="loading" class="loading">Mengirim data absensi...</div>
+  <p id="status"></p>
+
+  <div class="popup" id="popup">Absensi berhasil!</div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    Mengirim data...
+  </div>
 
   <script>
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
+    const status = document.getElementById("status");
     const popup = document.getElementById("popup");
     const loading = document.getElementById("loading");
+
     const endpoint = "https://script.google.com/macros/s/AKfycbw7HzCZIw75U7Rdj6445yLe3cUJOIaVrD4sMBB0EOVHRpjBig5BuXR15EI8OpCCnQzO/exec";
 
     let femaleVoice;
@@ -106,8 +136,8 @@
       speechSynthesis.speak(utterance);
     }
 
-    function showPopup(message) {
-      popup.textContent = message;
+    function showPopup(text) {
+      popup.textContent = text;
       popup.style.display = "block";
       setTimeout(() => {
         popup.style.display = "none";
@@ -123,7 +153,8 @@
         .then(stream => {
           video.srcObject = stream;
         })
-        .catch(() => {
+        .catch(err => {
+          status.innerText = "Mohon izinkan akses kamera.";
           alert("Mohon izinkan akses kamera di browser Anda.");
         });
 
@@ -142,8 +173,7 @@
         return;
       }
 
-      showLoading(true); // Tampilkan loading
-
+      showLoading(true);
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
         const long = pos.coords.longitude;
@@ -162,7 +192,7 @@
           body: JSON.stringify({ nama, lokasi, foto: dataUrl })
         })
         .then(() => {
-          showLoading(false); // Sembunyikan loading
+          showLoading(false);
           showPopup("Absensi berhasil!");
           speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
           document.getElementById("nama").value = "";
