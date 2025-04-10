@@ -12,10 +12,12 @@
       padding: 20px;
       color: #333;
     }
+
     h2 {
       text-align: center;
       color: #d32f2f;
     }
+
     .header {
       display: flex;
       align-items: center;
@@ -23,32 +25,40 @@
       gap: 20px;
       margin-bottom: 20px;
     }
+
     .header img {
       height: 50px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
       background: #fff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    th, td {
+
+    th,
+    td {
       border: 1px solid #ccc;
       padding: 10px;
       text-align: center;
     }
+
     th {
       background-color: #f44336;
       color: white;
     }
+
     tr:nth-child(even) {
       background-color: #f9f9f9;
     }
+
     .filters {
       margin-bottom: 20px;
       text-align: center;
     }
+
     button {
       margin: 5px;
       padding: 10px 15px;
@@ -58,9 +68,11 @@
       border-radius: 5px;
       cursor: pointer;
     }
+
     button:hover {
       background-color: #388e3c;
     }
+
     img.foto-preview {
       max-width: 80px;
       max-height: 80px;
@@ -87,6 +99,7 @@
         <th>No</th>
         <th>Nama</th>
         <th>Tanggal</th>
+        <th>Jam</th>
         <th>Lokasi</th>
         <th>Foto</th>
       </tr>
@@ -108,13 +121,17 @@
         const rows = result.data || result.values || [];
         const dataRows = rows.length > 0 && rows[0][0] === "Timestamp" ? rows.slice(1) : rows;
 
-        return dataRows.map((row, i) => ({
-          no: i + 1,
-          nama: row[1],
-          tanggal: row[2].split(",")[0],
-          lokasi: row[3],
-          foto: row[4] || null
-        }));
+        return dataRows.map((row, i) => {
+          const [tanggal, jam] = row[2]?.split(", ") || ["-", "-"];
+          return {
+            no: i + 1,
+            nama: row[1] || "-",
+            tanggal,
+            jam,
+            lokasi: row[3] || "-",
+            foto: row[4] || null
+          };
+        });
       } catch (err) {
         console.error("Gagal mengambil data:", err);
         return [];
@@ -128,9 +145,9 @@
 
       const filtered = tanggalFilter
         ? data.filter(d => {
-            const [dMonth, dDay, dYear] = d.tanggal.split("/");
-            return `${dYear}-${dMonth.padStart(2, '0')}-${dDay.padStart(2, '0')}` === tanggalFilter;
-          })
+          const [dMonth, dDay, dYear] = d.tanggal.split("/");
+          return `${dYear}-${dMonth.padStart(2, '0')}-${dDay.padStart(2, '0')}` === tanggalFilter;
+        })
         : data;
 
       filtered.forEach(item => {
@@ -143,6 +160,7 @@
           <td>${item.no}</td>
           <td>${item.nama}</td>
           <td>${item.tanggal}</td>
+          <td>${item.jam}</td>
           <td><a href="${item.lokasi}" target="_blank">Lihat Lokasi</a></td>
           <td>${fotoHTML}</td>
         `;
@@ -155,12 +173,13 @@
 
     function exportExcel() {
       const wb = XLSX.utils.book_new();
-      const ws_data = [["No", "Nama", "Tanggal", "Lokasi"]];
+      const ws_data = [["No", "Nama", "Tanggal", "Jam", "Lokasi"]];
       const rows = Array.from(tableBody.children).map(row => [
         row.children[0].textContent,
         row.children[1].textContent,
         row.children[2].textContent,
-        row.children[3].textContent
+        row.children[3].textContent,
+        row.children[4].textContent
       ]);
       ws_data.push(...rows);
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
@@ -178,8 +197,9 @@
         doc.setFontSize(10);
         doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
         doc.text(`Tanggal: ${row.children[2].textContent}`, 20, y + 5);
-        doc.text(`Lokasi: ${row.children[3].textContent}`, 20, y + 10);
-        y += 20;
+        doc.text(`Jam: ${row.children[3].textContent}`, 20, y + 10);
+        doc.text(`Lokasi: ${row.children[4].textContent}`, 20, y + 15);
+        y += 25;
         if (y > 270) {
           doc.addPage();
           y = 20;
