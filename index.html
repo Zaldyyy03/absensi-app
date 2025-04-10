@@ -11,15 +11,23 @@
       text-align: center;
       padding: 20px;
     }
+
+    .logo {
+      height: 60px;
+      margin-bottom: 10px;
+    }
+
     h2 {
       color: #e53935;
     }
+
     input, button {
       padding: 10px;
       margin: 10px 0;
       width: 80%;
       max-width: 300px;
     }
+
     video, canvas {
       margin-top: 10px;
       width: 80%;
@@ -29,7 +37,10 @@
   </style>
 </head>
 <body>
+
+  <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
   <h2>Absensi Karyawan PT. SINARAPI JATAYU PERMAI</h2>
+
   <input type="text" id="nama" placeholder="Nama lengkap" required />
   <br>
   <video id="video" autoplay playsinline></video>
@@ -62,9 +73,7 @@
       speechSynthesis.speak(utterance);
     }
 
-    // Aktifkan kamera & lokasi saat halaman dimuat
     window.addEventListener("load", () => {
-      // Kamera
       navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
           video.srcObject = stream;
@@ -74,7 +83,6 @@
           alert("Mohon izinkan akses kamera di browser Anda.");
         });
 
-      // Lokasi (agar langsung minta izin)
       navigator.geolocation.getCurrentPosition(
         () => {},
         () => {
