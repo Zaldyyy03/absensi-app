@@ -101,3 +101,22 @@
         fetch(endpoint, {
           method: "POST",
           mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nama, lokasi, foto: dataUrl })
+        })
+        .then(() => {
+          status.innerText = "Absensi berhasil!";
+          speak("Absensi berhasil. Terima kasih, selamat bekerja");
+          document.getElementById("nama").value = "";
+        })
+        .catch(() => {
+          status.innerText = "Gagal mengirim data.";
+        });
+
+      }, () => {
+        status.innerText = "Gagal mendapatkan lokasi.";
+      });
+    }
+  </script>
+</body>
+</html>
