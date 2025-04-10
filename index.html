@@ -206,7 +206,11 @@
         .then(() => {
           showLoading(false);
           showPopup("Absensi berhasil!");
-          speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
+          if (tipeAbsen === "masuk") {
+            speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
+          } else if (tipeAbsen === "keluar") {
+            speak("Absensi berhasil. Terima kasih. Selamat istirahat.");
+          }
           document.getElementById("nama").value = "";
         })
         .catch(() => {
