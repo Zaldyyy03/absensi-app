@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -26,11 +26,6 @@
       max-width: 300px;
       border-radius: 10px;
     }
-    #status {
-      margin-top: 15px;
-      font-weight: bold;
-      color: green;
-    }
   </style>
 </head>
 <body>
@@ -49,7 +44,6 @@
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
     const status = document.getElementById("status");
-
     const endpoint = "https://script.google.com/macros/s/AKfycbz7HkUk0s4Bdjf3wwcR6ToVRCy0WBgNCt9ORmfAJps-PKyhpDdyQsEdHcV5Pv4_sVFN/exec";
 
     // Aktifkan kamera
@@ -72,7 +66,7 @@
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
         const long = pos.coords.longitude;
-        const lokasi = `https://www.google.com/maps?q=${lat},${long}`;
+        const lokasi = https://www.google.com/maps?q=${lat},${long};
 
         // Ambil gambar dari video
         const context = canvas.getContext("2d");
@@ -81,23 +75,13 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/jpeg");
 
-        // Ambil tanggal dan jam secara terpisah
-        const now = new Date();
-        const tanggal = now.toLocaleDateString("id-ID");  // 10/04/2025
-        const jam = now.toLocaleTimeString("id-ID");       // 14:25:01
-
-        // Kirim data ke Google Apps Script
+        // Kirim data
+        const tanggal = new Date().toLocaleString("id-ID");
         fetch(endpoint, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nama,
-            tanggal,
-            jam,
-            lokasi,
-            foto: dataUrl
-          })
+          body: JSON.stringify({ nama, tanggal, lokasi, foto: dataUrl })
         })
         .then(() => {
           status.innerText = "Absensi berhasil!";
