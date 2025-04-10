@@ -75,6 +75,15 @@
       max-width: 80px;
       max-height: 80px;
     }
+
+    .logout-button {
+      margin-top: 20px;
+      background-color: #f44336;
+    }
+
+    .logout-button:hover {
+      background-color: #d32f2f;
+    }
   </style>
 </head>
 <body>
@@ -110,6 +119,8 @@
     </thead>
     <tbody></tbody>
   </table>
+
+  <button class="logout-button" onclick="logout()">Logout</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -227,6 +238,16 @@
       });
       doc.save("Data_Absensi.pdf");
     }
+
+    function logout() {
+      // Hapus status login
+      localStorage.removeItem('loggedIn');
+      // Arahkan ke halaman login
+      window.location.href = 'login.html';
+    }
+
+    // Logout otomatis setelah 10 menit (600000 ms)
+    setTimeout(logout, 600000); // 10 menit
   </script>
 </body>
 </html>
