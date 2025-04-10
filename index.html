@@ -50,6 +50,13 @@
       .then(stream => video.srcObject = stream)
       .catch(err => status.innerText = "Gagal mengakses kamera: " + err);
 
+    function speak(text) {
+      const speech = new SpeechSynthesisUtterance(text);
+      speech.lang = "id-ID"; // Bahasa Indonesia
+      speech.rate = 1;
+      window.speechSynthesis.speak(speech);
+    }
+
     function ambilFoto() {
       const nama = document.getElementById("nama").value.trim();
       if (!nama) {
@@ -67,26 +74,4 @@
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL("image/jpeg");
-
-        fetch(endpoint, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nama, lokasi, foto: dataUrl })
-        })
-        .then(() => {
-          status.innerText = "Absensi berhasil!";
-          document.getElementById("nama").value = "";
-        })
-        .catch(() => {
-          status.innerText = "Gagal mengirim data.";
-        });
-
-      }, () => {
-        status.innerText = "Gagal mendapatkan lokasi.";
-      });
-    }
-  </script>
-</body>
-</html>
+        const dataUrl = canvas.toDataURL
