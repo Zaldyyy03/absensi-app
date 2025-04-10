@@ -34,46 +34,4 @@
   <input type="text" id="nama" placeholder="Nama lengkap" required />
   <br>
   <video id="video" autoplay playsinline></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <br>
-  <button onclick="ambilFoto()">Ambil Foto & Absen</button>
-
-  <p id="status"></p>
-
-  <script>
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const status = document.getElementById("status");
-    const endpoint = "https://script.google.com/macros/s/AKfycbw7HzCZIw75U7Rdj6445yLe3cUJOIaVrD4sMBB0EOVHRpjBig5BuXR15EI8OpCCnQzO/exec";
-
-    let femaleVoice;
-
-    // Cari suara Indonesia perempuan dari Google
-    window.speechSynthesis.onvoiceschanged = () => {
-      const voices = speechSynthesis.getVoices();
-      femaleVoice = voices.find(v =>
-        v.lang === "id-ID" &&
-        (v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("indonesia") || v.name.toLowerCase().includes("google"))
-      );
-    };
-
-    function speak(text) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      if (femaleVoice) utterance.voice = femaleVoice;
-      utterance.lang = "id-ID";
-      speechSynthesis.speak(utterance);
-    }
-
-    // Otomatis minta izin kamera & lokasi saat halaman dibuka
-    window.addEventListener("load", () => {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          video.srcObject = stream;
-        })
-        .catch(err => {
-          status.innerText = "Mohon izinkan akses kamera.";
-          alert("Mohon izinkan akses kamera di browser Anda.");
-        });
-
-      navigator.geolocation.getCurrentPosition(
-        ()
+  <canvas id="
