@@ -56,7 +56,7 @@
 
     function formatTanggal(timestamp) {
       const date = new Date(timestamp);
-      date.setHours(date.getHours() + 7); // konversi ke WIB
+      date.setHours(date.getHours() + 7); // ke WIB
       const day = String(date.getDate()).padStart(2, "0");
       const month = String(date.getMonth() + 1).padStart(2, "0");
       const year = date.getFullYear();
@@ -71,13 +71,17 @@
       tbody.innerHTML = "";
 
       const selectedDate = document.getElementById("filterTanggal").value;
-
       let no = 1;
+
       data.forEach((row) => {
         if (!row.Timestamp) return;
 
         const waktu = formatTanggal(row.Timestamp);
-        if (selectedDate && !waktu.startsWith(selectedDate.split("-").reverse().join("/"))) return;
+        if (selectedDate) {
+          const [year, month, day] = selectedDate.split("-");
+          const tanggalFilter = `${day}/${month}/${year}`;
+          if (!waktu.startsWith(tanggalFilter)) return;
+        }
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -115,15 +119,10 @@
     document.getElementById("refreshBtn").addEventListener("click", fetchData);
     document.getElementById("filterTanggal").addEventListener("change", fetchData);
 
-    document.getElementById("exportExcel").addEventListener("click", function () {
-      $(".buttons-excel").click();
-    });
+    document.getElementById("exportExcel").addEventListener("click", () => $(".buttons-excel").click());
+    document.getElementById("exportPDF").addEventListener("click", () => $(".buttons-pdf").click());
 
-    document.getElementById("exportPDF").addEventListener("click", function () {
-      $(".buttons-pdf").click();
-    });
-
-    // Load data saat pertama kali
+    // Load pertama kali
     window.onload = fetchData;
   </script>
 </body>
