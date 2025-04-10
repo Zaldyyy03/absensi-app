@@ -89,6 +89,15 @@
 
   <input type="text" id="nama" placeholder="Nama lengkap" required />
   <br>
+  
+  <label for="tipeAbsen">Pilih Tipe Absensi:</label>
+  <select id="tipeAbsen">
+    <option value="masuk">Absen Masuk</option>
+    <option value="keluar">Absen Keluar</option>
+  </select>
+  
+  <br>
+  
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas" style="display:none;"></canvas>
   <br>
@@ -103,7 +112,8 @@
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
-    const endpoint = "https://script.google.com/macros/s/AKfycbw7HzCZIw75U7Rdj6445yLe3cUJOIaVrD4sMBB0EOVHRpjBig5BuXR15EI8OpCCnQzO/exec";
+    // Update endpoint dengan link baru
+    const endpoint = "https://script.google.com/macros/s/AKfycbybhZuEXfK-X_RW9H4cW-ekCUOTA9-GvhF8Dnh1ZIF_McoXMGsV0PhW8rp47QjY-JvS/exec";
 
     let femaleVoice;
 
@@ -150,6 +160,8 @@
 
     function ambilFoto() {
       const nama = document.getElementById("nama").value.trim();
+      const tipeAbsen = document.getElementById("tipeAbsen").value;
+
       if (!nama) {
         alert("Silakan isi nama terlebih dahulu.");
         return;
@@ -179,11 +191,17 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/jpeg");
 
+        // Kirim data ke Apps Script
         fetch(endpoint, {
           method: "POST",
           mode: "no-cors",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nama, lokasi, foto: dataUrl })
+          body: JSON.stringify({
+            nama: nama,
+            lokasi: lokasi,
+            foto: dataUrl,
+            tipe: tipeAbsen // Kirim tipe absen (masuk atau keluar)
+          })
         })
         .then(() => {
           showLoading(false);
