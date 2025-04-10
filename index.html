@@ -48,12 +48,29 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       z-index: 1000;
     }
+
+    .loading {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
   </style>
 </head>
 <body>
 
   <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
-  <h2>Absensi Karyawan </h2>
+  <h2>Absensi Karyawan PT. SINARAPI JATAYU PERMAI</h2>
 
   <input type="text" id="nama" placeholder="Nama lengkap" required />
   <br>
@@ -63,11 +80,13 @@
   <button onclick="ambilFoto()">Ambil Foto & Absen</button>
 
   <div id="popup" class="popup">Absensi berhasil!</div>
+  <div id="loading" class="loading">Mengirim data absensi...</div>
 
   <script>
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
     const popup = document.getElementById("popup");
+    const loading = document.getElementById("loading");
     const endpoint = "https://script.google.com/macros/s/AKfycbw7HzCZIw75U7Rdj6445yLe3cUJOIaVrD4sMBB0EOVHRpjBig5BuXR15EI8OpCCnQzO/exec";
 
     let femaleVoice;
@@ -95,6 +114,10 @@
       }, 3000);
     }
 
+    function showLoading(show) {
+      loading.style.display = show ? "flex" : "none";
+    }
+
     window.addEventListener("load", () => {
       navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
@@ -119,6 +142,8 @@
         return;
       }
 
+      showLoading(true); // Tampilkan loading
+
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
         const long = pos.coords.longitude;
@@ -137,15 +162,18 @@
           body: JSON.stringify({ nama, lokasi, foto: dataUrl })
         })
         .then(() => {
+          showLoading(false); // Sembunyikan loading
           showPopup("Absensi berhasil!");
           speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
           document.getElementById("nama").value = "";
         })
         .catch(() => {
+          showLoading(false);
           alert("Gagal mengirim data.");
         });
 
       }, () => {
+        showLoading(false);
         alert("Gagal mendapatkan lokasi.");
       });
     }
