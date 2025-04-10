@@ -46,38 +46,29 @@
     const status = document.getElementById("status");
     const endpoint = "https://script.google.com/macros/s/AKfycbw7HzCZIw75U7Rdj6445yLe3cUJOIaVrD4sMBB0EOVHRpjBig5BuXR15EI8OpCCnQzO/exec";
 
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream)
-      .catch(err => status.innerText = "Gagal mengakses kamera: " + err);
-
-    let femaleVoice = null;
-
-    // Cari suara perempuan Indonesia
-    function loadVoices() {
-      const voices = window.speechSynthesis.getVoices();
-      femaleVoice = voices.find(v => 
-        v.lang === "id-ID" && (
-          v.name.toLowerCase().includes("female") ||
-          v.name.toLowerCase().includes("google") ||
-          v.name.toLowerCase().includes("indonesia")
-        )
+    // Suara Google Indonesia perempuan
+    let femaleVoice;
+    window.speechSynthesis.onvoiceschanged = () => {
+      const voices = speechSynthesis.getVoices();
+      femaleVoice = voices.find(v =>
+        v.lang === "id-ID" &&
+        (v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("indonesia") || v.name.toLowerCase().includes("google"))
       );
-    }
-
-    // Pastikan suara dimuat
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
+    };
 
     function speak(text) {
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "id-ID";
       if (femaleVoice) {
         utterance.voice = femaleVoice;
       }
-      utterance.rate = 1;
-      window.speechSynthesis.speak(utterance);
+      utterance.lang = "id-ID";
+      speechSynthesis.speak(utterance);
     }
+
+    // Aktifkan kamera
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => video.srcObject = stream)
+      .catch(err => status.innerText = "Gagal mengakses kamera: " + err);
 
     function ambilFoto() {
       const nama = document.getElementById("nama").value.trim();
@@ -106,17 +97,9 @@
         })
         .then(() => {
           status.innerText = "Absensi berhasil!";
-          speak("Absensi berhasil. Terima kasih, selamat bekerja");
+          speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
           document.getElementById("nama").value = "";
         })
         .catch(() => {
           status.innerText = "Gagal mengirim data.";
         });
-
-      }, () => {
-        status.innerText = "Gagal mendapatkan lokasi.";
-      });
-    }
-  </script>
-</body>
-</html>
