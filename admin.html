@@ -86,6 +86,14 @@
   <div class="filters">
     <label for="filter-tanggal">Filter Tanggal: </label>
     <input type="date" id="filter-tanggal" />
+    
+    <label for="filter-absen">Filter Tipe Absen: </label>
+    <select id="filter-absen">
+      <option value="">Semua</option>
+      <option value="masuk">Absen Masuk</option>
+      <option value="keluar">Absen Keluar</option>
+    </select>
+
     <button onclick="exportExcel()">Export Excel</button>
     <button onclick="exportPDF()">Export PDF</button>
   </div>
@@ -109,6 +117,7 @@
     const endpoint = 'https://script.google.com/macros/s/AKfycbw7HzCZIw75U7Rdj6445yLe3cUJOIaVrD4sMBB0EOVHRpjBig5BuXR15EI8OpCCnQzO/exec';
     const tableBody = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
+    const filterAbsen = document.getElementById("filter-absen");
 
     function formatTimestamp(isoString) {
       try {
@@ -147,12 +156,15 @@
     async function renderTable() {
       const data = await fetchData();
       const tanggalFilter = filterTanggal.value;
+      const absenFilter = filterAbsen.value;
 
       tableBody.innerHTML = "";
 
-      const filtered = tanggalFilter
-        ? data.filter(d => formatTanggalKeInput(d.Timestamp) === tanggalFilter)
-        : data;
+      const filtered = data.filter(d => {
+        const matchesTanggal = !tanggalFilter || formatTanggalKeInput(d.Timestamp) === tanggalFilter;
+        const matchesAbsen = !absenFilter || d.Tipe === absenFilter;
+        return matchesTanggal && matchesAbsen;
+      });
 
       filtered.forEach((item, index) => {
         const row = document.createElement("tr");
@@ -172,6 +184,7 @@
     }
 
     filterTanggal.addEventListener("change", renderTable);
+    filterAbsen.addEventListener("change", renderTable);
     window.addEventListener("load", renderTable);
 
     function exportExcel() {
