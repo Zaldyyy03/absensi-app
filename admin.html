@@ -1,62 +1,93 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Data Absensi</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f9f9f9;
+      background: linear-gradient(to right, #fdfcfb, #e2d1c3);
       padding: 20px;
       color: #333;
     }
+
     h2 {
       text-align: center;
       color: #d32f2f;
     }
-    .filters {
-      text-align: center;
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
       margin-bottom: 20px;
     }
+
+    .header img {
+      height: 50px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
+      margin-top: 20px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-    th, td {
+
+    th,
+    td {
       border: 1px solid #ccc;
       padding: 10px;
       text-align: center;
     }
+
     th {
-      background: #d32f2f;
+      background-color: #f44336;
       color: white;
     }
-    img.foto-preview {
-      max-width: 80px;
-      max-height: 80px;
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
     }
+
+    .filters {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
     button {
       margin: 5px;
       padding: 10px 15px;
-      background: #4caf50;
+      background-color: #4caf50;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
+
     button:hover {
-      background: #388e3c;
+      background-color: #388e3c;
+    }
+
+    img.foto-preview {
+      max-width: 80px;
+      max-height: 80px;
     }
   </style>
 </head>
-<body>
 
-  <h2>Data Absensi Driver</h2>
+<body>
+  <div class="header">
+    <img src="https://upload.wikimedia.org/wikipedia/id/thumb/f/f3/Pertamina_Logo.svg/2560px-Pertamina_Logo.svg.png" alt="Logo Pertamina">
+    <h2>Data Absensi Driver</h2>
+  </div>
 
   <div class="filters">
-    <label for="filter-tanggal">Filter Tanggal:</label>
+    <label for="filter-tanggal">Filter Tanggal: </label>
     <input type="date" id="filter-tanggal" />
     <button onclick="exportExcel()">Export Excel</button>
     <button onclick="exportPDF()">Export PDF</button>
@@ -67,7 +98,7 @@
       <tr>
         <th>No</th>
         <th>Nama</th>
-        <th>Waktu</th>
+        <th>Tanggal & Jam</th>
         <th>Lokasi</th>
         <th>Foto</th>
       </tr>
@@ -78,84 +109,61 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
   <script>
-    const endpoint = "https://script.google.com/macros/s/AKfycbwfod80fKmMDq4AuKIJVeknjmS75V2hwrDNL6OXuhTHQtDgmjO-maHOATvPH2MbVW8B/exec";
+    const endpoint = 'https://script.google.com/macros/s/AKfycbwfod80fKmMDq4AuKIJVeknjmS75V2hwrDNL6OXuhTHQtDgmjO-maHOATvPH2MbVW8B/exec';
     const tableBody = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
 
     async function fetchData() {
       try {
         const response = await fetch(endpoint);
-        const json = await response.json();
-        const rows = json.data || json.values || [];
-
-        const dataRows = rows.slice(1); // skip header
-
-        return dataRows.map((row, i) => {
-          const timestamp = row[0] || "";
-          const nama = row[1] || "";
-          const lokasi = row[2] || "";
-          const foto = row[3] || "";
-
-          return {
-            no: i + 1,
-            nama,
-            waktu: formatWaktu(timestamp),
-            tanggalISO: convertToISO(timestamp),
-            lokasi,
-            foto
-          };
-        });
+        const result = await response.json();
+        console.log("Data dari Sheets:", result);
+        return result;
       } catch (err) {
         console.error("Gagal mengambil data:", err);
         return [];
       }
     }
 
-    function formatWaktu(timestamp) {
-      const date = new Date(timestamp);
-      const dd = String(date.getDate()).padStart(2, '0');
-      const mm = String(date.getMonth() + 1).padStart(2, '0');
-      const yyyy = date.getFullYear();
-      const hh = String(date.getHours()).padStart(2, '0');
-      const mi = String(date.getMinutes()).padStart(2, '0');
-      const ss = String(date.getSeconds()).padStart(2, '0');
-      return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
-    }
-
-    function convertToISO(timestamp) {
-      const date = new Date(timestamp);
-      return date.toISOString().split("T")[0];
+    function formatTanggalKeInput(tglJam) {
+      const [tgl, jam] = tglJam.split(' ');
+      const [hari, bulan, tahun] = tgl.split('/');
+      return `${tahun}-${bulan.padStart(2, '0')}-${hari.padStart(2, '0')}`;
     }
 
     async function renderTable() {
-      tableBody.innerHTML = "";
-      const tanggalFilter = filterTanggal.value;
       const data = await fetchData();
+      const tanggalFilter = filterTanggal.value;
+
+      tableBody.innerHTML = "";
 
       const filtered = tanggalFilter
-        ? data.filter(item => item.tanggalISO === tanggalFilter)
+        ? data.filter(d => formatTanggalKeInput(d.Timestamp) === tanggalFilter)
         : data;
 
-      filtered.forEach(item => {
+      filtered.forEach((item, index) => {
         const row = document.createElement("tr");
-        const fotoHTML = item.foto?.startsWith("data:image")
-          ? `<img class="foto-preview" src="${item.foto}" alt="foto" />`
+        const fotoHTML = item.Foto?.startsWith("data:image")
+          ? `<img class="foto-preview" src="${item.Foto}" alt="foto" />`
           : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
 
         row.innerHTML = `
-          <td>${item.no}</td>
-          <td>${item.nama}</td>
-          <td>${item.waktu}</td>
-          <td><a href="${item.lokasi}" target="_blank">Lihat</a></td>
+          <td>${index + 1}</td>
+          <td>${item.Nama || "-"}</td>
+          <td>${item.Timestamp || "-"}</td>
+          <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
           <td>${fotoHTML}</td>
         `;
         tableBody.appendChild(row);
       });
     }
 
+    filterTanggal.addEventListener("change", renderTable);
+    window.addEventListener("load", renderTable);
+
     function exportExcel() {
       const wb = XLSX.utils.book_new();
-      const ws_data = [["No", "Nama", "Waktu", "Lokasi"]];
+      const ws_data = [["No", "Nama", "Tanggal & Jam", "Lokasi"]];
       const rows = Array.from(tableBody.children).map(row => [
         row.children[0].textContent,
         row.children[1].textContent,
@@ -177,9 +185,9 @@
       Array.from(tableBody.children).forEach((row, i) => {
         doc.setFontSize(10);
         doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
-        doc.text(`Waktu: ${row.children[2].textContent}`, 20, y + 5);
+        doc.text(`Tanggal & Jam: ${row.children[2].textContent}`, 20, y + 5);
         doc.text(`Lokasi: ${row.children[3].textContent}`, 20, y + 10);
-        y += 25;
+        y += 20;
         if (y > 270) {
           doc.addPage();
           y = 20;
@@ -187,9 +195,7 @@
       });
       doc.save("Data_Absensi.pdf");
     }
-
-    filterTanggal.addEventListener("change", renderTable);
-    window.addEventListener("load", renderTable);
   </script>
 </body>
+
 </html>
