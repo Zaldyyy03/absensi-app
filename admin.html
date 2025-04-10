@@ -35,6 +35,9 @@
       margin-top: 20px;
       background: #fff;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      max-height: 400px;
+      overflow-y: auto;
+      display: block;
     }
 
     th, td {
@@ -46,10 +49,20 @@
     th {
       background-color: #f44336;
       color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
 
     tr:nth-child(even) {
       background-color: #f9f9f9;
+    }
+
+    td:first-child, th:first-child {
+      position: sticky;
+      left: 0;
+      background-color: #f44336;
+      z-index: 2;
     }
 
     .filters {
@@ -89,7 +102,7 @@
 <body>
   <div class="header">
     <img src="pertamina-logo.jpg" alt="Logo Pertamina">
-    <h2>Data Absensi Karyawan PT. SINARAPI JATAYU PERMAI</h2>
+    <h2>Data Absensi Karyawan SES_GS</h2>
   </div>
 
   <div class="filters">
@@ -189,7 +202,7 @@
           ? `<img class="foto-preview" src="${item.Foto}" alt="foto" />`
           : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
 
-        row.innerHTML = `
+        row.innerHTML = ` 
           <td>${index + 1}</td>
           <td>${item.Nama || "-"}</td>
           <td>${formatTimestamp(item.Timestamp) || "-"}</td>
