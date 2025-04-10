@@ -61,3 +61,35 @@
     <h2>Login Admin</h2>
     <form id="login-form">
       <input type="text" id="username" placeholder="Username" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Login</button>
+      <div class="error-message" id="error-message"></div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('login-form');
+    const errorMessage = document.getElementById('error-message');
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // Ganti dengan username dan password yang sesuai
+      const validUsername = 'admin';
+      const validPassword = 'password123';
+
+      if (username === validUsername && password === validPassword) {
+        // Simpan status login di localStorage
+        localStorage.setItem('loggedIn', 'true');
+        // Jika login berhasil, arahkan ke halaman admin
+        window.location.href = 'admin.html';
+      } else {
+        // Tampilkan pesan error jika login gagal
+        errorMessage.textContent = 'Username atau password salah!';
+      }
+    });
+  </script>
+</body>
+</html>
