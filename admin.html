@@ -86,128 +86,131 @@
     <h2>Data Absensi Driver</h2>
   </div>
 
-  <div class="filters">
-    <label for="filter-tanggal">Filter Tanggal: </label>
-    <input type="date" id="filter-tanggal" />
-    <button onclick="exportExcel()">Export Excel</button>
-    <button onclick="exportPDF()">Export PDF</button>
-  </div>
+<div class="filters">
+  <label for="filter-tanggal">Filter Tanggal: </label>
+  <input type="date" id="filter-tanggal" />
+  <button onclick="renderTable()">Refresh Data</button>
+  <button onclick="exportExcel()">Export Excel</button>
+  <button onclick="exportPDF()">Export PDF</button>
+</div>
 
-  <table id="absensi-table">
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Nama</th>
-        <th>Tanggal</th>
-        <th>Jam</th>
-        <th>Lokasi</th>
-        <th>Foto</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+<table id="absensi-table">
+  <thead>
+    <tr>
+      <th>No</th>
+      <th>Nama</th>
+      <th>Tanggal</th>
+      <th>Jam</th>
+      <th>Lokasi</th>
+      <th>Foto</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-  <script>
-    const tableBody = document.querySelector("#absensi-table tbody");
-    const filterTanggal = document.getElementById("filter-tanggal");
+<script>
+  const tableBody = document.querySelector("#absensi-table tbody");
+  const filterTanggal = document.getElementById("filter-tanggal");
 
-    async function fetchData() {
-      const sheetUrl = 'https://script.google.com/macros/s/AKfycbyl4Rq2Fe5nr-6rfeOk9NQFRmjseVI9EPSrBUvpcedO1CiumKbm7KekosOhU9ky269p/exec';
-      try {
-        const response = await fetch(sheetUrl);
-        const result = await response.json();
-        const rows = result.data || result.values || [];
-        const dataRows = rows.length > 0 && rows[0][0] === "Timestamp" ? rows.slice(1) : rows;
+  async function fetchData() {
+    const sheetUrl = 'https://script.google.com/macros/s/AKfycbyl4Rq2Fe5nr-6rfeOk9NQFRmjseVI9EPSrBUvpcedO1CiumKbm7KekosOhU9ky269p/exec';
+    try {
+      const response = await fetch(sheetUrl);
+      const result = await response.json();
+      const rows = result.data || [];
 
-        return dataRows.map((row, i) => {
-          const [tanggal, jam] = row[2]?.split(", ") || ["-", "-"];
-          return {
-            no: i + 1,
-            nama: row[1] || "-",
-            tanggal,
-            jam,
-            lokasi: row[3] || "-",
-            foto: row[4] || null
-          };
-        });
-      } catch (err) {
-        console.error("Gagal mengambil data:", err);
-        return [];
-      }
+      const headerIndex = rows.findIndex(r => r[0] === "Timestamp");
+      const dataRows = headerIndex >= 0 ? rows.slice(headerIndex + 1) : rows;
+
+      return dataRows.map((row, i) => {
+        return {
+          no: i + 1,
+          nama: row[1] || "-",
+          tanggal: row[2]?.split(",")[0] || "-",  // "10/04/2025"
+          jam: row[2]?.split(",")[1]?.trim() || "-", // "10:22:36"
+          lokasi: row[3] || "-",
+          foto: row[4] || ""
+        };
+      });
+    } catch (err) {
+      console.error("Gagal mengambil data:", err);
+      return [];
     }
+  }
 
-    async function renderTable() {
-      tableBody.innerHTML = "";
-      const tanggalFilter = filterTanggal.value;
-      const data = await fetchData();
+  async function renderTable() {
+    tableBody.innerHTML = "";
+    const tanggalFilter = filterTanggal.value;
+    const data = await fetchData();
 
-      const filtered = tanggalFilter
-        ? data.filter(d => {
-          const [dMonth, dDay, dYear] = d.tanggal.split("/");
-          return `${dYear}-${dMonth.padStart(2, '0')}-${dDay.padStart(2, '0')}` === tanggalFilter;
+    const filtered = tanggalFilter
+      ? data.filter(d => {
+          const [day, month, year] = d.tanggal.split("/");
+          const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+          return formatted === tanggalFilter;
         })
-        : data;
+      : data;
 
-      filtered.forEach(item => {
-        const row = document.createElement("tr");
-        const fotoHTML = item.foto && item.foto.startsWith("data:image")
-          ? `<img class="foto-preview" src="${item.foto}" alt="foto" />`
-          : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
+    filtered.forEach(item => {
+      const row = document.createElement("tr");
 
-        row.innerHTML = `
-          <td>${item.no}</td>
-          <td>${item.nama}</td>
-          <td>${item.tanggal}</td>
-          <td>${item.jam}</td>
-          <td><a href="${item.lokasi}" target="_blank">Lihat Lokasi</a></td>
-          <td>${fotoHTML}</td>
-        `;
-        tableBody.appendChild(row);
-      });
-    }
+      const fotoHTML = item.foto.startsWith("data:image")
+        ? `<img class="foto-preview" src="${item.foto}" alt="foto" />`
+        : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
 
-    filterTanggal.addEventListener("change", renderTable);
-    window.addEventListener("load", renderTable);
+      const lokasiHTML = item.lokasi.includes("maps.google.com")
+        ? `<a href="${item.lokasi}" target="_blank">Lihat Lokasi</a>`
+        : "-";
 
-    function exportExcel() {
-      const wb = XLSX.utils.book_new();
-      const ws_data = [["No", "Nama", "Tanggal", "Jam", "Lokasi"]];
-      const rows = Array.from(tableBody.children).map(row => [
-        row.children[0].textContent,
-        row.children[1].textContent,
-        row.children[2].textContent,
-        row.children[3].textContent,
-        row.children[4].textContent
-      ]);
-      ws_data.push(...rows);
-      const ws = XLSX.utils.aoa_to_sheet(ws_data);
-      XLSX.utils.book_append_sheet(wb, ws, "Absensi");
-      XLSX.writeFile(wb, "Data_Absensi.xlsx");
-    }
+      row.innerHTML = `
+        <td>${item.no}</td>
+        <td>${item.nama}</td>
+        <td>${item.tanggal}</td>
+        <td>${item.jam}</td>
+        <td>${lokasiHTML}</td>
+        <td>${fotoHTML}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+  }
 
-    async function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.setFontSize(16);
-      doc.text("Data Absensi Driver", 20, 20);
-      let y = 30;
-      Array.from(tableBody.children).forEach((row, i) => {
-        doc.setFontSize(10);
-        doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
-        doc.text(`Tanggal: ${row.children[2].textContent}`, 20, y + 5);
-        doc.text(`Jam: ${row.children[3].textContent}`, 20, y + 10);
-        doc.text(`Lokasi: ${row.children[4].textContent}`, 20, y + 15);
-        y += 25;
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-      });
-      doc.save("Data_Absensi.pdf");
-    }
-  </script>
-</body>
+  filterTanggal.addEventListener("change", renderTable);
+  window.addEventListener("load", renderTable);
 
-</html>
+  function exportExcel() {
+    const wb = XLSX.utils.book_new();
+    const ws_data = [["No", "Nama", "Tanggal", "Jam", "Lokasi"]];
+    const rows = Array.from(tableBody.children).map(row => [
+      row.children[0].textContent,
+      row.children[1].textContent,
+      row.children[2].textContent,
+      row.children[3].textContent,
+      row.children[4].textContent
+    ]);
+    ws_data.push(...rows);
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    XLSX.utils.book_append_sheet(wb, ws, "Absensi");
+    XLSX.writeFile(wb, "Data_Absensi.xlsx");
+  }
+
+  async function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Data Absensi Driver", 20, 20);
+    let y = 30;
+    Array.from(tableBody.children).forEach((row, i) => {
+      doc.setFontSize(10);
+      doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
+      doc.text(`Tanggal: ${row.children[2].textContent}`, 20, y + 5);
+      doc.text(`Jam: ${row.children[3].textContent}`, 20, y + 10);
+      doc.text(`Lokasi: ${row.children[4].textContent}`, 20, y + 15);
+      y += 25;
+      if (y > 270) {
+        doc.addPage();
+        y = 20;
+      }
+    });
+    doc.save("Data_Absensi.pdf");
+  }
+</script>
