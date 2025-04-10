@@ -33,7 +33,7 @@
   <h2>Absensi Karyawan</h2>
   <input type="text" id="nama" placeholder="Nama lengkap" required />
   <br>
-  <video id="video" autoplay></video>
+  <video id="video" autoplay playsinline></video>
   <canvas id="canvas" style="display:none;"></canvas>
   <br>
   <button onclick="ambilFoto()">Ambil Foto & Absen</button>
@@ -46,8 +46,9 @@
     const status = document.getElementById("status");
     const endpoint = "https://script.google.com/macros/s/AKfycbw7HzCZIw75U7Rdj6445yLe3cUJOIaVrD4sMBB0EOVHRpjBig5BuXR15EI8OpCCnQzO/exec";
 
-    // Suara Google Indonesia perempuan
     let femaleVoice;
+
+    // Cari suara Indonesia perempuan dari Google
     window.speechSynthesis.onvoiceschanged = () => {
       const voices = speechSynthesis.getVoices();
       femaleVoice = voices.find(v =>
@@ -58,48 +59,21 @@
 
     function speak(text) {
       const utterance = new SpeechSynthesisUtterance(text);
-      if (femaleVoice) {
-        utterance.voice = femaleVoice;
-      }
+      if (femaleVoice) utterance.voice = femaleVoice;
       utterance.lang = "id-ID";
       speechSynthesis.speak(utterance);
     }
 
-    // Aktifkan kamera
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => video.srcObject = stream)
-      .catch(err => status.innerText = "Gagal mengakses kamera: " + err);
-
-    function ambilFoto() {
-      const nama = document.getElementById("nama").value.trim();
-      if (!nama) {
-        alert("Silakan isi nama terlebih dahulu.");
-        return;
-      }
-
-      status.innerText = "Mengambil lokasi...";
-      navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const long = pos.coords.longitude;
-        const lokasi = `https://www.google.com/maps?q=${lat},${long}`;
-
-        const context = canvas.getContext("2d");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL("image/jpeg");
-
-        fetch(endpoint, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nama, lokasi, foto: dataUrl })
+    // Otomatis minta izin kamera & lokasi saat halaman dibuka
+    window.addEventListener("load", () => {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
         })
-        .then(() => {
-          status.innerText = "Absensi berhasil!";
-          speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
-          document.getElementById("nama").value = "";
-        })
-        .catch(() => {
-          status.innerText = "Gagal mengirim data.";
+        .catch(err => {
+          status.innerText = "Mohon izinkan akses kamera.";
+          alert("Mohon izinkan akses kamera di browser Anda.");
         });
+
+      navigator.geolocation.getCurrentPosition(
+        ()
