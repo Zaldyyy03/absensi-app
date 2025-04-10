@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Data Absensi</title>
   <style>
+    /* Menghindari scroll horizontal */
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: linear-gradient(to right, #fdfcfb, #e2d1c3);
@@ -38,6 +46,7 @@
       max-height: 400px;
       overflow-y: auto;
       display: block;
+      table-layout: fixed; /* Mencegah lebar tabel melar */
     }
 
     th, td {
@@ -88,6 +97,8 @@
     img.foto-preview {
       max-width: 80px;
       max-height: 80px;
+      width: auto;
+      height: auto;
     }
 
     .logout-button {
@@ -318,7 +329,7 @@
       window.location.href = 'login.html';
     }
 
-    // Logout otomatis setelah beberapa waktu
+    // Logout otomatis setelah 1 jam (3600000 ms)
     setTimeout(() => {
       logout();
     }, 3600000); // 1 jam
