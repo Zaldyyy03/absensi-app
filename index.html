@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -50,11 +50,33 @@
       .then(stream => video.srcObject = stream)
       .catch(err => status.innerText = "Gagal mengakses kamera: " + err);
 
+    let femaleVoice = null;
+
+    // Cari suara perempuan Indonesia
+    function loadVoices() {
+      const voices = window.speechSynthesis.getVoices();
+      femaleVoice = voices.find(v => 
+        v.lang === "id-ID" && (
+          v.name.toLowerCase().includes("female") ||
+          v.name.toLowerCase().includes("google") ||
+          v.name.toLowerCase().includes("indonesia")
+        )
+      );
+    }
+
+    // Pastikan suara dimuat
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+      speechSynthesis.onvoiceschanged = loadVoices;
+    }
+
     function speak(text) {
-      const speech = new SpeechSynthesisUtterance(text);
-      speech.lang = "id-ID"; // Bahasa Indonesia
-      speech.rate = 1;
-      window.speechSynthesis.speak(speech);
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "id-ID";
+      if (femaleVoice) {
+        utterance.voice = femaleVoice;
+      }
+      utterance.rate = 1;
+      window.speechSynthesis.speak(utterance);
     }
 
     function ambilFoto() {
@@ -74,4 +96,8 @@
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const dataUrl = canvas.toDataURL
+        const dataUrl = canvas.toDataURL("image/jpeg");
+
+        fetch(endpoint, {
+          method: "POST",
+          mode: "no-cors",
