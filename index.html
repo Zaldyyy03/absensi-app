@@ -48,6 +48,7 @@
 
     let femaleVoice;
 
+    // Cari suara Indonesia perempuan dari Google
     window.speechSynthesis.onvoiceschanged = () => {
       const voices = speechSynthesis.getVoices();
       femaleVoice = voices.find(v =>
@@ -63,9 +64,8 @@
       speechSynthesis.speak(utterance);
     }
 
-    // Aktifkan kamera & lokasi saat halaman dimuat
+    // Aktifkan kamera otomatis saat halaman dibuka
     window.addEventListener("load", () => {
-      // Kamera
       navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
           video.srcObject = stream;
@@ -74,14 +74,6 @@
           status.innerText = "Mohon izinkan akses kamera.";
           alert("Mohon izinkan akses kamera di browser Anda.");
         });
-
-      // Lokasi (trik agar langsung minta izin)
-      navigator.geolocation.getCurrentPosition(
-        () => {},
-        () => {
-          alert("Mohon izinkan akses lokasi.");
-        }
-      );
     });
 
     function ambilFoto() {
@@ -120,6 +112,7 @@
 
       }, () => {
         status.innerText = "Gagal mendapatkan lokasi.";
+        alert("Mohon izinkan akses lokasi.");
       });
     }
   </script>
