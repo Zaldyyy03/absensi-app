@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #fdfcfb, #e2d1c3);
+      background: #f9f9f9;
       padding: 20px;
       color: #333;
     }
@@ -15,25 +15,14 @@
       text-align: center;
       color: #d32f2f;
     }
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .header img {
-      height: 50px;
-    }
     .filters {
-      margin-bottom: 20px;
       text-align: center;
+      margin-bottom: 20px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background: #fff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background: white;
     }
     th, td {
       border: 1px solid #ccc;
@@ -41,39 +30,33 @@
       text-align: center;
     }
     th {
-      background-color: #f44336;
+      background: #d32f2f;
       color: white;
     }
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
+    img.foto-preview {
+      max-width: 80px;
+      max-height: 80px;
     }
     button {
       margin: 5px;
       padding: 10px 15px;
-      background-color: #4caf50;
+      background: #4caf50;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
     button:hover {
-      background-color: #388e3c;
-    }
-    img.foto-preview {
-      max-width: 80px;
-      max-height: 80px;
+      background: #388e3c;
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <img src="https://upload.wikimedia.org/wikipedia/id/thumb/f/f3/Pertamina_Logo.svg/2560px-Pertamina_Logo.svg.png" alt="Logo Pertamina">
-    <h2>Data Absensi Driver</h2>
-  </div>
+  <h2>Data Absensi Driver</h2>
 
   <div class="filters">
-    <label for="filter-tanggal">Filter Tanggal: </label>
+    <label for="filter-tanggal">Filter Tanggal:</label>
     <input type="date" id="filter-tanggal" />
     <button onclick="exportExcel()">Export Excel</button>
     <button onclick="exportPDF()">Export PDF</button>
@@ -84,7 +67,7 @@
       <tr>
         <th>No</th>
         <th>Nama</th>
-        <th>Waktu (Tanggal & Jam)</th>
+        <th>Waktu</th>
         <th>Lokasi</th>
         <th>Foto</th>
       </tr>
@@ -102,43 +85,60 @@
     async function fetchData() {
       try {
         const response = await fetch(endpoint);
-        const result = await response.json();
-        const rows = result.data || [];
+        const json = await response.json();
+        const rows = json.data || json.values || [];
 
-        // Hapus header kalau ada
-        const dataRows = rows.length > 0 && rows[0][0] === "Timestamp" ? rows.slice(1) : rows;
+        const dataRows = rows.slice(1); // skip header
 
-        return dataRows.map((row, i) => ({
-          no: i + 1,
-          nama: row[1] || "-",
-          waktu: row[2] || "-",
-          lokasi: row[3] || "-",
-          foto: row[4] || null
-        }));
+        return dataRows.map((row, i) => {
+          const timestamp = row[0] || "";
+          const nama = row[1] || "";
+          const lokasi = row[2] || "";
+          const foto = row[3] || "";
+
+          return {
+            no: i + 1,
+            nama,
+            waktu: formatWaktu(timestamp),
+            tanggalISO: convertToISO(timestamp),
+            lokasi,
+            foto
+          };
+        });
       } catch (err) {
         console.error("Gagal mengambil data:", err);
         return [];
       }
     }
 
-    function formatDateToInputValue(waktuStr) {
-      const [tgl, jam] = waktuStr.split(" ");
-      const [day, month, year] = tgl.split("/");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    function formatWaktu(timestamp) {
+      const date = new Date(timestamp);
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const yyyy = date.getFullYear();
+      const hh = String(date.getHours()).padStart(2, '0');
+      const mi = String(date.getMinutes()).padStart(2, '0');
+      const ss = String(date.getSeconds()).padStart(2, '0');
+      return `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
+    }
+
+    function convertToISO(timestamp) {
+      const date = new Date(timestamp);
+      return date.toISOString().split("T")[0];
     }
 
     async function renderTable() {
       tableBody.innerHTML = "";
-      const filterValue = filterTanggal.value;
+      const tanggalFilter = filterTanggal.value;
       const data = await fetchData();
 
-      const filtered = filterValue
-        ? data.filter(d => formatDateToInputValue(d.waktu) === filterValue)
+      const filtered = tanggalFilter
+        ? data.filter(item => item.tanggalISO === tanggalFilter)
         : data;
 
       filtered.forEach(item => {
         const row = document.createElement("tr");
-        const fotoHTML = item.foto && item.foto.startsWith("data:image")
+        const fotoHTML = item.foto?.startsWith("data:image")
           ? `<img class="foto-preview" src="${item.foto}" alt="foto" />`
           : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
 
@@ -146,7 +146,7 @@
           <td>${item.no}</td>
           <td>${item.nama}</td>
           <td>${item.waktu}</td>
-          <td><a href="${item.lokasi}" target="_blank">Lihat Lokasi</a></td>
+          <td><a href="${item.lokasi}" target="_blank">Lihat</a></td>
           <td>${fotoHTML}</td>
         `;
         tableBody.appendChild(row);
