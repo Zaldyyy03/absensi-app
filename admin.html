@@ -3,127 +3,193 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Data Absensi Driver</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"/>
-  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css"/>
+  <title>Admin - Data Absensi</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #fdfcfb, #e2d1c3);
+      padding: 20px;
+      color: #333;
+    }
+    h2 {
+      text-align: center;
+      color: #d32f2f;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .header img {
+      height: 50px;
+    }
+    .filters {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #f44336;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    button {
+      margin: 5px;
+      padding: 10px 15px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #388e3c;
+    }
+    img.foto-preview {
+      max-width: 80px;
+      max-height: 80px;
+    }
+  </style>
 </head>
-<body style="background: linear-gradient(to right, #fceabb, #f8b500); padding: 20px;">
-  <div class="container">
-    <div class="text-center mb-4">
-      <img src="logo.png" alt="Logo Pertamina" height="60"/>
-      <h2 class="text-danger fw-bold">Data Absensi Driver</h2>
-    </div>
+<body>
 
-    <div class="mb-3 d-flex align-items-center gap-2">
-      <label for="filterTanggal">Filter Tanggal:</label>
-      <input type="date" id="filterTanggal" class="form-control" style="max-width: 200px;" />
-      <button id="refreshBtn" class="btn btn-success">Refresh Data</button>
-      <button id="exportExcel" class="btn btn-success">Export Excel</button>
-      <button id="exportPDF" class="btn btn-success">Export PDF</button>
-    </div>
-
-    <div class="table-responsive">
-      <table id="absensiTable" class="table table-bordered table-striped">
-        <thead class="table-danger text-center">
-          <tr>
-            <th>No</th>
-            <th>Nama</th>
-            <th>Waktu</th>
-            <th>Lokasi</th>
-            <th>Foto</th>
-          </tr>
-        </thead>
-        <tbody id="absensiBody"></tbody>
-      </table>
-    </div>
+  <div class="header">
+    <img src="https://upload.wikimedia.org/wikipedia/id/thumb/f/f3/Pertamina_Logo.svg/2560px-Pertamina_Logo.svg.png" alt="Logo Pertamina">
+    <h2>Data Absensi Driver</h2>
   </div>
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-  <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+  <div class="filters">
+    <label for="filter-tanggal">Filter Tanggal: </label>
+    <input type="date" id="filter-tanggal" />
+    <button onclick="exportExcel()">Export Excel</button>
+    <button onclick="exportPDF()">Export PDF</button>
+  </div>
 
+  <table id="absensi-table">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Waktu (Tanggal & Jam)</th>
+        <th>Lokasi</th>
+        <th>Foto</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
   <script>
-    const sheetURL = "https://script.google.com/macros/s/AKfycbz7HkUk0s4Bdjf3wwcR6ToVRCy0WBgNCt9ORmfAJps-PKyhpDdyQsEdHcV5Pv4_sVFN/exec";
+    const endpoint = "https://script.google.com/macros/s/AKfycbwfod80fKmMDq4AuKIJVeknjmS75V2hwrDNL6OXuhTHQtDgmjO-maHOATvPH2MbVW8B/exec";
+    const tableBody = document.querySelector("#absensi-table tbody");
+    const filterTanggal = document.getElementById("filter-tanggal");
 
-    function formatTanggal(timestamp) {
-      const date = new Date(timestamp);
-      date.setHours(date.getHours() + 7); // ke WIB
-      const day = String(date.getDate()).padStart(2, "0");
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const year = date.getFullYear();
-      const hours = String(date.getHours()).padStart(2, "0");
-      const minutes = String(date.getMinutes()).padStart(2, "0");
-      const seconds = String(date.getSeconds()).padStart(2, "0");
-      return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
-    }
+    async function fetchData() {
+      try {
+        const response = await fetch(endpoint);
+        const result = await response.json();
+        const rows = result.data || [];
 
-    function renderTable(data) {
-      const tbody = document.getElementById("absensiBody");
-      tbody.innerHTML = "";
+        // Hapus header kalau ada
+        const dataRows = rows.length > 0 && rows[0][0] === "Timestamp" ? rows.slice(1) : rows;
 
-      const selectedDate = document.getElementById("filterTanggal").value;
-      let no = 1;
-
-      data.forEach((row) => {
-        if (!row.Timestamp) return;
-
-        const waktu = formatTanggal(row.Timestamp);
-        if (selectedDate) {
-          const [year, month, day] = selectedDate.split("-");
-          const tanggalFilter = `${day}/${month}/${year}`;
-          if (!waktu.startsWith(tanggalFilter)) return;
-        }
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td class="text-center">${no++}</td>
-          <td>${row.Nama || "-"}</td>
-          <td>${waktu}</td>
-          <td class="text-center">
-            ${row.Lokasi ? `<a href="${row.Lokasi}" target="_blank">Lihat Lokasi</a>` : "-"}
-          </td>
-          <td class="text-center">
-            ${row.Foto ? `<img src="${row.Foto}" alt="Foto" style="height: 80px;"/>` : "-"}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      if ($.fn.DataTable.isDataTable("#absensiTable")) {
-        $("#absensiTable").DataTable().destroy();
+        return dataRows.map((row, i) => ({
+          no: i + 1,
+          nama: row[1] || "-",
+          waktu: row[2] || "-",
+          lokasi: row[3] || "-",
+          foto: row[4] || null
+        }));
+      } catch (err) {
+        console.error("Gagal mengambil data:", err);
+        return [];
       }
+    }
 
-      $("#absensiTable").DataTable({
-        dom: 'Bfrtip',
-        buttons: ['excelHtml5', 'pdfHtml5'],
-        order: [[2, 'desc']]
+    function formatDateToInputValue(waktuStr) {
+      const [tgl, jam] = waktuStr.split(" ");
+      const [day, month, year] = tgl.split("/");
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
+
+    async function renderTable() {
+      tableBody.innerHTML = "";
+      const filterValue = filterTanggal.value;
+      const data = await fetchData();
+
+      const filtered = filterValue
+        ? data.filter(d => formatDateToInputValue(d.waktu) === filterValue)
+        : data;
+
+      filtered.forEach(item => {
+        const row = document.createElement("tr");
+        const fotoHTML = item.foto && item.foto.startsWith("data:image")
+          ? `<img class="foto-preview" src="${item.foto}" alt="foto" />`
+          : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
+
+        row.innerHTML = `
+          <td>${item.no}</td>
+          <td>${item.nama}</td>
+          <td>${item.waktu}</td>
+          <td><a href="${item.lokasi}" target="_blank">Lihat Lokasi</a></td>
+          <td>${fotoHTML}</td>
+        `;
+        tableBody.appendChild(row);
       });
     }
 
-    function fetchData() {
-      fetch(sheetURL)
-        .then((res) => res.json())
-        .then((data) => renderTable(data))
-        .catch((err) => console.error("Gagal ambil data:", err));
+    function exportExcel() {
+      const wb = XLSX.utils.book_new();
+      const ws_data = [["No", "Nama", "Waktu", "Lokasi"]];
+      const rows = Array.from(tableBody.children).map(row => [
+        row.children[0].textContent,
+        row.children[1].textContent,
+        row.children[2].textContent,
+        row.children[3].textContent
+      ]);
+      ws_data.push(...rows);
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "Absensi");
+      XLSX.writeFile(wb, "Data_Absensi.xlsx");
     }
 
-    document.getElementById("refreshBtn").addEventListener("click", fetchData);
-    document.getElementById("filterTanggal").addEventListener("change", fetchData);
+    async function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("Data Absensi Driver", 20, 20);
+      let y = 30;
+      Array.from(tableBody.children).forEach((row, i) => {
+        doc.setFontSize(10);
+        doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
+        doc.text(`Waktu: ${row.children[2].textContent}`, 20, y + 5);
+        doc.text(`Lokasi: ${row.children[3].textContent}`, 20, y + 10);
+        y += 25;
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+      doc.save("Data_Absensi.pdf");
+    }
 
-    document.getElementById("exportExcel").addEventListener("click", () => $(".buttons-excel").click());
-    document.getElementById("exportPDF").addEventListener("click", () => $(".buttons-pdf").click());
-
-    // Load pertama kali
-    window.onload = fetchData;
+    filterTanggal.addEventListener("change", renderTable);
+    window.addEventListener("load", renderTable);
   </script>
 </body>
 </html>
