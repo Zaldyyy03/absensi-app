@@ -125,28 +125,38 @@
       }
     }
 
-    function formatWaktuIndonesia(isoString) {
-      if (!isoString) return "-";
-      const date = new Date(isoString);
-      const options = {
-        timeZone: "Asia/Jakarta",
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      };
-      const formatter = new Intl.DateTimeFormat("id-ID", options);
-      return formatter.format(date).replace(",", "") + " WIB";
+    function formatTanggalKeInput(tglJam) {
+      const date = new Date(tglJam);
+      if (isNaN(date)) return "";
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
     }
 
-    function formatTanggalKeInput(isoString) {
-      const date = new Date(isoString);
-      const offset = 7 * 60 * 60000; // offset WIB
-      const localDate = new Date(date.getTime() + offset);
-      return localDate.toISOString().slice(0, 10);
+    function formatWaktuIndonesia(isoString) {
+      try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) return isoString;
+
+        const formatter = new Intl.DateTimeFormat("id-ID", {
+          timeZone: "Asia/Jakarta",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        });
+
+        const parts = formatter.formatToParts(date);
+        const get = (type) => parts.find(p => p.type === type)?.value || "";
+
+        return `${get("day")}/${get("month")}/${get("year")} ${get("hour")}:${get("minute")}:${get("second")} WIB`;
+      } catch (e) {
+        return isoString;
+      }
     }
 
     async function renderTable() {
@@ -168,7 +178,7 @@
         row.innerHTML = `
           <td>${index + 1}</td>
           <td>${item.Nama || "-"}</td>
-          <td>${formatWaktuIndonesia(item.Timestamp) || "-"}</td>
+          <td>${formatWaktuIndonesia(item.Timestamp)}</td>
           <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
           <td>${fotoHTML}</td>
         `;
@@ -194,4 +204,26 @@
       XLSX.writeFile(wb, "Data_Absensi.xlsx");
     }
 
-    async function exportPDF()
+    async function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("Data Absensi Driver", 20, 20);
+      let y = 30;
+      Array.from(tableBody.children).forEach((row, i) => {
+        doc.setFontSize(10);
+        doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
+        doc.text(`Tanggal & Jam: ${row.children[2].textContent}`, 20, y + 5);
+        doc.text(`Lokasi: ${row.children[3].textContent}`, 20, y + 10);
+        y += 20;
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+      doc.save("Data_Absensi.pdf");
+    }
+  </script>
+</body>
+
+</html>
