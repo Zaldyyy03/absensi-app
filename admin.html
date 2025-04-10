@@ -1,134 +1,130 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Absensi Driver</title>
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #fceabb, #f8b500);
-      text-align: center;
-      padding: 20px;
-    }
-    h2 {
-      color: #d32f2f;
-    }
-    table {
-      margin-top: 20px;
-      width: 100%;
-    }
-    img {
-      width: 100px;
-    }
-    .filter-date {
-      margin-bottom: 15px;
-    }
-    .btn {
-      padding: 6px 12px;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      background-color: #4CAF50;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background-color: #45a049;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Data Absensi Driver</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css"/>
 </head>
-<body>
-  <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Logo_Pertamina.svg" alt="Logo Pertamina" width="100">
-  <h2>Data Absensi Driver</h2>
+<body style="background: linear-gradient(to right, #fceabb, #f8b500); padding: 20px;">
+  <div class="container">
+    <div class="text-center mb-4">
+      <img src="logo.png" alt="Logo Pertamina" height="60"/>
+      <h2 class="text-danger fw-bold">Data Absensi Driver</h2>
+    </div>
 
-  <div class="filter-date">
-    Filter Tanggal: <input type="date" id="filterTanggal" />
-    <button class="btn" onclick="loadData()">Refresh Data</button>
-    <button class="btn" onclick="exportExcel()">Export Excel</button>
-    <button class="btn" onclick="exportPDF()">Export PDF</button>
+    <div class="mb-3 d-flex align-items-center gap-2">
+      <label for="filterTanggal">Filter Tanggal:</label>
+      <input type="date" id="filterTanggal" class="form-control" style="max-width: 200px;" />
+      <button id="refreshBtn" class="btn btn-success">Refresh Data</button>
+      <button id="exportExcel" class="btn btn-success">Export Excel</button>
+      <button id="exportPDF" class="btn btn-success">Export PDF</button>
+    </div>
+
+    <div class="table-responsive">
+      <table id="absensiTable" class="table table-bordered table-striped">
+        <thead class="table-danger text-center">
+          <tr>
+            <th>No</th>
+            <th>Nama</th>
+            <th>Waktu</th>
+            <th>Lokasi</th>
+            <th>Foto</th>
+          </tr>
+        </thead>
+        <tbody id="absensiBody"></tbody>
+      </table>
+    </div>
   </div>
 
-  <table id="tabel" class="display">
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Nama</th>
-        <th>Tanggal</th>
-        <th>Jam</th> <!-- kosong atau nanti boleh dihapus -->
-        <th>Lokasi</th>
-        <th>Foto</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
 
   <script>
-    const endpoint = "https://script.google.com/macros/s/AKfycbyl4Rq2Fe5nr-6rfeOk9NQFRmjseVI9EPSrBUvpcedO1CiumKbm7KekosOhU9ky269p/exec";
+    const sheetURL = "https://script.google.com/macros/s/AKfycbz7HkUk0s4Bdjf3wwcR6ToVRCy0WBgNCt9ORmfAJps-PKyhpDdyQsEdHcV5Pv4_sVFN/exec";
 
     function formatTanggal(timestamp) {
       const date = new Date(timestamp);
-      return date.toLocaleString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
+      date.setHours(date.getHours() + 7); // konversi ke WIB
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
+      return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById("absensiBody");
+      tbody.innerHTML = "";
+
+      const selectedDate = document.getElementById("filterTanggal").value;
+
+      let no = 1;
+      data.forEach((row) => {
+        if (!row.Timestamp) return;
+
+        const waktu = formatTanggal(row.Timestamp);
+        if (selectedDate && !waktu.startsWith(selectedDate.split("-").reverse().join("/"))) return;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td class="text-center">${no++}</td>
+          <td>${row.Nama || "-"}</td>
+          <td>${waktu}</td>
+          <td class="text-center">
+            ${row.Lokasi ? `<a href="${row.Lokasi}" target="_blank">Lihat Lokasi</a>` : "-"}
+          </td>
+          <td class="text-center">
+            ${row.Foto ? `<img src="${row.Foto}" alt="Foto" style="height: 80px;"/>` : "-"}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      if ($.fn.DataTable.isDataTable("#absensiTable")) {
+        $("#absensiTable").DataTable().destroy();
+      }
+
+      $("#absensiTable").DataTable({
+        dom: 'Bfrtip',
+        buttons: ['excelHtml5', 'pdfHtml5'],
+        order: [[2, 'desc']]
       });
     }
 
-    function loadData() {
-      fetch(endpoint)
-        .then(res => res.json())
-        .then(data => {
-          const tbody = $("#tabel tbody");
-          tbody.empty();
-          const filterTanggal = document.getElementById("filterTanggal").value;
-          let no = 1;
-          data.forEach(row => {
-            const tanggalFormatted = formatTanggal(row.Timestamp);
-            const rowDate = tanggalFormatted.split(" ")[0]; // ambil tanggalnya saja
-
-            if (!filterTanggal || filterTanggal.split("-").reverse().join("/") === rowDate) {
-              const lokasiLink = row.lokasi ? `<a href="${row.lokasi}" target="_blank">Lihat Lokasi</a>` : "-";
-              const img = row.foto ? `<img src="${row.foto}" />` : "-";
-              const tr = `
-                <tr>
-                  <td>${no++}</td>
-                  <td>${row.nama}</td>
-                  <td>${tanggalFormatted}</td>
-                  <td>-</td>
-                  <td>${lokasiLink}</td>
-                  <td>${img}</td>
-                </tr>
-              `;
-              tbody.append(tr);
-            }
-          });
-          $("#tabel").DataTable();
-        });
+    function fetchData() {
+      fetch(sheetURL)
+        .then((res) => res.json())
+        .then((data) => renderTable(data))
+        .catch((err) => console.error("Gagal ambil data:", err));
     }
 
-    function exportExcel() {
-      const table = document.getElementById("tabel");
-      const wb = XLSX.utils.table_to_book(table, { sheet: "Absensi" });
-      XLSX.writeFile(wb, "absensi_driver.xlsx");
-    }
+    document.getElementById("refreshBtn").addEventListener("click", fetchData);
+    document.getElementById("filterTanggal").addEventListener("change", fetchData);
 
-    function exportPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
-      doc.autoTable({ html: "#tabel" });
-      doc.save("absensi_driver.pdf");
-    }
+    document.getElementById("exportExcel").addEventListener("click", function () {
+      $(".buttons-excel").click();
+    });
 
-    window.onload = loadData;
+    document.getElementById("exportPDF").addEventListener("click", function () {
+      $(".buttons-pdf").click();
+    });
+
+    // Load data saat pertama kali
+    window.onload = fetchData;
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
