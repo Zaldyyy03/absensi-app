@@ -7,59 +7,64 @@
   <link rel="icon" type="image/png" href="pertamina-logo.jpg">
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #fffde4, #f9f9f9);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ffffff;
       padding: 20px;
-      min-height: 100vh;
-    }
-
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
-      width: 100%;
+      text-align: center;
     }
 
     .logo {
       height: 60px;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
 
     h2 {
-      color: #e53935;
-      margin-bottom: 20px;
+      color: #d32f2f;
+      margin-top: 0;
     }
 
-    input, button, select {
+    input, select {
+      width: 90%;
+      max-width: 320px;
       padding: 12px;
-      margin-top: 12px;
-      width: 100%;
-      border-radius: 10px;
+      margin: 10px 0;
       border: 1px solid #ccc;
+      border-radius: 8px;
       font-size: 16px;
     }
 
-    button {
-      background: #e53935;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background: #c62828;
-    }
-
     video, canvas {
-      margin-top: 15px;
-      width: 100%;
+      width: 90%;
+      max-width: 320px;
       border-radius: 12px;
+      margin: 10px 0;
+    }
+
+    button {
+      width: 90%;
+      max-width: 320px;
+      padding: 12px;
+      background-color: #1976d2;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    #popup {
+      display: none;
+      width: 90%;
+      max-width: 320px;
+      margin: 0 auto;
+      padding: 12px;
+      background-color: #4caf50;
+      color: white;
+      border-radius: 8px;
+      font-weight: bold;
+      animation: fade 0.3s ease-in-out;
     }
 
     #loading {
@@ -67,19 +72,26 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(255,255,255,0.8);
+      background: rgba(255, 255, 255, 0.8);
       z-index: 9999;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
     }
 
     .spinner {
-      border: 6px solid #ccc;
-      border-top: 6px solid #e53935;
+      border: 6px solid #eee;
+      border-top: 6px solid #1976d2;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
       animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+      margin-top: 12px;
+      font-size: 16px;
+      color: #555;
     }
 
     @keyframes spin {
@@ -87,51 +99,43 @@
       100% { transform: rotate(360deg); }
     }
 
-    #popup {
-      display: none;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #4caf50;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-      z-index: 10000;
-      font-weight: bold;
+    @keyframes fade {
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
   </style>
 </head>
 <body>
 
-  <div id="loading"><div class="spinner"></div></div>
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Mengirim data...</div>
+  </div>
+
   <div id="popup">Absensi berhasil!</div>
 
-  <div class="container">
-    <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
-    <h2>Absensi Karyawan SES_GS</h2>
+  <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
+  <h2>Absensi Karyawan SES_GS</h2>
 
-    <input type="text" id="nama" placeholder="Nama lengkap" required />
+  <input type="text" id="nama" placeholder="Nama lengkap" required>
+  <br>
 
-    <label for="tipeAbsen">Pilih Tipe Absensi:</label>
-    <select id="tipeAbsen">
-      <option value="masuk">Absen Masuk</option>
-      <option value="pulang">Absen Pulang</option>
-    </select>
+  <label for="tipeAbsen">Pilih Tipe Absensi:</label>
+  <select id="tipeAbsen">
+    <option value="masuk">Absen Masuk</option>
+    <option value="pulang">Absen Pulang</option>
+  </select>
 
-    <video id="video" autoplay playsinline></video>
-    <canvas id="canvas" style="display:none;"></canvas>
+  <br>
 
-    <button onclick="ambilFoto()">Ambil Foto & Absen</button>
-
-    <p id="status"></p>
-  </div>
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <br>
+  <button onclick="ambilFoto()">Ambil Foto & Absen</button>
 
   <script>
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
-    const status = document.getElementById("status");
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
@@ -161,45 +165,24 @@
     function showPopup(text) {
       popup.innerText = text;
       popup.style.display = "block";
-      setTimeout(() => {
-        popup.style.display = "none";
-      }, 3000);
+      setTimeout(() => popup.style.display = "none", 3000);
     }
 
     window.addEventListener("load", () => {
       navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          video.srcObject = stream;
-        })
-        .catch(err => {
-          status.innerText = "Mohon izinkan akses kamera.";
-          alert("Mohon izinkan akses kamera di browser Anda.");
-        });
-
-      navigator.geolocation.getCurrentPosition(() => {}, () => {});
+        .then(stream => video.srcObject = stream)
+        .catch(() => alert("Mohon izinkan akses kamera di browser Anda."));
     });
 
     function ambilFoto() {
       const nama = document.getElementById("nama").value.trim();
       const tipeAbsen = document.getElementById("tipeAbsen").value;
 
-      if (!nama) {
-        alert("Silakan isi nama terlebih dahulu.");
-        return;
-      }
-
-      if (!navigator.geolocation) {
-        alert("Browser tidak mendukung lokasi.");
-        return;
-      }
-
-      if (!video.srcObject) {
-        alert("Kamera belum aktif. Mohon izinkan akses kamera.");
-        return;
-      }
+      if (!nama) return alert("Silakan isi nama terlebih dahulu.");
+      if (!navigator.geolocation) return alert("Browser tidak mendukung lokasi.");
+      if (!video.srcObject) return alert("Kamera belum aktif.");
 
       showLoading(true);
-      status.innerText = "";
 
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
@@ -226,23 +209,23 @@
         .then(() => {
           showLoading(false);
           let pesan = tipeAbsen === "masuk"
-            ? "Absensi masuk berhasil!"
+            ? "Absensi masuk berhasil!" 
             : "Absensi pulang berhasil!";
-          speak("Absensi berhasil. Terima kasih. " + (tipeAbsen === "masuk" ? "Selamat bekerja." : "Selamat istirahat."));
           showPopup(pesan);
+          speak("Absensi berhasil. Terima kasih.");
           document.getElementById("nama").value = "";
         })
         .catch(() => {
           showLoading(false);
-          status.innerText = "Gagal mengirim data.";
+          alert("Gagal mengirim data.");
         });
 
       }, () => {
         showLoading(false);
-        status.innerText = "Gagal mendapatkan lokasi.";
-        alert("Gagal mendapatkan lokasi. Mohon izinkan akses lokasi.");
+        alert("Gagal mendapatkan lokasi.");
       });
     }
   </script>
+
 </body>
 </html>
