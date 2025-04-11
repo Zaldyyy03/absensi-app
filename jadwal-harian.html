@@ -70,8 +70,8 @@
         .then(text => {
           const json = JSON.parse(text.substr(47).slice(0, -2));
           const rows = json.table.rows;
-          dataRows = rows.slice(4); // Mulai dari baris ke-5 (indeks 4)
-          renderTableForToday(); // Langsung tampilkan data hari ini
+          dataRows = rows.slice(3); // mulai dari baris ke-4
+          renderTableForToday();
         })
         .catch(err => {
           document.getElementById("tableBody").innerHTML =
@@ -94,13 +94,6 @@
       });
     }
 
-    function formatTanggalToInput(tanggalStr) {
-      const parts = tanggalStr.split('/');
-      if (parts.length < 3) return null;
-      const [day, month, year] = parts;
-      return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-    }
-
     function renderTableForToday() {
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -113,7 +106,9 @@
       const filtered = dataRows.filter(row => {
         const tglCell = row.c[1];
         if (!tglCell || !tglCell.v) return false;
-        const formatted = formatTanggalToInput(tglCell.v);
+
+        const [day, month, year] = tglCell.v.split('/');
+        const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
         return formatted === todayStr;
       });
 
@@ -121,7 +116,7 @@
     }
 
     document.getElementById("filterTanggal").addEventListener("change", function () {
-      const selectedDate = this.value;
+      const selectedDate = this.value; // Format: yyyy-mm-dd
       if (!selectedDate) {
         renderTable(dataRows);
         return;
@@ -130,5 +125,16 @@
       const filtered = dataRows.filter(row => {
         const tglCell = row.c[1];
         if (!tglCell || !tglCell.v) return false;
-        const formatted = formatTanggalToInput(tglCell.v);
-        return formatted
+
+        const [day, month, year] = tglCell.v.split('/');
+        const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        return formatted === selectedDate;
+      });
+
+      renderTable(filtered);
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
