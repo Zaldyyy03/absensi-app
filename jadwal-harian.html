@@ -51,7 +51,7 @@
   </div>
 
   <script>
-    const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTgsWabWQqfb5ZsxugGZ8vHkz6A7Tzj9EAEUb5BfMdLdjLweaAeAGxvdbvR_U6sWEyqKiMlTDoCqs4l/pub?gid=1693722791&single=true&output=csv";
+    const sheetURL = "https://opensheet.elk.sh/1ODni0NtqHL1gr8uypUpFVj9c9D6StU_xLNOub20BTXM/Sheet3";
     let dataRows = [];
 
     function renderTable(rows) {
@@ -73,12 +73,11 @@
       });
     }
 
-    function formatToYYYYMMDD(dateStr) {
-      if (typeof dateStr !== "string") return null;
-      const parts = dateStr.split('/');
+    function formatToDDMMYYYY(dateStr) {
+      const parts = dateStr.split('-'); // yyyy-mm-dd
       if (parts.length !== 3) return null;
-      const [day, month, year] = parts;
-      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+      const [year, month, day] = parts;
+      return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
     }
 
     function renderTableForToday() {
@@ -86,37 +85,30 @@
       const yyyy = today.getFullYear();
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
-      const todayStr = `${yyyy}-${mm}-${dd}`;
+      const todayStr = `${dd}/${mm}/${yyyy}`;
 
-      document.getElementById("filterTanggal").value = todayStr;
+      document.getElementById("filterTanggal").value = `${yyyy}-${mm}-${dd}`;
 
       const filtered = dataRows.filter(row => {
         const tglCell = row.c[1];
-        const formatted = formatToYYYYMMDD(tglCell?.v);
-        return formatted === todayStr;
+        return tglCell?.v === todayStr;
       });
 
       renderTable(filtered);
     }
 
     document.getElementById("filterTanggal").addEventListener("change", function () {
-      const selectedDate = this.value;
-      if (!selectedDate) {
-        renderTable(dataRows);
-        return;
-      }
+      const selectedDate = formatToDDMMYYYY(this.value); // convert ke format sheet
 
       const filtered = dataRows.filter(row => {
         const tglCell = row.c[1];
-        const formatted = formatToYYYYMMDD(tglCell?.v);
-        return formatted === selectedDate;
+        return tglCell?.v === selectedDate;
       });
 
       renderTable(filtered);
     });
 
-    // Ambil data dari Google Sheets
-    fetch("https://opensheet.elk.sh/1ODni0NtqHL1gr8uypUpFVj9c9D6StU_xLNOub20BTXM/Sheet3")
+    fetch(sheetURL)
       .then(response => response.json())
       .then(data => {
         dataRows = data.map((row, index) => ({
