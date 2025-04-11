@@ -101,7 +101,12 @@
   <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
   <h2>Absensi Karyawan SES_GS</h2>
 
-  <input type="text" id="nama" placeholder="Nama lengkap" required />
+  <select id="nama" required>
+    <option value="">Pilih Nama</option>
+    <option value="SJP - Zaldy Kurnia">SJP - Zaldy Kurnia</option>
+    <option value="SJP - Mia Anggraeni">SJP - Mia Anggraeni</option>
+    <option value="GGU - BAGAS Wijayanto">GGU - BAGAS Wijayanto</option>
+  </select>
   <br>
 
   <label for="tipeAbsen">Pilih Tipe Absensi:</label>
@@ -171,11 +176,11 @@
     });
 
     function ambilFoto() {
-      const nama = document.getElementById("nama").value.trim();
+      const nama = document.getElementById("nama").value;
       const tipeAbsen = document.getElementById("tipeAbsen").value;
 
       if (!nama) {
-        alert("Silakan isi nama terlebih dahulu.");
+        alert("Silakan pilih nama terlebih dahulu.");
         return;
       }
 
