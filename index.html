@@ -4,14 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Absensi Karyawan SES_GS</title>
-  <link rel="icon" type="image/png" href="pertamina-logo.jpg"> <!-- Favicon Pertamina -->
+  <link rel="icon" type="image/png" href="pertamina-logo.jpg">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #fffde4, #f9f9f9);
-      text-align: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #fffde4, #f9f9f9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       padding: 20px;
-      position: relative;
+      min-height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
     }
 
     .logo {
@@ -21,20 +32,34 @@
 
     h2 {
       color: #e53935;
+      margin-bottom: 20px;
     }
 
     input, button, select {
-      padding: 10px;
-      margin: 10px 0;
-      width: 80%;
-      max-width: 300px;
+      padding: 12px;
+      margin-top: 12px;
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background: #e53935;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #c62828;
     }
 
     video, canvas {
-      margin-top: 10px;
-      width: 80%;
-      max-width: 300px;
-      border-radius: 10px;
+      margin-top: 15px;
+      width: 100%;
+      border-radius: 12px;
     }
 
     #loading {
@@ -83,26 +108,25 @@
   <div id="loading"><div class="spinner"></div></div>
   <div id="popup">Absensi berhasil!</div>
 
-  <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
-  <h2>Absensi Karyawan SES_GS</h2>
+  <div class="container">
+    <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
+    <h2>Absensi Karyawan SES_GS</h2>
 
-  <input type="text" id="nama" placeholder="Nama lengkap" required />
-  <br>
+    <input type="text" id="nama" placeholder="Nama lengkap" required />
 
-  <label for="tipeAbsen">Pilih Tipe Absensi:</label>
-  <select id="tipeAbsen">
-    <option value="masuk">Absen Masuk</option>
-    <option value="pulang">Absen Pulang</option>
-  </select>
+    <label for="tipeAbsen">Pilih Tipe Absensi:</label>
+    <select id="tipeAbsen">
+      <option value="masuk">Absen Masuk</option>
+      <option value="pulang">Absen Pulang</option>
+    </select>
 
-  <br>
+    <video id="video" autoplay playsinline></video>
+    <canvas id="canvas" style="display:none;"></canvas>
 
-  <video id="video" autoplay playsinline></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <br>
-  <button onclick="ambilFoto()">Ambil Foto & Absen</button>
+    <button onclick="ambilFoto()">Ambil Foto & Absen</button>
 
-  <p id="status"></p>
+    <p id="status"></p>
+  </div>
 
   <script>
     const video = document.getElementById("video");
@@ -201,14 +225,10 @@
         })
         .then(() => {
           showLoading(false);
-          let pesan = "";
-          if (tipeAbsen === "masuk") {
-            pesan = "Absensi masuk berhasil!";
-            speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
-          } else if (tipeAbsen === "pulang") {
-            pesan = "Absensi pulang berhasil!";
-            speak("Absensi berhasil. Terima kasih. Selamat istirahat.");
-          }
+          let pesan = tipeAbsen === "masuk"
+            ? "Absensi masuk berhasil!"
+            : "Absensi pulang berhasil!";
+          speak("Absensi berhasil. Terima kasih. " + (tipeAbsen === "masuk" ? "Selamat bekerja." : "Selamat istirahat."));
           showPopup(pesan);
           document.getElementById("nama").value = "";
         })
