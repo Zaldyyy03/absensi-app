@@ -196,7 +196,7 @@
       window.location.href = 'login.html';
     }
 
-    const endpoint = 'https://script.google.com/macros/s/AKfycbwUMIQht2Z4ElE1JsB5cP5AotJwUgGXsJsapvVF8PmVMFYbA0C9fD3fJfauvlshMjTa/exec';
+    const endpoint = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID_HERE/exec';
     const tableBody = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
     const filterAbsen = document.getElementById("filter-absen");
@@ -244,17 +244,17 @@
       filtered.forEach((item, index) => {
         const row = document.createElement("tr");
         const fotoHTML = item.Foto?.startsWith("data:image")
-          ? <img class="foto-preview" src="${item.Foto}" alt="foto" />
-          : <img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />;
+          ? `<img class="foto-preview" src="${item.Foto}" alt="foto" />`
+          : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
 
-        row.innerHTML =  
+        row.innerHTML = ` 
           <td>${index + 1}</td>
           <td>${item.Nama || "-"}</td>
           <td>${formatTimestamp(item.Timestamp) || "-"}</td>
           <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
           <td>${fotoHTML}</td>
           <td>${item.Tipe || "-"}</td>
-        ;
+        `;
         tableBody.appendChild(row);
       });
     }
@@ -285,7 +285,7 @@
 
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, "Absensi");
-      XLSX.writeFile(wb, ${judul.replace(/\s+/g, '_')}_${tanggalHariIni}.xlsx);
+      XLSX.writeFile(wb, `${judul.replace(/\s+/g, '_')}_${tanggalHariIni}.xlsx`);
     }
 
     async function exportPDF() {
@@ -302,10 +302,10 @@
 
       Array.from(tableBody.children).forEach((row, i) => {
         doc.setFontSize(10);
-        doc.text(${i + 1}. Nama: ${row.children[1].textContent}, 20, y);
-        doc.text(Tanggal & Jam: ${row.children[2].textContent}, 20, y + 5);
-        doc.text(Lokasi: ${row.children[3].textContent}, 20, y + 10);
-        doc.text(Tipe Absen: ${row.children[5].textContent}, 20, y + 15);
+        doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
+        doc.text(`Tanggal & Jam: ${row.children[2].textContent}`, 20, y + 5);
+        doc.text(`Lokasi: ${row.children[3].textContent}`, 20, y + 10);
+        doc.text(`Tipe Absen: ${row.children[5].textContent}`, 20, y + 15);
         y += 25;
         if (y > 270) {
           doc.addPage();
@@ -313,7 +313,7 @@
         }
       });
 
-      doc.save(${judul.replace(/\s+/g, '_')}_${tanggalHariIni}.pdf);
+      doc.save(`${judul.replace(/\s+/g, '_')}_${tanggalHariIni}.pdf`);
     }
 
     function logout() {
