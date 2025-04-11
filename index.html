@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Absensi Karyawan SES_GS</title>
-  <link rel="icon" type="image/png" href="pertamina-logo.jpg">
+  <link rel="icon" type="image/png" href="pertamina-logo.jpg"> <!-- Favicon -->
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #ffffff;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
       text-align: center;
+      padding: 20px;
     }
 
     .logo {
@@ -19,52 +19,37 @@
     }
 
     h2 {
-      color: #d32f2f;
-      margin-top: 0;
+      color: #e53935;
+      margin-top: 5px;
     }
 
-    input, select {
-      width: 90%;
-      max-width: 320px;
+    input, button, select {
       padding: 12px;
       margin: 10px 0;
+      width: 90%;
+      max-width: 320px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
     }
 
     video, canvas {
+      margin-top: 10px;
       width: 90%;
       max-width: 320px;
-      border-radius: 12px;
-      margin: 10px 0;
+      border-radius: 10px;
     }
 
     button {
-      width: 90%;
-      max-width: 320px;
-      padding: 12px;
       background-color: #1976d2;
       color: white;
       font-weight: bold;
       border: none;
-      border-radius: 8px;
       cursor: pointer;
-      font-size: 16px;
-      margin-bottom: 15px;
     }
 
-    #popup {
-      display: none;
-      width: 90%;
-      max-width: 320px;
-      margin: 0 auto;
-      padding: 12px;
-      background-color: #4caf50;
-      color: white;
-      border-radius: 8px;
-      font-weight: bold;
-      animation: fade 0.3s ease-in-out;
+    button:hover {
+      background-color: #1565c0;
     }
 
     #loading {
@@ -72,26 +57,19 @@
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255,255,255,0.8);
       z-index: 9999;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
     }
 
     .spinner {
-      border: 6px solid #eee;
+      border: 6px solid #ccc;
       border-top: 6px solid #1976d2;
       border-radius: 50%;
-      width: 40px;
-      height: 40px;
+      width: 50px;
+      height: 50px;
       animation: spin 1s linear infinite;
-    }
-
-    .loading-text {
-      margin-top: 12px;
-      font-size: 16px;
-      color: #555;
     }
 
     @keyframes spin {
@@ -99,25 +77,31 @@
       100% { transform: rotate(360deg); }
     }
 
-    @keyframes fade {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    #popup {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #4caf50;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      z-index: 10000;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <div id="loading">
-    <div class="spinner"></div>
-    <div class="loading-text">Mengirim data...</div>
-  </div>
-
+  <div id="loading"><div class="spinner"></div></div>
   <div id="popup">Absensi berhasil!</div>
 
   <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
   <h2>Absensi Karyawan SES_GS</h2>
 
-  <input type="text" id="nama" placeholder="Nama lengkap" required>
+  <input type="text" id="nama" placeholder="Nama lengkap" required />
   <br>
 
   <label for="tipeAbsen">Pilih Tipe Absensi:</label>
@@ -133,9 +117,12 @@
   <br>
   <button onclick="ambilFoto()">Ambil Foto & Absen</button>
 
+  <p id="status"></p>
+
   <script>
     const video = document.getElementById("video");
     const canvas = document.getElementById("canvas");
+    const status = document.getElementById("status");
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
@@ -165,24 +152,45 @@
     function showPopup(text) {
       popup.innerText = text;
       popup.style.display = "block";
-      setTimeout(() => popup.style.display = "none", 3000);
+      setTimeout(() => {
+        popup.style.display = "none";
+      }, 3000);
     }
 
     window.addEventListener("load", () => {
       navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => video.srcObject = stream)
-        .catch(() => alert("Mohon izinkan akses kamera di browser Anda."));
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(err => {
+          status.innerText = "Mohon izinkan akses kamera.";
+          alert("Mohon izinkan akses kamera di browser Anda.");
+        });
+
+      navigator.geolocation.getCurrentPosition(() => {}, () => {});
     });
 
     function ambilFoto() {
       const nama = document.getElementById("nama").value.trim();
       const tipeAbsen = document.getElementById("tipeAbsen").value;
 
-      if (!nama) return alert("Silakan isi nama terlebih dahulu.");
-      if (!navigator.geolocation) return alert("Browser tidak mendukung lokasi.");
-      if (!video.srcObject) return alert("Kamera belum aktif.");
+      if (!nama) {
+        alert("Silakan isi nama terlebih dahulu.");
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        alert("Browser tidak mendukung lokasi.");
+        return;
+      }
+
+      if (!video.srcObject) {
+        alert("Kamera belum aktif. Mohon izinkan akses kamera.");
+        return;
+      }
 
       showLoading(true);
+      status.innerText = "";
 
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
@@ -209,7 +217,7 @@
         .then(() => {
           showLoading(false);
           let pesan = tipeAbsen === "masuk"
-            ? "Absensi masuk berhasil!" 
+            ? "Absensi masuk berhasil!"
             : "Absensi pulang berhasil!";
           showPopup(pesan);
           speak("Absensi berhasil. Terima kasih.");
@@ -217,15 +225,15 @@
         })
         .catch(() => {
           showLoading(false);
-          alert("Gagal mengirim data.");
+          status.innerText = "Gagal mengirim data.";
         });
 
       }, () => {
         showLoading(false);
-        alert("Gagal mendapatkan lokasi.");
+        status.innerText = "Gagal mendapatkan lokasi.";
+        alert("Gagal mendapatkan lokasi. Mohon izinkan akses lokasi.");
       });
     }
   </script>
-
 </body>
 </html>
