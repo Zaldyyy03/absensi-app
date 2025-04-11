@@ -91,7 +91,7 @@
   <label for="tipeAbsen">Pilih Tipe Absensi:</label>
   <select id="tipeAbsen">
     <option value="masuk">Absen Masuk</option>
-    <option value="keluar">Absen Keluar</option>
+    <option value="pulang">Absen Pulang</option>
   </select>
 
   <br>
@@ -204,8 +204,8 @@
           if (tipeAbsen === "masuk") {
             pesan = "Absensi masuk berhasil!";
             speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
-          } else if (tipeAbsen === "keluar") {
-            pesan = "Absensi keluar berhasil!";
+          } else if (tipeAbsen === "pulang") {
+            pesan = "Absensi pulang berhasil!";
             speak("Absensi berhasil. Terima kasih. Selamat istirahat.");
           }
           showPopup(pesan);
