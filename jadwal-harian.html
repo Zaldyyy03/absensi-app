@@ -27,8 +27,8 @@
   <h2>Jadwal Harian - PT. SINARAPI JATAYU PERMAI</h2>
 
   <div class="container mb-3">
-    <label for="filterTanggal" class="form-label">Filter berdasarkan tanggal (format: dd/mm/yyyy):</label>
-    <input type="text" id="filterTanggal" class="form-control" placeholder="Contoh: 10/08/2023">
+    <label for="filterTanggal" class="form-label">Filter berdasarkan tanggal:</label>
+    <input type="date" id="filterTanggal" class="form-control">
   </div>
 
   <div class="table-container container">
@@ -71,7 +71,7 @@
           const json = JSON.parse(text.substr(47).slice(0, -2));
           const rows = json.table.rows;
           dataRows = rows.slice(4); // mulai dari baris ke-5
-          renderTable(dataRows);
+          renderTableForToday();
         })
         .catch(err => {
           document.getElementById("tableBody").innerHTML =
@@ -94,8 +94,28 @@
       });
     }
 
-    document.getElementById("filterTanggal").addEventListener("input", function () {
-      const selectedDate = this.value.trim(); // Format: dd/mm/yyyy
+    function renderTableForToday() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayFormatted = `${yyyy}-${mm}-${dd}`;
+      document.getElementById("filterTanggal").value = todayFormatted;
+
+      const filtered = dataRows.filter(row => {
+        const tglCell = row.c[1];
+        if (!tglCell || !tglCell.v) return false;
+
+        const [day, month, year] = tglCell.v.split('/');
+        const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        return formatted === todayFormatted;
+      });
+
+      renderTable(filtered);
+    }
+
+    document.getElementById("filterTanggal").addEventListener("change", function () {
+      const selectedDate = this.value; // yyyy-mm-dd
       if (!selectedDate) {
         renderTable(dataRows);
         return;
@@ -104,7 +124,10 @@
       const filtered = dataRows.filter(row => {
         const tglCell = row.c[1];
         if (!tglCell || !tglCell.v) return false;
-        return tglCell.v === selectedDate;
+
+        const [day, month, year] = tglCell.v.split('/');
+        const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        return formatted === selectedDate;
       });
 
       renderTable(filtered);
