@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jadwal Harian</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <style>
+    body {
+      background-color: #f5f5f5;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      color: #e53935;
+      margin-bottom: 30px;
+    }
+    .table-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h2>Jadwal Harian - PT. SINARAPI JATAYU PERMAI</h2>
+
+  <div class="container mb-3">
+    <label for="filterTanggal" class="form-label">Filter berdasarkan tanggal:</label>
+    <input type="date" id="filterTanggal" class="form-control">
+  </div>
+
+  <div class="table-container container">
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped" id="jadwalTable">
+        <thead class="table-danger">
+          <tr>
+            <th>NO</th>
+            <th>TANGGAL</th>
+            <th>SPBE</th>
+            <th>DO</th>
+            <th>LPG 3KG</th>
+            <th>BRIGHT GAS 5,5</th>
+            <th>BRIGHT GAS 12</th>
+            <th>DRIVER</th>
+            <th>KERNET 1</th>
+            <th>KERNET 2</th>
+            <th>CATATAN</th>
+            <th>ARMADA</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Data akan diisi lewat JavaScript -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const sheetID = '1m_UlaPn6yDO1FqcquCNo7215oLDJ5C0Diqq6T1bYsxY'; // Ganti bagian ini
+    const sheetName = 'Sheet3';
+    const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+    let dataRows = [];
+
+    function loadData() {
+      fetch(url)
+        .then(res => res.text())
+        .then(text => {
+          const json = JSON.parse(text.substr(47).slice(0, -2));
+          const rows = json.table.rows;
+          dataRows = rows.slice(4); // Mulai dari baris ke-5 (indeks 4)
+          renderTable(dataRows);
+        })
+        .catch(err => {
+          document.getElementById("tableBody").innerHTML =
+            `<tr><td colspan="12" class="text-center text-danger">Gagal mengambil data: ${err}</td></tr>`;
+        });
+    }
+
+    function renderTable(rows) {
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = "";
+
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
+        for (let i = 0; i < 12; i++) {
+          const td = document.createElement("td");
+          td.textContent = row.c[i] ? row.c[i].v : "";
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById("filterTanggal").addEventListener("change", function () {
+      const selectedDate = this.value; // Format: yyyy-mm-dd
+      if (!selectedDate) {
+        renderTable(dataRows);
+        return;
+      }
+
+      const filtered = dataRows.filter(row => {
+        const tglCell = row.c[1];
+        if (!tglCell || !tglCell.v) return false;
+
+        const [day, month, year] = tglCell.v.split('/');
+        const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        return formatted === selectedDate;
+      });
+
+      renderTable(filtered);
+    });
+
+    loadData();
+  </script>
+</body>
+</html>
