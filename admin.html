@@ -153,7 +153,7 @@
     <select id="filter-absen">
       <option value="">Semua</option>
       <option value="masuk">Absen Masuk</option>
-      <option value="keluar">Absen Keluar</option>
+      <option value="pulang">Absen Pulang</option>
     </select>
     <button onclick="exportExcel()">Export Excel</button>
     <button onclick="exportPDF()">Export PDF</button>
@@ -261,7 +261,7 @@
       const ws_data = [];
 
       const absenFilter = filterAbsen.value;
-      const judul = absenFilter === "keluar" ? "Absensi Keluar" :
+      const judul = absenFilter === "pulang" ? "Absensi Pulang" :
                     absenFilter === "masuk" ? "Absensi Masuk" : "Semua Data Absensi";
 
       const tanggalHariIni = new Date().toISOString().split('T')[0];
@@ -288,7 +288,7 @@
       const doc = new jsPDF();
 
       const absenFilter = filterAbsen.value;
-      const judul = absenFilter === "keluar" ? "Absensi Keluar" :
+      const judul = absenFilter === "pulang" ? "Absensi Pulang" :
                     absenFilter === "masuk" ? "Absensi Masuk" : "Semua Data Absensi";
 
       const tanggalHariIni = new Date().toISOString().split('T')[0];
