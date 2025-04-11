@@ -27,8 +27,8 @@
   <h2>Jadwal Harian - PT. SINARAPI JATAYU PERMAI</h2>
 
   <div class="container mb-3">
-    <label for="filterTanggal" class="form-label">Filter berdasarkan tanggal:</label>
-    <input type="date" id="filterTanggal" class="form-control">
+    <label for="filterTanggal" class="form-label">Filter berdasarkan tanggal (format: dd/mm/yyyy):</label>
+    <input type="text" id="filterTanggal" class="form-control" placeholder="Contoh: 10/08/2023">
   </div>
 
   <div class="table-container container">
@@ -58,7 +58,7 @@
   </div>
 
   <script>
-    const sheetID = '1m_UlaPn6yDO1FqcquCNo7215oLDJ5C0Diqq6T1bYsxY'; // Ganti bagian ini
+    const sheetID = '1m_UlaPn6yDO1FqcquCNo7215oLDJ5C0Diqq6T1bYsxY';
     const sheetName = 'Sheet3';
     const url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
@@ -70,7 +70,7 @@
         .then(text => {
           const json = JSON.parse(text.substr(47).slice(0, -2));
           const rows = json.table.rows;
-          dataRows = rows.slice(4); // Mulai dari baris ke-5 (indeks 4)
+          dataRows = rows.slice(4); // mulai dari baris ke-5
           renderTable(dataRows);
         })
         .catch(err => {
@@ -94,8 +94,8 @@
       });
     }
 
-    document.getElementById("filterTanggal").addEventListener("change", function () {
-      const selectedDate = this.value; // Format: yyyy-mm-dd
+    document.getElementById("filterTanggal").addEventListener("input", function () {
+      const selectedDate = this.value.trim(); // Format: dd/mm/yyyy
       if (!selectedDate) {
         renderTable(dataRows);
         return;
@@ -104,10 +104,7 @@
       const filtered = dataRows.filter(row => {
         const tglCell = row.c[1];
         if (!tglCell || !tglCell.v) return false;
-
-        const [day, month, year] = tglCell.v.split('/');
-        const formatted = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-        return formatted === selectedDate;
+        return tglCell.v === selectedDate;
       });
 
       renderTable(filtered);
