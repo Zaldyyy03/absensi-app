@@ -22,7 +22,7 @@
       color: #e53935;
     }
 
-    input, button {
+    input, button, select {
       padding: 10px;
       margin: 10px 0;
       width: 80%;
@@ -36,7 +36,6 @@
       border-radius: 10px;
     }
 
-    /* Spinner */
     #loading {
       display: none;
       position: fixed;
@@ -62,7 +61,6 @@
       100% { transform: rotate(360deg); }
     }
 
-    /* Pop-up berhasil */
     #popup {
       display: none;
       position: fixed;
@@ -89,15 +87,15 @@
 
   <input type="text" id="nama" placeholder="Nama lengkap" required />
   <br>
-  
+
   <label for="tipeAbsen">Pilih Tipe Absensi:</label>
   <select id="tipeAbsen">
     <option value="masuk">Absen Masuk</option>
     <option value="keluar">Absen Keluar</option>
   </select>
-  
+
   <br>
-  
+
   <video id="video" autoplay playsinline></video>
   <canvas id="canvas" style="display:none;"></canvas>
   <br>
@@ -112,7 +110,6 @@
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
-    // Update endpoint dengan link baru
     const endpoint = "https://script.google.com/macros/s/AKfycbybhZuEXfK-X_RW9H4cW-ekCUOTA9-GvhF8Dnh1ZIF_McoXMGsV0PhW8rp47QjY-JvS/exec";
 
     let femaleVoice;
@@ -154,7 +151,6 @@
           alert("Mohon izinkan akses kamera di browser Anda.");
         });
 
-      // trigger minta izin lokasi saat awal
       navigator.geolocation.getCurrentPosition(() => {}, () => {});
     });
 
@@ -191,7 +187,6 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/jpeg");
 
-        // Kirim data ke Apps Script
         fetch(endpoint, {
           method: "POST",
           mode: "no-cors",
@@ -200,17 +195,20 @@
             nama: nama,
             lokasi: lokasi,
             foto: dataUrl,
-            tipe: tipeAbsen // Kirim tipe absen (masuk atau keluar)
+            tipe: tipeAbsen
           })
         })
         .then(() => {
           showLoading(false);
-          showPopup("Absensi berhasil!");
+          let pesan = "";
           if (tipeAbsen === "masuk") {
+            pesan = "Absensi masuk berhasil!";
             speak("Absensi berhasil. Terima kasih. Selamat bekerja.");
           } else if (tipeAbsen === "keluar") {
+            pesan = "Absensi keluar berhasil!";
             speak("Absensi berhasil. Terima kasih. Selamat istirahat.");
           }
+          showPopup(pesan);
           document.getElementById("nama").value = "";
         })
         .catch(() => {
