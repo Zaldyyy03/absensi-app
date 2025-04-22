@@ -3,191 +3,197 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Data Absensi</title>
-  <link rel="icon" type="image/png" href="pertamina-logo.jpg">
+  <title>Admin - Data Absensi Karyawan SES_GS</title>
+  <link rel="icon" type="image/png" href="pertamina-logoicon.png">
   <style>
     :root {
-      --primary: #1976d2;
-      --primary-dark: #0d47a1;
-      --danger: #e53935;
-      --danger-dark: #b71c1c;
-      --bg-light: #f4f6f8;
-      --text: #333;
+      --primary: #2c7be5;
+      --primary-dark: #1a5bb8;
+      --danger: #f44336;
+      --danger-dark: #c62828;
+      --bg-light: #f1f5f9;
+      --text: #1e293b;
+      --card: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
     }
-
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
       font-family: 'Segoe UI', sans-serif;
       background-color: var(--bg-light);
       color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 20px;
     }
-
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background-color: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px var(--shadow);
+      padding: 20px;
+    }
     .header {
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      gap: 16px;
+      gap: 12px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 12px;
     }
-
     .header img {
-      height: 50px;
+      height: 48px;
     }
-
-    h2 {
-      color: var(--primary);
+    .header h2 {
       margin: 0;
-      font-size: 1.5em;
+      color: var(--primary-dark);
+      font-size: 1.8rem;
+      font-weight: 600;
     }
-
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      padding: 20px;
-      background-color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
-    .filters label {
-      font-weight: 500;
-    }
-
-    .filters input, .filters select {
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-
-    button {
-      padding: 10px 15px;
+    .dashboard-button {
       background-color: var(--primary);
       color: white;
+      padding: 10px 18px;
       border: none;
-      border-radius: 6px;
-      font-size: 14px;
+      border-radius: 8px;
+      font-size: 1rem;
       cursor: pointer;
-      transition: background 0.3s ease;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
     }
-
-    button:hover {
+    .dashboard-button:hover {
       background-color: var(--primary-dark);
     }
-
-    .logout-button {
-      background-color: var(--danger);
-      margin: 20px auto;
-      display: block;
+    .filters {
+      background-color: var(--card);
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
     }
-
-    .logout-button:hover {
-      background-color: var(--danger-dark);
+    .filters label {
+      font-weight: 500;
+      color: var(--text);
+      font-size: 0.9rem;
     }
-
+    .filters input,
+    .filters select,
+    .filters button {
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    .filters input,
+    .filters select {
+      width: 200px;
+    }
+    .filters button {
+      background-color: var(--primary);
+      color: white;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+    .filters button:hover {
+      background-color: var(--primary-dark);
+    }
     table {
       width: 100%;
+      margin-top: 20px;
       border-collapse: collapse;
-      margin: 20px 0;
-      background-color: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px var(--shadow);
     }
-
-    th, td {
-      padding: 12px;
-      border: 1px solid #eee;
+    th,
+    td {
+      padding: 14px;
+      border: 1px solid #e2e8f0;
       text-align: center;
       font-size: 14px;
     }
-
     th {
       background-color: var(--primary);
       color: white;
       position: sticky;
       top: 0;
-      z-index: 1;
+      z-index: 2;
+      font-weight: 600;
     }
-
-    td:first-child, th:first-child {
+    td:first-child,
+    th:first-child {
       position: sticky;
       left: 0;
-      background-color: var(--primary);
+      background-color: var(--primary-dark);
       color: white;
-      z-index: 2;
+      z-index: 1;
     }
-
     tr:nth-child(even) {
-      background-color: #f9f9f9;
+      background-color: #f9fafb;
     }
-
     .foto-preview {
-      max-width: 60px;
-      max-height: 60px;
+      width: 60px;
+      height: 60px;
       border-radius: 6px;
       object-fit: cover;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
-
     @media (max-width: 768px) {
       .filters {
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
       }
-
-      table, th, td {
+      table {
         font-size: 12px;
       }
-
       .foto-preview {
-        max-width: 50px;
-        max-height: 50px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .header h2 {
-        font-size: 1.2em;
+        width: 50px;
+        height: 50px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <img src="pertamina-logo.jpg" alt="Logo Pertamina">
-    <h2>Data Absensi Karyawan SES_GS</h2>
+  <div class="container">
+    <a class="dashboard-button" href="dashboard.html">← Dashboard</a>
+    <div class="header">
+      <h2>Data Absensi Karyawan</h2>
+    </div>
+
+    <div class="filters">
+      <label for="filter-tanggal">Tanggal:</label>
+      <input type="date" id="filter-tanggal">
+
+      <label for="filter-absen">Tipe Absen:</label>
+      <select id="filter-absen">
+        <option value="">Semua</option>
+        <option value="Masuk">Absen Masuk</option>
+        <option value="Pulang">Absen Pulang</option>
+      </select>
+
+      <button onclick="renderTable()">Terapkan Filter</button>
+      <button onclick="exportExcel()">Export Excel</button>
+      <button onclick="exportPDF()">Export PDF</button>
+    </div>
+
+    <table id="absensi-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Tanggal & Jam</th>
+          <th>Lokasi</th>
+          <th>Foto</th>
+          <th>Tipe Absen</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
-
-  <div class="filters">
-    <label for="filter-tanggal">Tanggal:</label>
-    <input type="date" id="filter-tanggal">
-    <label for="filter-absen">Tipe Absen:</label>
-    <select id="filter-absen">
-      <option value="">Semua</option>
-      <option value="masuk">Absen Masuk</option>
-      <option value="pulang">Absen Pulang</option>
-    </select>
-    <button onclick="exportExcel()">Export Excel</button>
-    <button onclick="exportPDF()">Export PDF</button>
-  </div>
-
-  <table id="absensi-table">
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>Nama</th>
-        <th>Tanggal & Jam</th>
-        <th>Lokasi</th>
-        <th>Foto</th>
-        <th>Tipe Absen</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <button class="logout-button" onclick="logout()">Logout</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
@@ -196,67 +202,56 @@
       window.location.href = 'login.html';
     }
 
-    const endpoint = 'https://script.google.com/macros/s/AKfycbzmOHndxw2jNIOSF5gYyocpoiYIAgLWx_Hfi-DhDpuXFg_R8_tpVFBABh3ILQqLqwTc/exec';
-    const tableBody = document.querySelector("#absensi-table tbody");
+    const endpoint = 
+      'https://script.google.com/macros/s/AKfycbw0JHLBfxf9IrFxbTMwjzkfq97P5MsciLHyqNeHeTkAW5GAomm2lKRjNAVBuTc2jigQ/exec?action=absensi';
+    const tableBody     = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
-    const filterAbsen = document.getElementById("filter-absen");
+    const filterAbsen   = document.getElementById("filter-absen");
 
-    function formatTimestamp(isoString) {
-      try {
-        const date = new Date(isoString);
-        return date.toLocaleDateString('id-ID', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-        }) + ' ' + date.toLocaleTimeString('id-ID');
-      } catch {
-        return isoString;
-      }
-    }
-
-    function formatTanggalKeInput(isoString) {
-      const date = new Date(isoString);
-      return date.toISOString().split('T')[0];
+    function formatTanggalKeInput(str) {
+      const d = new Date(str);
+      return isNaN(d) ? "" : d.toISOString().split('T')[0];
     }
 
     async function fetchData() {
       try {
-        const response = await fetch(endpoint);
-        const data = await response.json();
-        return data;
-      } catch (err) {
-        console.error("Gagal mengambil data:", err);
+        const res = await fetch(endpoint);
+        const json = await res.json();
+        return Array.isArray(json) ? json : (json.absensi || []);
+      } catch (e) {
+        console.error("Gagal mengambil data:", e);
         return [];
       }
     }
 
     async function renderTable() {
       const data = await fetchData();
-      const tanggalFilter = filterTanggal.value;
-      const absenFilter = filterAbsen.value;
-
+      const tglVal = filterTanggal.value;
+      const typeVal = filterAbsen.value;
       tableBody.innerHTML = "";
 
-      const filtered = data.filter(d => {
-        const matchesTanggal = !tanggalFilter || formatTanggalKeInput(d.Timestamp) === tanggalFilter;
-        const matchesAbsen = !absenFilter || d.Tipe === absenFilter;
-        return matchesTanggal && matchesAbsen;
-      });
+      data
+        .filter(item => {
+          const matchDate = !tglVal || formatTanggalKeInput(item.Timestamp) === tglVal;
+          const matchType = !typeVal || item.Tipe === typeVal;
+          return matchDate && matchType;
+        })
+        .forEach((item, i) => {
+          const row = document.createElement("tr");
+          const fotoSrc = item.Foto?.startsWith("data:image")
+            ? item.Foto
+            : "https://via.placeholder.com/80?text=No+Image";
 
-      filtered.forEach((item, index) => {
-        const row = document.createElement("tr");
-        const fotoHTML = item.Foto?.startsWith("data:image")
-          ? `<img class="foto-preview" src="${item.Foto}" alt="foto" />`
-          : `<img class="foto-preview" src="https://via.placeholder.com/80?text=No+Image" alt="no image" />`;
-
-        row.innerHTML = ` 
-          <td>${index + 1}</td>
-          <td>${item.Nama || "-"}</td>
-          <td>${formatTimestamp(item.Timestamp) || "-"}</td>
-          <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
-          <td>${fotoHTML}</td>
-          <td>${item.Tipe || "-"}</td>
-        `;
-        tableBody.appendChild(row);
-      });
+          row.innerHTML = `
+            <td>${i+1}</td>
+            <td>${item.Nama || "-"}</td>
+            <td>${item.Timestamp || ""} ${item.Jam || ""}</td>
+            <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
+            <td><img class="foto-preview" src="${fotoSrc}" alt="foto"></td>
+            <td>${item.Tipe || "-"}</td>
+          `;
+          tableBody.appendChild(row);
+        });
     }
 
     filterTanggal.addEventListener("change", renderTable);
@@ -265,63 +260,46 @@
 
     function exportExcel() {
       const wb = XLSX.utils.book_new();
-      const ws_data = [];
-      const absenFilter = filterAbsen.value;
-      const judul = absenFilter === "pulang" ? "Absensi Pulang" :
-                    absenFilter === "masuk" ? "Absensi Masuk" : "Semua Data Absensi";
-
-      const tanggalHariIni = new Date().toISOString().split('T')[0];
-      ws_data.push([judul], []);
-      ws_data.push(["No", "Nama", "Tanggal & Jam", "Lokasi", "Tipe Absen"]);
-
-      const rows = Array.from(tableBody.children).map(row => [
-        row.children[0].textContent,
-        row.children[1].textContent,
-        row.children[2].textContent,
-        row.children[3].textContent,
-        row.children[5].textContent
+      const data = Array.from(tableBody.children).map(r => [
+        r.children[0].textContent,
+        r.children[1].textContent,
+        r.children[2].textContent,
+        r.children[3].textContent,
+        r.children[5].textContent
       ]);
-      ws_data.push(...rows);
-
+      const ws_data = [
+        ["Data Absensi"], [], 
+        ["No","Nama","Tanggal & Jam","Lokasi","Tipe Absen"],
+        ...data
+      ];
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, "Absensi");
-      XLSX.writeFile(wb, `${judul.replace(/\s+/g, '_')}_${tanggalHariIni}.xlsx`);
+      XLSX.writeFile(wb, `Absensi_${new Date().toISOString().split('T')[0]}.xlsx`);
     }
 
     async function exportPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      const absenFilter = filterAbsen.value;
-      const judul = absenFilter === "pulang" ? "Absensi Pulang" :
-                    absenFilter === "masuk" ? "Absensi Masuk" : "Semua Data Absensi";
-      const tanggalHariIni = new Date().toISOString().split('T')[0];
-
+      let y = 20;
       doc.setFontSize(16);
-      doc.text(judul, 20, 20);
-      let y = 30;
+      doc.text("Data Absensi", 20, y);
+      y += 10;
+      doc.setFontSize(10);
 
-      Array.from(tableBody.children).forEach((row, i) => {
-        doc.setFontSize(10);
-        doc.text(`${i + 1}. Nama: ${row.children[1].textContent}`, 20, y);
-        doc.text(`Tanggal & Jam: ${row.children[2].textContent}`, 20, y + 5);
-        doc.text(`Lokasi: ${row.children[3].textContent}`, 20, y + 10);
-        doc.text(`Tipe Absen: ${row.children[5].textContent}`, 20, y + 15);
-        y += 25;
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
+      Array.from(tableBody.children).forEach((r,i) => {
+        const nama  = r.children[1].textContent;
+        const tgljm = r.children[2].textContent;
+        const lok   = r.children[3].textContent;
+        const tipe  = r.children[5].textContent;
+        doc.text(`${i+1}. ${nama} | ${tgljm} | ${tipe}`, 20, y);
+        y += 6;
+        if (y > 280) { doc.addPage(); y = 20; }
       });
 
-      doc.save(`${judul.replace(/\s+/g, '_')}_${tanggalHariIni}.pdf`);
+      doc.save(`Absensi_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
-    function logout() {
-      localStorage.removeItem('loggedIn');
-      window.location.href = 'login.html';
-    }
-
-    setTimeout(logout, 3600000);
+    setTimeout(() => localStorage.removeItem('loggedIn'), 3600000);
   </script>
 </body>
 </html>
