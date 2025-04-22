@@ -182,7 +182,7 @@
     function loadRekap() {
       const bulan = document.getElementById("bulan").value;
       const nama = document.getElementById("nama").value;
-      const url = `https://script.google.com/macros/s/AKfycbz5n5y9PbON9Zu-1Md1-xcG8_InFW4Knp5UAwk4o5BUBLRqmWftAIGmpb4XSijc32E/exec?action=rekap&bulan=${encodeURIComponent(bulan)}&nama=${encodeURIComponent(nama)}`;
+      const url = `https://script.google.com/macros/s/AKfycbw0JHLBfxf9IrFxbTMwjzkfq97P5MsciLHyqNeHeTkAW5GAomm2lKRjNAVBuTc2jigQ/exec?action=rekap&bulan=${encodeURIComponent(bulan)}&nama=${encodeURIComponent(nama)}`;
       document.getElementById("rekapContainer").innerHTML = "Loading...";
 
       fetch(url)
