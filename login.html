@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - Admin</title>
-  <link rel="icon" type="image/png" href="pertamina-logo.jpg"> <!-- Favicon Pertamina -->
+<link rel="icon" type="image/png" href="pertamina-logoicon.png">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,7 +15,6 @@
       height: 100vh;
       margin: 0;
     }
-
     .login-container {
       background: #fff;
       padding: 30px;
@@ -46,7 +45,9 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
+.logo-img {
+      width: 80px;
+      margin-bottom: 10px;
     button:hover {
       background-color: #388e3c;
     }
@@ -59,7 +60,8 @@
 </head>
 <body>
   <div class="login-container">
-    <h2>Data Absensi Karyawan SES_GS</h2>
+    <img src="pertamina-logoicon.png" alt="Logo Pertamina" class="logo-img">
+    <h2>Data Absensi Karyawan SES_GS </h2>
     <form id="login-form">
       <input type="text" id="username" placeholder="Username" required />
       <input type="password" id="password" placeholder="Password" required />
@@ -85,7 +87,7 @@
         // Simpan status login di localStorage
         localStorage.setItem('loggedIn', 'true');
         // Jika login berhasil, arahkan ke halaman admin
-        window.location.href = 'admin.html';
+        window.location.href = 'dashboard.html';
       } else {
         // Tampilkan pesan error jika login gagal
         errorMessage.textContent = 'Username atau password salah!';
