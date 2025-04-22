@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Manajemen Data Karyawan</title>
+  <link rel="icon" type="image/png" href="pertamina-logoicon.png">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #1976d2;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background: #1976d2;
+      color: white;
+    }
+    button {
+      padding: 6px 12px;
+      margin-right: 4px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0d47a1;
+    }
+    .danger {
+      background-color: #e53935;
+    }
+    .danger:hover {
+      background-color: #b71c1c;
+    }
+    input[type="text"], input[type="file"] {
+      padding: 6px;
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    .input-nama {
+      width: auto;
+    }
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .kembali {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Manajemen Data Karyawan</h1>
+
+  <div class="kembali">
+    <button onclick="window.location.href='dashboard.html'">← Dashboard</button>
+  </div>
+
+  <div class="tools">
+    <input type="text" id="namaBaru" placeholder="Masukkan nama karyawan baru" />
+    <button onclick="tambahKaryawan()">Tambah</button>
+
+    <input type="file" id="uploadExcel" accept=".xlsx" onchange="handleFileSelect(event)" />
+    <button onclick="handleUpload()">Upload</button>
+
+    <button onclick="downloadExcel()">Download Excel</button>
+
+    <input type="text" id="cariNama" placeholder="Cari nama karyawan..." oninput="filterKaryawan()" />
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="tabel-karyawan">
+      <!-- Data karyawan akan ditampilkan di sini -->
+    </tbody>
+  </table>
+
+  <script>
+    // Ganti URL ini dengan URL Web App-mu yang sudah di‑deploy (Anyone, even anonymous)
+    const baseURL = 'https://script.google.com/macros/s/AKfycbw0JHLBfxf9IrFxbTMwjzkfq97P5MsciLHyqNeHeTkAW5GAomm2lKRjNAVBuTc2jigQ/exec';
+
+    let dataKaryawan = [];
+    let selectedFile = null;
+
+    if (localStorage.getItem('loggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
+
+    async function loadKaryawan() {
+      // pastikan gunakan & untuk parameter kedua
+      const url = `${baseURL}?action=getSheetData&sheet=Datakaryawan`;
+      console.log('Fetching:', url);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      dataKaryawan = await res.json();  // harusnya Array nama
+      console.log('dataKaryawan:', dataKaryawan);
+      tampilkanData(dataKaryawan);
+    }
+
+    function tampilkanData(data) {
+      const tbody = document.getElementById('tabel-karyawan');
+      tbody.innerHTML = '';
+      data.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>
+            <input type="text" id="input-${index}" value="${item}" class="input-nama" disabled />
+          </td>
+          <td>
+            <button onclick="enableEdit(${index})">Edit</button>
+            <button onclick="simpanEdit(${index})">Simpan</button>
+            <button class="danger" onclick="hapusKaryawan(${index})">Hapus</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterKaryawan() {
+      const keyword = document.getElementById('cariNama').value.toLowerCase();
+      const filtered = dataKaryawan.filter(nama => nama.toLowerCase().includes(keyword));
+      tampilkanData(filtered);
+    }
+
+    function enableEdit(index) {
+      const inp = document.getElementById(`input-${index}`);
+      inp.disabled = false;
+      inp.focus();
+    }
+
+    async function simpanEdit(index) {
+      const inp = document.getElementById(`input-${index}`);
+      const namaBaru = inp.value.trim();
+      if (!namaBaru) return alert("Nama tidak boleh kosong");
+      inp.disabled = true;
+
+      await fetch(baseURL, {
+        method: 'POST',
+        body: JSON.stringify({
+          aksi: 'edit-karyawan',
+          index: index,
+          nama: namaBaru
+        })
+      });
+      loadKaryawan();
+    }
+
+    async function tambahKaryawan() {
+      const nama = document.getElementById('namaBaru').value.trim();
+      if (!nama) return alert('Nama tidak boleh kosong');
+
+      await fetch(baseURL, {
+        method: 'POST',
+        body: JSON.stringify({
+          aksi: 'tambah-karyawan',
+          nama: nama
+        })
+      });
+      document.getElementById('namaBaru').value = '';
+      loadKaryawan();
+    }
+
+    async function hapusKaryawan(index) {
+      if (!confirm('Yakin ingin menghapus karyawan ini?')) return;
+      await fetch(baseURL, {
+        method: 'POST',
+        body: JSON.stringify({
+          aksi: 'hapus-karyawan',
+          index: index
+        })
+      });
+      loadKaryawan();
+    }
+
+    function handleFileSelect(event) {
+      selectedFile = event.target.files[0];
+    }
+
+    async function handleUpload() {
+      if (!selectedFile) return alert("Silakan pilih file Excel terlebih dahulu");
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        const namaList = rows.slice(1)
+          .map(row => row[0])
+          .filter(Boolean);
+        for (const nama of namaList) {
+          await fetch(baseURL, {
+            method: 'POST',
+            body: JSON.stringify({
+              aksi: 'tambah-karyawan',
+              nama: nama
+            })
+          });
+        }
+        alert("Upload selesai!");
+        selectedFile = null;
+        document.getElementById("uploadExcel").value = "";
+        loadKaryawan();
+      };
+      reader.readAsArrayBuffer(selectedFile);
+    }
+
+    function downloadExcel() {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet([["Nama"], ...dataKaryawan.map(n => [n])]);
+      XLSX.utils.book_append_sheet(wb, ws, "Datakaryawan");
+      XLSX.writeFile(wb, "Daftar_Karyawan.xlsx");
+    }
+
+    function logout() {
+      localStorage.removeItem('loggedIn');
+      window.location.href = 'login.html';
+    }
+
+    window.onload = loadKaryawan;
+  </script>
+</body>
+</html>
