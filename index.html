@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Absensi Karyawan SES_GS</title>
-  <link rel="icon" type="image/png" href="pertamina-logo.jpg"> <!-- Favicon -->
+ <link rel="icon" type="image/png" href="pertamina-logoicon.png">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -98,40 +98,11 @@
   <div id="loading"><div class="spinner"></div></div>
   <div id="popup">Absensi berhasil!</div>
 
-  <img src="pertamina-logo.jpg" alt="Logo Pertamina" class="logo">
-  <h2>Absensi Karyawan SES_GS</h2>
+  <img src="pertamina-logo.png" alt="Logo Pertamina" class="logo">
+  <h2>Absensi Karyawan </h2>
 
   <select id="nama" required>
     <option value="">Pilih Nama</option>
-  <option value="SJP AAT SAFAAT">SJP AAT SAFAAT</option>
-  <option value="SJP ACEP DIDI ROSADI">SJP ACEP DIDI ROSADI</option>
-  <option value="SJP ASEP SUPRIATNA">SJP ASEP SUPRIATNA</option>
-  <option value="SJP DENI SETIAWAN">SJP DENI SETIAWAN</option>
-  <option value="SJP DIMAS PERMANA">SJP DIMAS PERMANA</option>
-  <option value="SJP MIA ANGGRAENI">SJP MIA ANGGRAENI</option>
-  <option value="SJP NANA SUPRIATNA">SJP NANA SUPRIATNA</option>
-  <option value="SJP NUROCHMAN">SJP NUROCHMAN</option>
-  <option value="SJP RUSMANA">SJP RUSMANA</option>
-  <option value="SJP SUPRIATNA">SJP SUPRIATNA</option>
-  <option value="SJP ZALDY KURNIA">SJP ZALDY KURNIA</option>
-  <option value="ESM DENNY GUNAWIRAWAN">ESM DENNY GUNAWIRAWAN</option>
-  <option value="ESM FRANSISKA R LATIF">ESM FRANSISKA R LATIF</option>
-  <option value="ESM RR GHEA NUR">ESM RR GHEA NUR</option>
-  <option value="ESM RUDIANSYAH">ESM RUDIANSYAH</option>
-  <option value="ESM SANSAN">ESM SANSAN</option>
-  <option value="ESM SOLEHUDIN">ESM SOLEHUDIN</option>
-  <option value="ESM YADI M">ESM YADI M</option>
-  <option value="ESM YUDI ZUNAEDIN AKBAR">ESM YUDI ZUNAEDIN AKBAR</option>
-  <option value="SSB ASEP ILYAS SAPARUDIN">SSB ASEP ILYAS SAPARUDIN</option>
-  <option value="SSB AGUS SAHID">SSB AGUS SAHID</option>
-  <option value="SSB YADI TUNGGAL">SSB YADI TUNGGAL</option>
-  <option value="GGU BAGAS WIJAYANTO">GGU BAGAS WIJAYANTO</option>
-  <option value="GGU AGUS JAMALUDIN">GGU AGUS JAMALUDIN</option>
-  <option value="GGU JAJA">GGU JAJA</option>
-  <option value="GGU CECEP RUSTIAWAN">GGU CECEP RUSTIAWAN</option>
-  <option value="A.ZIKRI">A.ZIKRI</option>
-  <option value="KINGKIN K">KINGKIN K</option>
-  <option value="KETUM BACANG">KETUM BACANG</option>
   </select>
   <br>
 
@@ -140,7 +111,6 @@
     <option value="masuk">Absen Masuk</option>
     <option value="pulang">Absen Pulang</option>
   </select>
-
   <br>
 
   <video id="video" autoplay playsinline></video>
@@ -157,7 +127,8 @@
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
-    const endpoint = "https://script.google.com/macros/s/AKfycbzmOHndxw2jNIOSF5gYyocpoiYIAgLWx_Hfi-DhDpuXFg_R8_tpVFBABh3ILQqLqwTc/exec";
+    const endpoint = "https://script.google.com/macros/s/AKfycbw0JHLBfxf9IrFxbTMwjzkfq97P5MsciLHyqNeHeTkAW5GAomm2lKRjNAVBuTc2jigQ/exec";
+    const karyawanEndpoint = endpoint + "?action=listnama";
 
     let femaleVoice;
 
@@ -188,6 +159,24 @@
       }, 3000);
     }
 
+    function loadNamaKaryawan() {
+      fetch(karyawanEndpoint)
+        .then(r => r.json())
+        .then(data => {
+          const sel = document.getElementById("nama");
+          sel.innerHTML = '<option value="">Pilih Nama</option>';
+          data.nama.forEach(n => {
+            const o = document.createElement("option");
+            o.value = o.textContent = n;
+            sel.appendChild(o);
+          });
+        })
+        .catch(err => {
+          console.error("Gagal load nama:", err);
+          alert("Gagal memuat daftar karyawan.");
+        });
+    }
+
     window.addEventListener("load", () => {
       navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
@@ -199,6 +188,7 @@
         });
 
       navigator.geolocation.getCurrentPosition(() => {}, () => {});
+      loadNamaKaryawan();
     });
 
     function ambilFoto() {
