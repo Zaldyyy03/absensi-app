@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Data Absensi Karyawan SES_GS</title>
+  <title>Admin - Data Absensi</title>
   <link rel="icon" type="image/png" href="pertamina-logoicon.png">
   <style>
     :root {
@@ -203,14 +203,17 @@
     }
 
     const endpoint = 
-      'https://script.google.com/macros/s/AKfycbw0JHLBfxf9IrFxbTMwjzkfq97P5MsciLHyqNeHeTkAW5GAomm2lKRjNAVBuTc2jigQ/exec?action=absensi';
+      'https://script.google.com/macros/s/AKfycbyaHP8TVUoAa07xQ2XjvWAeaUI9LJogK39-UxHT2KeIDfiDVu4wj9lFSKI5VJ-1eC8Z/exec?action=absensi';
     const tableBody     = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
     const filterAbsen   = document.getElementById("filter-absen");
 
-    function formatTanggalKeInput(str) {
-      const d = new Date(str);
-      return isNaN(d) ? "" : d.toISOString().split('T')[0];
+     function formatTanggalKeInput(str) {
+      // Cek apakah timestamp punya format yang valid
+      if (!str || !str.includes('/')) return '';
+      const [tanggal, bulan, tahunWaktu] = str.split(' ')[0].split('/');
+      const tahun = tahunWaktu.length === 2 ? '20' + tahunWaktu : tahunWaktu;
+      return `${tahun}-${bulan.padStart(2, '0')}-${tanggal.padStart(2, '0')}`;
     }
 
     async function fetchData() {
