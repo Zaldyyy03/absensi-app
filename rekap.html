@@ -142,7 +142,7 @@
   <div id="rekapContainer">Loading...</div>
 
   <script>
-    const listNamaURL = 'https://script.google.com/macros/s/AKfycbw0JHLBfxf9IrFxbTMwjzkfq97P5MsciLHyqNeHeTkAW5GAomm2lKRjNAVBuTc2jigQ/exec?action=listnama';
+    const listNamaURL = 'https://script.google.com/macros/s/AKfycbwh-2VECq0SVVDwH1D6QMF2QLnNB3aZ1wCdD4oeLZ5-p28_2D41wEsNGWnskstonds9/exec?action=listnama';
 
     function generateBulanOptions() {
       const select = document.getElementById("bulan");
@@ -182,7 +182,7 @@
     function loadRekap() {
       const bulan = document.getElementById("bulan").value;
       const nama = document.getElementById("nama").value;
-      const url = `https://script.google.com/macros/s/AKfycbw0JHLBfxf9IrFxbTMwjzkfq97P5MsciLHyqNeHeTkAW5GAomm2lKRjNAVBuTc2jigQ/exec?action=rekap&bulan=${encodeURIComponent(bulan)}&nama=${encodeURIComponent(nama)}`;
+      const url = `https://script.google.com/macros/s/AKfycbwh-2VECq0SVVDwH1D6QMF2QLnNB3aZ1wCdD4oeLZ5-p28_2D41wEsNGWnskstonds9/exec?action=rekap&bulan=${encodeURIComponent(bulan)}&nama=${encodeURIComponent(nama)}`;
       document.getElementById("rekapContainer").innerHTML = "Loading...";
 
       fetch(url)
