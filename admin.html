@@ -1,178 +1,320 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Absensi - i‑Absensi</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Data Absensi</title>
+  <link rel="icon" type="image/png" href="pertamina-logoicon.png">
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 1rem; background: #f9fafb; color: #111; display: flex; }
-    .sidebar { width: 220px; background: #fff; padding: 1rem; border-radius: 10px; margin-right: 1rem; box-shadow: 0 0 8px rgba(0,0,0,0.05); }
-    .sidebar h3 { margin-top: 0; font-size: 1.1rem; color: #2563eb; }
-    .sidebar button, .sidebar select { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #ccc; }
-    .controls { margin-bottom: 1rem; display: flex; gap: 1rem; flex-wrap: wrap; }
-    .controls input, .controls button { padding: 0.5rem; border-radius: 6px; border: 1px solid #ccc; }
-    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
-    th, td { padding: 12px; border: 1px solid #eee; text-align: left; font-size: 14px; vertical-align: middle; }
-    th { background-color: #2563eb; color: white; }
-    img { max-width: 80px; border-radius: 6px; }
-    .spinner { position: fixed; top: 50%; left: 50%; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite; transform: translate(-50%, -50%); display: none; }
-    @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+    :root {
+      --primary: #2c7be5;
+      --primary-dark: #1a5bb8;
+      --danger: #f44336;
+      --danger-dark: #c62828;
+      --bg-light: #f1f5f9;
+      --text: #1e293b;
+      --card: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.1);
+    }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background-color: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px var(--shadow);
+      padding: 20px;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 12px;
+    }
+    .header img {
+      height: 48px;
+    }
+    .header h2 {
+      margin: 0;
+      color: var(--primary-dark);
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+    .dashboard-button {
+      background-color: var(--primary);
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+    .dashboard-button:hover {
+      background-color: var(--primary-dark);
+    }
+    .filters {
+      background-color: var(--card);
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px var(--shadow);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .filters label {
+      font-weight: 500;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .filters input,
+    .filters select,
+    .filters button {
+      padding: 10px;
+      font-size: 14px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    .filters input,
+    .filters select {
+      width: 200px;
+    }
+    .filters button {
+      background-color: var(--primary);
+      color: white;
+      cursor: pointer;
+      border: none;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+    .filters button:hover {
+      background-color: var(--primary-dark);
+    }
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+    th,
+    td {
+      padding: 14px;
+      border: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 14px;
+    }
+    th {
+      background-color: var(--primary);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      font-weight: 600;
+    }
+    td:first-child,
+    th:first-child {
+      position: sticky;
+      left: 0;
+      background-color: var(--primary-dark);
+      color: white;
+      z-index: 1;
+    }
+    tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+    .foto-preview {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      object-fit: cover;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+    @media (max-width: 768px) {
+      .filters {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      table {
+        font-size: 12px;
+      }
+      .foto-preview {
+        width: 50px;
+        height: 50px;
+      }
+    }
   </style>
+</style>
 </head>
 <body>
-  <div id="loadingSpinner" class="spinner"></div>
-
-  <div class="sidebar">
-    <button onclick="location.href='dashboard.html'">Dashboard</button>
-    <h3>Filter</h3>
-    <select id="filterTipe">
-      <option value="">Semua Tipe</option>
-      <option value="Masuk">Masuk</option>
-      <option value="Pulang">Pulang</option>
-    </select>
-    <select id="filterNama">
-      <option value="">Semua Nama</option>
-    </select>
-  </div>
-
-  <div style="flex-grow: 1;">
-    <h2>Data Absensi</h2>
-    <div class="controls">
-      <input type="date" id="startDate">
-      <input type="date" id="endDate">
-      <button id="filterBtn">Filter</button>
-      <button id="resetBtn">Reset</button>
+  <div class="container">
+    <a class="dashboard-button" href="dashboard.html">← Dashboard</a>
+    <div class="header">
+      <h2>Data Absensi Karyawan</h2>
     </div>
-    <div class="table-container">
-      <table id="absenTable">
-        <thead>
-          <tr>
-            <th>Timestamp</th><th>Nama</th><th>Lokasi</th><th>Foto</th><th>Tipe</th>
-          </tr>
-        </thead>
-        <tbody id="absenBody"></tbody>
-      </table>
+
+    <div class="filters">
+      <label for="filter-tanggal">Tanggal:</label>
+      <input type="date" id="filter-tanggal">
+
+      <label for="filter-absen">Tipe Absen:</label>
+      <select id="filter-absen">
+        <option value="">Semua</option>
+        <option value="Masuk">Absen Masuk</option>
+        <option value="Pulang">Absen Pulang</option>
+      </select>
+
+      <button onclick="renderTable()">Terapkan Filter</button>
+      <button onclick="exportExcel()">Export Excel</button>
+      <button onclick="exportPDF()">Export PDF</button>
     </div>
+
+    <table id="absensi-table">
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama</th>
+          <th>Tanggal & Jam</th>
+          <th>Lokasi</th>
+          <th>Foto</th>
+          <th>Tipe Absen</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
   <script src="config.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
   <script>
-    if (localStorage.getItem('loggedIn') !== 'true') window.location = 'login.html';
+    if (localStorage.getItem('loggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
 
-    const endpointMasuk = API_ENDPOINT + '?action=get&sheet=Sheet1';
+    const tableBody = document.querySelector("#absensi-table tbody");
+    const filterTanggal = document.getElementById("filter-tanggal");
+    const filterAbsen = document.getElementById("filter-absen");
+
+    const endpointMasuk  = API_ENDPOINT + '?action=get&sheet=Sheet1';
     const endpointPulang = API_ENDPOINT + '?action=get&sheet=Sheet2';
-    const endpointNama = API_ENDPOINT + '?action=nama';
 
-    let allData = [], filterNama = '', filterTipe = '', startDate = '', endDate = '';
-
-   async function loadAll() {
-  document.getElementById('loadingSpinner').style.display = 'block';
-  try {
-    const mRes = await fetch(endpointMasuk).then(r => r.json());
-    const pRes = await fetch(endpointPulang).then(r => r.json());
-    const nRes = await fetch(endpointNama).then(r => r.json());
-
-    const m = mRes.data || [];
-    const p = pRes.data || [];
-    const n = nRes.data || nRes || []; // fallback jika langsung array
-
-    allData = [
-      ...m.map(d => ({ ...d, tipe: 'Masuk' })),
-      ...p.map(d => ({ ...d, tipe: 'Pulang' }))
-    ];
-    renderNamaFilter(n);
-    applyFilters();
-  } catch (e) {
-    console.error('Gagal load data:', e);
-  } finally {
-    document.getElementById('loadingSpinner').style.display = 'none';
-  }
-}
-
-
-    function renderNamaFilter(listNama) {
-      const sel = document.getElementById('filterNama');
-      listNama.forEach(n => {
-        const o = document.createElement('option');
-        o.value = o.textContent = n;
-        sel.appendChild(o);
-      });
+    function formatInputDate(str) {
+      const d = new Date(str);
+      return isNaN(d) ? '' : d.toISOString().split("T")[0];
     }
 
-    function applyFilters() {
-      let data = [...allData];
-      if (startDate && endDate) {
-        const s = new Date(startDate), e = new Date(endDate);
-        e.setHours(23, 59, 59, 999);
-        data = data.filter(d => {
-          const t = new Date(d.timestamp);
-          return t >= s && t <= e;
+    function getDriveThumbnail(url) {
+      const match = url.match(/\/d\/(.+?)\//);
+      const id = match ? match[1] : '';
+      return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w150` : '';
+    }
+
+    async function fetchData() {
+      try {
+        const [resMasuk, resPulang] = await Promise.all([
+          fetch(endpointMasuk).then(r => r.json()),
+          fetch(endpointPulang).then(r => r.json())
+        ]);
+        const masuk  = (resMasuk.data || []).map(d => ({ ...d, tipe: "Masuk" }));
+        const pulang = (resPulang.data || []).map(d => ({ ...d, tipe: "Pulang" }));
+        return [...masuk, ...pulang];
+      } catch (e) {
+        console.error("Gagal ambil data:", e);
+        return [];
+      }
+    }
+
+    async function renderTable() {
+      const data = await fetchData();
+      const tgl = filterTanggal.value;
+      const tipe = filterAbsen.value;
+      tableBody.innerHTML = "";
+
+      data
+        .filter(row => {
+          const tglRow = formatInputDate(row.timestamp);
+          const matchTgl = !tgl || tglRow === tgl;
+          const matchTipe = !tipe || row.tipe === tipe;
+          return matchTgl && matchTipe;
+        })
+        .forEach((row, i) => {
+          const foto = row.linkfoto && row.linkfoto.includes("http")
+            ? `<a href="${row.linkfoto}" target="_blank">
+                <img class="foto-preview" src="${getDriveThumbnail(row.linkfoto)}" alt="foto">
+              </a>` : 'Tidak ada';
+
+          const tr = `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${row.nama || '-'}</td>
+              <td>${row.timestamp || '-'}</td>
+              <td><a href="${row.lokasi}" target="_blank">Lihat Lokasi</a></td>
+              <td>${foto}</td>
+              <td>${row.tipe}</td>
+            </tr>
+          `;
+          tableBody.insertAdjacentHTML('beforeend', tr);
         });
-      }
-      if (filterNama) data = data.filter(d => d.nama === filterNama);
-      if (filterTipe) data = data.filter(d => d.tipe === filterTipe);
-      renderTable(data);
     }
 
-    function renderTable(data) {
-      const body = document.getElementById('absenBody');
-      body.innerHTML = '';
-      if (!data.length) {
-        body.innerHTML = '<tr><td colspan="5">Tidak ada data</td></tr>';
-        return;
-      }
+    function exportExcel() {
+      const wb = XLSX.utils.book_new();
+      const data = Array.from(tableBody.children).map(r => [
+        r.children[0].textContent,
+        r.children[1].textContent,
+        r.children[2].textContent,
+        r.children[3].textContent,
+        r.children[5].textContent
+      ]);
+      const ws = XLSX.utils.aoa_to_sheet([
+        ["Laporan Absensi"], [],
+        ["No", "Nama", "Tanggal & Jam", "Lokasi", "Tipe Absen"],
+        ...data
+      ]);
+      XLSX.utils.book_append_sheet(wb, ws, "Absensi");
+      XLSX.writeFile(wb, `Absensi_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
 
-      data.forEach(d => {
-        const img = d.linkfoto && d.linkfoto.includes("https://")
-          ? `<a href="${d.linkfoto}" target="_blank">
-              <img src="https://drive.google.com/thumbnail?id=${extractId(d.linkfoto)}&sz=w150">
-            </a>`
-          : 'Tidak ada';
+    async function exportPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(14);
+      doc.text("Laporan Absensi", 20, 20);
+      doc.setFontSize(10);
+      let y = 30;
 
-        const row = `
-          <tr>
-            <td>${formatDate(d.timestamp)}</td>
-            <td>${d.nama || "-"}</td>
-            <td><a href="${d.lokasi}" target="_blank">Link</a></td>
-            <td>${img}</td>
-            <td>${d.tipe}</td>
-          </tr>
-        `;
-        body.innerHTML += row;
+      Array.from(tableBody.children).forEach((r, i) => {
+        const nama = r.children[1].textContent;
+        const tgljam = r.children[2].textContent;
+        const tipe = r.children[5].textContent;
+        doc.text(`${i + 1}. ${nama} | ${tgljam} | ${tipe}`, 20, y);
+        y += 6;
+        if (y > 280) {
+          doc.addPage();
+          y = 20;
+        }
       });
+
+      doc.save(`Absensi_${new Date().toISOString().split("T")[0]}.pdf`);
     }
 
-    function extractId(url) {
-      const m = url.match(/\/d\/([^\/]+)/);
-      return m ? m[1] : '';
-    }
-
-    function formatDate(s) {
-      const d = new Date(s), pad = n => ('0' + n).slice(-2);
-      return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
-    }
-
-    document.getElementById('filterTipe').onchange = e => {
-      filterTipe = e.target.value; applyFilters();
-    };
-    document.getElementById('filterNama').onchange = e => {
-      filterNama = e.target.value; applyFilters();
-    };
-    document.getElementById('filterBtn').onclick = () => {
-      startDate = document.getElementById('startDate').value;
-      endDate = document.getElementById('endDate').value;
-      applyFilters();
-    };
-    document.getElementById('resetBtn').onclick = () => {
-      filterNama = filterTipe = startDate = endDate = '';
-      document.getElementById('filterNama').value = '';
-      document.getElementById('filterTipe').value = '';
-      document.getElementById('startDate').value = '';
-      document.getElementById('endDate').value = '';
-      applyFilters();
-    };
-
-    loadAll();
-    setTimeout(() => localStorage.removeItem('loggedIn'), 300000); // auto logout 5 menit
+    filterTanggal.addEventListener("change", renderTable);
+    filterAbsen.addEventListener("change", renderTable);
+    window.addEventListener("load", renderTable);
+    setTimeout(() => localStorage.removeItem('loggedIn'), 3600000); // 1 jam auto logout
   </script>
 </body>
 </html>
