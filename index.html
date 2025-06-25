@@ -69,14 +69,16 @@
       .catch(err => alert("Gagal akses kamera: " + err.message));
 
     // Ambil lokasi
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        userLocation = `${pos.coords.latitude}, ${pos.coords.longitude}`;
-      },
-      (err) => {
-        console.warn("Gagal ambil lokasi: " + err.message);
-      }
-    );
+navigator.geolocation.getCurrentPosition(
+  (pos) => {
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+    userLocation = `https://www.google.com/maps?q=${lat},${lon}`;
+  },
+  (err) => {
+    console.warn("Gagal ambil lokasi: " + err.message);
+  }
+);
 
     document.getElementById('absensiForm').addEventListener('submit', async function (e) {
       e.preventDefault();
