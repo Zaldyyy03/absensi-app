@@ -147,12 +147,16 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         canvas.toBlob(blob => {
-          const url = `${CONFIG.endpoint}?nama=${encodeURIComponent(nama)}&lokasi=${encodeURIComponent(lokasi)}&tipe=${tipeAbsen}`;
+  const formData = new FormData();
+  formData.append("nama", nama);
+  formData.append("lokasi", lokasi);
+  formData.append("tipe", tipeAbsen);
+  formData.append("file", blob, "absensi.jpg"); // nama harus 'file'
 
-          fetch(url, {
-            method: "POST",
-            body: blob
-          })
+  fetch(CONFIG.endpoint, {
+    method: "POST",
+    body: formData
+  })
           .then(r => r.json())
           .then(res => {
             showLoading(false);
