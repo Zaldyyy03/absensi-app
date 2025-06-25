@@ -64,25 +64,30 @@
 
     let allData = [], filterNama = '', filterTipe = '', startDate = '', endDate = '';
 
-    async function loadAll() {
-      document.getElementById('loadingSpinner').style.display = 'block';
-      try {
-        const m = await fetch(endpointMasuk).then(r => r.json());
-        const p = await fetch(endpointPulang).then(r => r.json());
-        const n = await fetch(endpointNama).then(r => r.json());
+   async function loadAll() {
+  document.getElementById('loadingSpinner').style.display = 'block';
+  try {
+    const mRes = await fetch(endpointMasuk).then(r => r.json());
+    const pRes = await fetch(endpointPulang).then(r => r.json());
+    const nRes = await fetch(endpointNama).then(r => r.json());
 
-        allData = [
-          ...m.map(d => ({ ...d, tipe: 'Masuk' })),
-          ...p.map(d => ({ ...d, tipe: 'Pulang' }))
-        ];
-        renderNamaFilter(n);
-        applyFilters();
-      } catch (e) {
-        console.error('Gagal load data:', e);
-      } finally {
-        document.getElementById('loadingSpinner').style.display = 'none';
-      }
-    }
+    const m = mRes.data || [];
+    const p = pRes.data || [];
+    const n = nRes.data || nRes || []; // fallback jika langsung array
+
+    allData = [
+      ...m.map(d => ({ ...d, tipe: 'Masuk' })),
+      ...p.map(d => ({ ...d, tipe: 'Pulang' }))
+    ];
+    renderNamaFilter(n);
+    applyFilters();
+  } catch (e) {
+    console.error('Gagal load data:', e);
+  } finally {
+    document.getElementById('loadingSpinner').style.display = 'none';
+  }
+}
+
 
     function renderNamaFilter(listNama) {
       const sel = document.getElementById('filterNama');
