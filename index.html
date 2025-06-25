@@ -126,70 +126,71 @@
       loadNamaKaryawan();
     });
 
-    function ambilFoto() {
-      const nama = document.getElementById("nama").value;
-      const tipeAbsen = document.getElementById("tipeAbsen").value;
+function ambilFoto() {
+  const nama = document.getElementById("nama").value;
+  const tipeAbsen = document.getElementById("tipeAbsen").value;
 
-      if (!nama) {
-        alert("Silakan pilih nama terlebih dahulu.");
-        return;
-      }
+  if (!nama) {
+    alert("Silakan pilih nama terlebih dahulu.");
+    return;
+  }
 
-      if (!video.srcObject) {
-        alert("Kamera belum aktif. Mohon izinkan akses kamera.");
-        return;
-      }
+  if (!video.srcObject) {
+    alert("Kamera belum aktif. Mohon izinkan akses kamera.");
+    return;
+  }
 
-      showLoading(true);
-      status.innerText = "";
+  showLoading(true);
+  status.innerText = "";
 
-      navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const long = pos.coords.longitude;
-        const lokasi = `https://www.google.com/maps?q=${lat},${long}`;
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude;
+    const long = pos.coords.longitude;
+    const lokasi = `https://www.google.com/maps?q=${lat},${long}`;
 
-        // Ambil foto dari video ke canvas
-        const context = canvas.getContext("2d");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const context = canvas.getContext("2d");
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Konversi canvas ke blob
-const formData = new FormData();
-formData.append("nama", nama);
-formData.append("lokasi", lokasi);
-formData.append("tipe", tipeAbsen);
+    // ⛳️ PENTING: di sini blob baru dibuat
+    canvas.toBlob(blob => {
+      const formData = new FormData();
+      formData.append("nama", nama);
+      formData.append("lokasi", lokasi);
+      formData.append("tipe", tipeAbsen);
 
-// KHUSUS! tambahkan blob TANPA NAMA agar masuk ke e.blob
-formData.append("", blob, `${Date.now()}_${nama}_${tipeAbsen}.jpg`);
-          fetch(CONFIG.endpoint, {
-            method: "POST",
-            body: formData
-          })
-          .then(r => r.json())
-          .then(res => {
-            showLoading(false);
-            if (res.success) {
-              showPopup(`Absensi ${tipeAbsen} berhasil!`);
-              speak("Absensi berhasil. Terima kasih.");
-              document.getElementById("nama").value = "";
-            } else {
-              alert("Gagal: " + res.message);
-            }
-          })
-          .catch(() => {
-            showLoading(false);
-            status.innerText = "Gagal mengirim data.";
-          });
+      // ✅ INI BARU AMAN
+      formData.append("", blob, `${Date.now()}_${nama}_${tipeAbsen}.jpg`);
 
-        }, "image/jpeg", 0.95);
-
-      }, () => {
+      fetch(CONFIG.endpoint, {
+        method: "POST",
+        body: formData
+      })
+      .then(r => r.json())
+      .then(res => {
         showLoading(false);
-        status.innerText = "Gagal mendapatkan lokasi.";
-        alert("Gagal mendapatkan lokasi. Mohon izinkan akses lokasi.");
+        if (res.success) {
+          showPopup(`Absensi ${tipeAbsen} berhasil!`);
+          speak("Absensi berhasil. Terima kasih.");
+          document.getElementById("nama").value = "";
+        } else {
+          alert("Gagal: " + res.message);
+        }
+      })
+      .catch(() => {
+        showLoading(false);
+        status.innerText = "Gagal mengirim data.";
       });
-    }
+
+    }, "image/jpeg", 0.95);
+
+  }, () => {
+    showLoading(false);
+    status.innerText = "Gagal mendapatkan lokasi.";
+    alert("Gagal mendapatkan lokasi. Mohon izinkan akses lokasi.");
+  });
+}
   </script>
 </body>
 </html>
