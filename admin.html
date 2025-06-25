@@ -230,17 +230,14 @@ window.addEventListener("load", () => {
 
     async function fetchData() {
       try {
-        const [resMasuk, resPulang] = await Promise.all([
-          fetch(endpointMasuk).then(r => r.json()),
-          fetch(endpointPulang).then(r => r.json())
-        ]);
-        const masuk  = (resMasuk.data || []).map(d => ({ ...d, tipe: "Masuk" }));
-        const pulang = (resPulang.data || []).map(d => ({ ...d, tipe: "Pulang" }));
-        return [...masuk, ...pulang];
+        const res = await fetch(endpoint);
+        const json = await res.json();
+        return Array.isArray(json) ? json : (json.absensi || []);
       } catch (e) {
-        console.error("Gagal ambil data:", e);
+        console.error("Gagal mengambil data:", e);
         return [];
       }
+    }
     }
 
     async function renderTable() {
