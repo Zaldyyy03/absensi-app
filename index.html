@@ -160,7 +160,7 @@
           formData.append("nama", nama);
           formData.append("lokasi", lokasi);
           formData.append("tipe", tipeAbsen);
-          formData.append("foto", blob, `${Date.now()}_${nama}.jpg`);
+          formData.append("blob", blob, `${Date.now()}_${nama}.jpg`);
 
           fetch(CONFIG.endpoint, {
             method: "POST",
