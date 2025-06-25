@@ -208,8 +208,14 @@
     const filterTanggal = document.getElementById("filter-tanggal");
     const filterAbsen = document.getElementById("filter-absen");
 
-    const endpointMasuk  = API_ENDPOINT + '?action=get&sheet=Sheet1';
-    const endpointPulang = API_ENDPOINT + '?action=get&sheet=Sheet2';
+let endpointMasuk = '';
+let endpointPulang = '';
+
+window.addEventListener("load", () => {
+  endpointMasuk  = API_ENDPOINT + '?action=get&sheet=Sheet1';
+  endpointPulang = API_ENDPOINT + '?action=get&sheet=Sheet2';
+  renderTable(); // baru jalan setelah endpoint tersedia
+});
 
     function formatInputDate(str) {
       const d = new Date(str);
