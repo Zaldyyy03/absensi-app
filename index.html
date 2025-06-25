@@ -1,186 +1,102 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Absensi Karyawan SES_GS</title>
-  <link rel="icon" type="image/png" href="pertamina-logoicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iAbsensi Karyawan</title>
   <style>
-    body { font-family: Arial; background: #f8f8f8; text-align: center; padding: 20px; }
-    .logo { height: 60px; margin-bottom: 5px; }
-    h2 { color: #e53935; margin-top: 5px; }
-    input, button, select {
-      padding: 12px; margin: 10px 0; width: 90%; max-width: 320px;
-      border: 1px solid #ccc; border-radius: 8px; font-size: 16px;
-    }
-    video, canvas {
-      margin-top: 10px; width: 90%; max-width: 320px; border-radius: 10px;
-    }
-    button {
-      background-color: #1976d2; color: white; font-weight: bold; border: none; cursor: pointer;
-    }
-    button:hover { background-color: #1565c0; }
-    #loading {
-      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(255,255,255,0.8); z-index: 9999; align-items: center; justify-content: center;
-    }
-    .spinner {
-      border: 6px solid #ccc; border-top: 6px solid #1976d2;
-      border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    #popup {
-      display: none; position: fixed; bottom: 20px; left: 50%;
-      transform: translateX(-50%); background: #4caf50; color: white;
-      padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 10000;
-      font-weight: bold;
-    }
+    body { font-family: sans-serif; background: #f2f2f2; text-align: center; padding: 20px; }
+    h2 { color: #1976d2; }
+    select, button { padding: 12px; width: 90%; max-width: 360px; margin: 10px auto; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
+    video { width: 90%; max-width: 360px; border-radius: 12px; margin-top: 10px; }
+    #status { margin-top: 15px; font-weight: bold; color: green; }
   </style>
 </head>
 <body>
 
-  <div id="loading"><div class="spinner"></div></div>
-  <div id="popup">Absensi berhasil!</div>
+  <h2>iAbsensi Karyawan</h2>
 
-  <img src="pertamina-logo.png" alt="Logo Pertamina" class="logo">
-  <h2>Absensi Karyawan</h2>
-
-  <select id="nama" required>
+  <select id="nama">
     <option value="">Pilih Nama</option>
   </select>
-  <br>
 
-  <label for="tipeAbsen">Pilih Tipe Absensi:</label>
-  <select id="tipeAbsen">
+  <select id="tipe">
     <option value="masuk">Absen Masuk</option>
     <option value="pulang">Absen Pulang</option>
   </select>
-  <br>
 
   <video id="video" autoplay playsinline></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-  <br>
+  <canvas id="canvas" style="display: none;"></canvas>
 
-  <button onclick="ambilFoto()">Ambil Foto & Absen</button>
+  <button onclick="absen()">Ambil Foto & Absen</button>
   <p id="status"></p>
 
   <script>
-    const CONFIG = {
-      endpoint: "https://script.google.com/macros/s/AKfycbyoXF7L2KJjOW8wu7z2fWYzgfZjcNp40DwBdn32XNikkpFL_c-9yvdgv8KuX0xTJQDt/exec"
-    };
+    const endpoint = "https://script.google.com/macros/s/AKfycbwZJV1Ra1jnqBlxHpzySHQfIMg_VzYvWTEGo1P10IZ9Zjfrrj_YkBqRD6w4giWbOCA/exec";
 
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const status = document.getElementById("status");
-    const loading = document.getElementById("loading");
-    const popup = document.getElementById("popup");
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const status = document.getElementById('status');
 
-    let femaleVoice;
-    window.speechSynthesis.onvoiceschanged = () => {
-      const voices = speechSynthesis.getVoices();
-      femaleVoice = voices.find(v => v.lang === "id-ID" && (v.name.toLowerCase().includes("female") || v.name.toLowerCase().includes("indonesia")));
-    };
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+      .then(stream => video.srcObject = stream)
+      .catch(() => alert("Izin kamera diperlukan."));
 
-    function speak(text) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      if (femaleVoice) utterance.voice = femaleVoice;
-      utterance.lang = "id-ID";
-      speechSynthesis.speak(utterance);
-    }
-
-    function showLoading(show) {
-      loading.style.display = show ? "flex" : "none";
-    }
-
-    function showPopup(text) {
-      popup.innerText = text;
-      popup.style.display = "block";
-      setTimeout(() => { popup.style.display = "none"; }, 3000);
-    }
-
-    function loadNamaKaryawan() {
-      fetch(CONFIG.endpoint + "?action=listnama")
-        .then(r => r.json())
-        .then(data => {
-          const sel = document.getElementById("nama");
-          sel.innerHTML = '<option value="">Pilih Nama</option>';
-          data.nama.forEach(n => {
-            const o = document.createElement("option");
-            o.value = o.textContent = n;
-            sel.appendChild(o);
-          });
-        })
-        .catch(() => alert("Gagal memuat daftar karyawan."));
-    }
-
-    window.addEventListener("load", () => {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-        .then(stream => {
-          video.srcObject = stream;
-        })
-        .catch(err => {
-          status.innerText = "Mohon izinkan akses kamera.";
-          alert("Mohon izinkan akses kamera di browser Anda.");
+    // Ambil daftar karyawan
+    fetch(endpoint + "?action=listnama")
+      .then(r => r.json())
+      .then(data => {
+        const select = document.getElementById("nama");
+        data.nama.forEach(n => {
+          const opt = document.createElement("option");
+          opt.value = opt.textContent = n;
+          select.appendChild(opt);
         });
+      });
 
-      loadNamaKaryawan();
-    });
-
-    function ambilFoto() {
+    function absen() {
       const nama = document.getElementById("nama").value;
-      const tipeAbsen = document.getElementById("tipeAbsen").value;
+      const tipe = document.getElementById("tipe").value;
 
-      if (!nama) return alert("Silakan pilih nama terlebih dahulu.");
-      if (!video.srcObject) return alert("Kamera belum aktif. Mohon izinkan akses kamera.");
-
-      showLoading(true);
-      status.innerText = "";
+      if (!nama) return alert("Silakan pilih nama.");
 
       navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const long = pos.coords.longitude;
-        const lokasi = `https://www.google.com/maps?q=${lat},${long}`;
+        const lokasi = `https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
 
-        const context = canvas.getContext("2d");
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
 
         canvas.toBlob(blob => {
-  const formData = new FormData();
-  formData.append("nama", nama);
-  formData.append("lokasi", lokasi);
-  formData.append("tipe", tipeAbsen);
-  formData.append("file", blob, "absensi.jpg"); // nama harus 'file'
+          const formData = new FormData();
+          formData.append("nama", nama);
+          formData.append("lokasi", lokasi);
+          formData.append("tipe", tipe);
+          formData.append("file", blob, `${Date.now()}_${nama}_${tipe}.jpg`);
 
-  fetch(CONFIG.endpoint, {
-    method: "POST",
-    body: formData
-  })
+          fetch(endpoint, {
+            method: "POST",
+            body: formData
+          })
           .then(r => r.json())
           .then(res => {
-            showLoading(false);
             if (res.success) {
-              showPopup(`Absensi ${tipeAbsen} berhasil!`);
-              speak("Absensi berhasil. Terima kasih.");
-              document.getElementById("nama").value = "";
+              status.innerText = "✅ Absensi berhasil!";
             } else {
-              alert("Gagal: " + res.message);
+              status.innerText = "❌ Gagal: " + res.message;
             }
           })
-          .catch(() => {
-            showLoading(false);
-            status.innerText = "Gagal mengirim data.";
+          .catch(err => {
+            status.innerText = "❌ Gagal kirim data";
+            console.error(err);
           });
 
-        }, "image/jpeg", 0.95);
-
+        }, "image/jpeg", 0.9);
       }, () => {
-        showLoading(false);
-        status.innerText = "Gagal mendapatkan lokasi.";
-        alert("Gagal mendapatkan lokasi. Mohon izinkan akses lokasi.");
+        alert("Gagal ambil lokasi.");
       });
     }
   </script>
+
 </body>
 </html>
