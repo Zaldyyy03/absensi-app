@@ -83,21 +83,16 @@
     let userLocation = "Tidak diketahui";
 
     // Ambil daftar nama
-fetch(API_NAMA)
-  .then(r => r.json())
-  .then(data => {
-    console.log("Data nama:", data); // Tambahkan ini
-    namaEl.innerHTML = '<option value="">-- Pilih Nama --</option>';
-    data.forEach(n => {
-      const o = document.createElement('option');
-      o.value = o.textContent = n;
-      namaEl.appendChild(o);
-    });
-  })
-  .catch(err => {
-    console.error("Gagal ambil nama:", err);
-    alert("Gagal ambil nama: " + err.message);
-  });
+    fetch(API_NAMA)
+      .then(r => r.json())
+      .then(data => {
+        namaEl.innerHTML = '<option value="">-- Pilih Nama --</option>';
+        data.forEach(n => {
+          const o = document.createElement('option');
+          o.value = o.textContent = n;
+          namaEl.appendChild(o);
+        });
+      });
 
     // Akses kamera depan
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
