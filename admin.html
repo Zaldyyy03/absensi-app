@@ -161,61 +161,58 @@
 <body>
   <div class="container">
     <a class="dashboard-button" href="dashboard.html">← Dashboard</a>
-    <div class="header">
-      <h2>Data Absensi Karyawan</h2>
-    </div>
+    <div class="header"><h2>Data Absensi Karyawan</h2></div>
 
     <div class="filters">
       <label for="filter-tanggal">Tanggal:</label>
       <input type="date" id="filter-tanggal">
-
       <label for="filter-absen">Tipe Absen:</label>
       <select id="filter-absen">
         <option value="">Semua</option>
         <option value="Masuk">Absen Masuk</option>
         <option value="Pulang">Absen Pulang</option>
       </select>
-
-      <button onclick="renderTable()">Terapkan Filter</button>
-      <button onclick="exportExcel()">Export Excel</button>
-      <button onclick="exportPDF()">Export PDF</button>
+      <button id="btn-filter">Terapkan Filter</button>
+      <button id="btn-excel">Export Excel</button>
+      <button id="btn-pdf">Export PDF</button>
     </div>
 
     <table id="absensi-table">
       <thead>
         <tr>
-          <th>No</th>
-          <th>Nama</th>
-          <th>Tanggal & Jam</th>
-          <th>Lokasi</th>
-          <th>Foto</th>
-          <th>Tipe Absen</th>
+          <th>No</th><th>Nama</th><th>Tanggal & Jam</th><th>Lokasi</th><th>Foto</th><th>Tipe Absen</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
   </div>
 
+  <!-- config.js HARUS berisi: 
+       const API_ENDPOINT = 'https://script.google.com/macros/s/AKfy.../exec';
+  -->
   <script src="config.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
   <script>
     if (localStorage.getItem('loggedIn') !== 'true') {
-      window.location.href = 'login.html';
+      location.href = 'login.html';
     }
 
-    const tableBody = document.querySelector("#absensi-table tbody");
+    const tableBody     = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
-    const filterAbsen = document.getElementById("filter-absen");
+    const filterAbsen   = document.getElementById("filter-absen");
+    const btnFilter     = document.getElementById("btn-filter");
+    const btnExcel      = document.getElementById("btn-excel");
+    const btnPdf        = document.getElementById("btn-pdf");
 
-let endpointMasuk = '';
-let endpointPulang = '';
+    let endpointMasuk, endpointPulang;
 
-window.addEventListener("load", () => {
-  endpointMasuk  = API_ENDPOINT + '?action=get&sheet=Sheet1';
-  endpointPulang = API_ENDPOINT + '?action=get&sheet=Sheet2';
-  renderTable(); // baru jalan setelah endpoint tersedia
-});
+    window.addEventListener("load", () => {
+      // Inisialisasi endpoint setelah config.js di-load
+      endpointMasuk  = API_ENDPOINT + '?action=get&sheet=Sheet1';
+      endpointPulang = API_ENDPOINT + '?action=get&sheet=Sheet2';
+      renderTable();
+    });
 
     function formatInputDate(str) {
       const d = new Date(str);
@@ -223,101 +220,97 @@ window.addEventListener("load", () => {
     }
 
     function getDriveThumbnail(url) {
-      const match = url.match(/\/d\/(.+?)\//);
-      const id = match ? match[1] : '';
-      return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w150` : '';
+      const m = url.match(/\/d\/([^\/]+)/);
+      return m ? `https://drive.google.com/thumbnail?id=${m[1]}&sz=w150` : '';
     }
 
     async function fetchData() {
       try {
-        const res = await fetch(endpoint);
-        const json = await res.json();
-        return Array.isArray(json) ? json : (json.absensi || []);
-      } catch (e) {
-        console.error("Gagal mengambil data:", e);
+        const [resM, resP] = await Promise.all([
+          fetch(endpointMasuk).then(r => r.json()),
+          fetch(endpointPulang).then(r => r.json())
+        ]);
+        const masuk  = (resM.data || []).map(d => ({ ...d, tipe: "Masuk" }));
+        const pulang = (resP.data || []).map(d => ({ ...d, tipe: "Pulang" }));
+        return [...masuk, ...pulang];
+      } catch (err) {
+        console.error("Gagal ambil data:", err);
         return [];
       }
-    }
     }
 
     async function renderTable() {
       const data = await fetchData();
-      const tgl = filterTanggal.value;
-      const tipe = filterAbsen.value;
+      const tgl   = filterTanggal.value;
+      const tipe  = filterAbsen.value;
       tableBody.innerHTML = "";
 
       data
         .filter(row => {
-          const tglRow = formatInputDate(row.timestamp);
-          const matchTgl = !tgl || tglRow === tgl;
-          const matchTipe = !tipe || row.tipe === tipe;
-          return matchTgl && matchTipe;
+          const t = formatInputDate(row.timestamp);
+          return (!tgl || t === tgl) && (!tipe || row.tipe === tipe);
         })
         .forEach((row, i) => {
-          const foto = row.linkfoto && row.linkfoto.includes("http")
+          const fotoCell = row.linkfoto && row.linkfoto.includes("http")
             ? `<a href="${row.linkfoto}" target="_blank">
-                <img class="foto-preview" src="${getDriveThumbnail(row.linkfoto)}" alt="foto">
-              </a>` : 'Tidak ada';
-
-          const tr = `
+                 <img class="foto-preview" src="${getDriveThumbnail(row.linkfoto)}">
+               </a>`
+            : '—';
+          tableBody.insertAdjacentHTML("beforeend", `
             <tr>
-              <td>${i + 1}</td>
-              <td>${row.nama || '-'}</td>
-              <td>${row.timestamp || '-'}</td>
-              <td><a href="${row.lokasi}" target="_blank">Lihat Lokasi</a></td>
-              <td>${foto}</td>
+              <td>${i+1}</td>
+              <td>${row.nama||'—'}</td>
+              <td>${row.timestamp||'—'}</td>
+              <td><a href="${row.lokasi}" target="_blank">Lihat</a></td>
+              <td>${fotoCell}</td>
               <td>${row.tipe}</td>
             </tr>
-          `;
-          tableBody.insertAdjacentHTML('beforeend', tr);
+          `);
         });
     }
 
     function exportExcel() {
       const wb = XLSX.utils.book_new();
-      const data = Array.from(tableBody.children).map(r => [
-        r.children[0].textContent,
-        r.children[1].textContent,
-        r.children[2].textContent,
-        r.children[3].textContent,
-        r.children[5].textContent
+      const arr = Array.from(tableBody.children).map(r=>[
+        r.cells[0].textContent,
+        r.cells[1].textContent,
+        r.cells[2].textContent,
+        r.cells[3].textContent,
+        r.cells[5].textContent
       ]);
       const ws = XLSX.utils.aoa_to_sheet([
         ["Laporan Absensi"], [],
-        ["No", "Nama", "Tanggal & Jam", "Lokasi", "Tipe Absen"],
-        ...data
+        ["No","Nama","Tanggal & Jam","Lokasi","Tipe Absen"],
+        ...arr
       ]);
       XLSX.utils.book_append_sheet(wb, ws, "Absensi");
-      XLSX.writeFile(wb, `Absensi_${new Date().toISOString().split('T')[0]}.xlsx`);
+      XLSX.writeFile(wb, `Absensi_${new Date().toISOString().split("T")[0]}.xlsx`);
     }
 
-    async function exportPDF() {
+    function exportPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      doc.setFontSize(14);
-      doc.text("Laporan Absensi", 20, 20);
+      doc.setFontSize(14).text("Laporan Absensi", 20, 20);
       doc.setFontSize(10);
       let y = 30;
-
-      Array.from(tableBody.children).forEach((r, i) => {
-        const nama = r.children[1].textContent;
-        const tgljam = r.children[2].textContent;
-        const tipe = r.children[5].textContent;
-        doc.text(`${i + 1}. ${nama} | ${tgljam} | ${tipe}`, 20, y);
-        y += 6;
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
+      Array.from(tableBody.children).forEach((r,i) => {
+        const nama = r.cells[1].textContent;
+        const tgljam = r.cells[2].textContent;
+        const tipe   = r.cells[5].textContent;
+        doc.text(`${i+1}. ${nama} | ${tgljam} | ${tipe}`, 20, y);
+        y += 7;
+        if (y>280){ doc.addPage(); y=20; }
       });
-
       doc.save(`Absensi_${new Date().toISOString().split("T")[0]}.pdf`);
     }
 
+    btnFilter.addEventListener("click", renderTable);
+    btnExcel.addEventListener("click", exportExcel);
+    btnPdf.addEventListener("click", exportPDF);
     filterTanggal.addEventListener("change", renderTable);
     filterAbsen.addEventListener("change", renderTable);
-    window.addEventListener("load", renderTable);
-    setTimeout(() => localStorage.removeItem('loggedIn'), 3600000); // 1 jam auto logout
+
+    setTimeout(() => localStorage.removeItem('loggedIn'), 3600000);
   </script>
 </body>
 </html>
