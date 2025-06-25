@@ -155,13 +155,13 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         // Konversi canvas ke blob
-        canvas.toBlob(blob => {
-          const formData = new FormData();
-          formData.append("nama", nama);
-          formData.append("lokasi", lokasi);
-          formData.append("tipe", tipeAbsen);
-          formData.append("file", blob, `${Date.now()}_${nama}.jpg`);
+const formData = new FormData();
+formData.append("nama", nama);
+formData.append("lokasi", lokasi);
+formData.append("tipe", tipeAbsen);
 
+// KHUSUS! tambahkan blob TANPA NAMA agar masuk ke e.blob
+formData.append("", blob, `${Date.now()}_${nama}_${tipeAbsen}.jpg`);
           fetch(CONFIG.endpoint, {
             method: "POST",
             body: formData
