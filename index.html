@@ -13,9 +13,8 @@
       padding: 12px; margin: 10px 0; width: 90%; max-width: 320px;
       border: 1px solid #ccc; border-radius: 8px; font-size: 16px;
     }
-    input[type="file"] {
-      margin-top: 10px; width: 90%; max-width: 320px;
-      border-radius: 10px; border: 1px dashed #ccc;
+    video, canvas {
+      margin-top: 10px; width: 90%; max-width: 320px; border-radius: 10px;
     }
     button {
       background-color: #1976d2; color: white; font-weight: bold; border: none; cursor: pointer;
@@ -58,10 +57,11 @@
   </select>
   <br>
 
-  <input type="file" id="fileInput" accept="image/*" capture="environment" required />
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
   <br>
 
-  <button onclick="kirimAbsensi()">Kirim Absensi</button>
+  <button onclick="ambilFoto()">Ambil Foto & Absen</button>
   <p id="status"></p>
 
   <script>
@@ -69,6 +69,9 @@
       endpoint: "https://script.google.com/macros/s/AKfycbwgfRh-oSA7rKvc35m_KxesifaTlhAxbuqV0EqVPOadnQ7UUzO7NflK4nYYjrBdkEgr/exec"
     };
 
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const status = document.getElementById("status");
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
@@ -110,57 +113,83 @@
         .catch(() => alert("Gagal memuat daftar karyawan."));
     }
 
-    function kirimAbsensi() {
+    window.addEventListener("load", () => {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then(stream => {
+          video.srcObject = stream;
+        })
+        .catch(err => {
+          status.innerText = "Mohon izinkan akses kamera.";
+          alert("Mohon izinkan akses kamera di browser Anda.");
+        });
+
+      loadNamaKaryawan();
+    });
+
+    function ambilFoto() {
       const nama = document.getElementById("nama").value;
       const tipeAbsen = document.getElementById("tipeAbsen").value;
-      const file = document.getElementById("fileInput").files[0];
 
-      if (!nama || !file) {
-        alert("Nama dan foto wajib diisi.");
+      if (!nama) {
+        alert("Silakan pilih nama terlebih dahulu.");
+        return;
+      }
+
+      if (!video.srcObject) {
+        alert("Kamera belum aktif. Mohon izinkan akses kamera.");
         return;
       }
 
       showLoading(true);
+      status.innerText = "";
 
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
         const long = pos.coords.longitude;
         const lokasi = `https://www.google.com/maps?q=${lat},${long}`;
 
-        const formData = new FormData();
-        formData.append("nama", nama);
-        formData.append("lokasi", lokasi);
-        formData.append("tipe", tipeAbsen);
-        formData.append("foto", file);
+        // Ambil foto dari video ke canvas
+        const context = canvas.getContext("2d");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        fetch(CONFIG.endpoint, {
-          method: "POST",
-          body: formData
-        })
-        .then(r => r.json())
-        .then(res => {
-          showLoading(false);
-          if (res.success) {
-            showPopup(`Absensi ${tipeAbsen} berhasil!`);
-            speak("Absensi berhasil. Terima kasih.");
-            document.getElementById("nama").value = "";
-            document.getElementById("fileInput").value = "";
-          } else {
-            alert("Gagal: " + res.message);
-          }
-        })
-        .catch(err => {
-          showLoading(false);
-          alert("Gagal mengirim data.");
-        });
+        // Konversi canvas ke blob
+        canvas.toBlob(blob => {
+          const formData = new FormData();
+          formData.append("nama", nama);
+          formData.append("lokasi", lokasi);
+          formData.append("tipe", tipeAbsen);
+          formData.append("foto", blob, `${Date.now()}_${nama}.jpg`);
+
+          fetch(CONFIG.endpoint, {
+            method: "POST",
+            body: formData
+          })
+          .then(r => r.json())
+          .then(res => {
+            showLoading(false);
+            if (res.success) {
+              showPopup(`Absensi ${tipeAbsen} berhasil!`);
+              speak("Absensi berhasil. Terima kasih.");
+              document.getElementById("nama").value = "";
+            } else {
+              alert("Gagal: " + res.message);
+            }
+          })
+          .catch(() => {
+            showLoading(false);
+            status.innerText = "Gagal mengirim data.";
+          });
+
+        }, "image/jpeg", 0.95);
 
       }, () => {
         showLoading(false);
-        alert("Gagal mendapatkan lokasi.");
+        status.innerText = "Gagal mendapatkan lokasi.";
+        alert("Gagal mendapatkan lokasi. Mohon izinkan akses lokasi.");
       });
     }
-
-    window.addEventListener("load", loadNamaKaryawan);
   </script>
 </body>
 </html>
