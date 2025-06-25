@@ -59,9 +59,6 @@
 
   <script src="config.js"></script>
   <script>
-    if (localStorage.getItem('loggedIn') !== 'true') {
-      window.location.href = 'login.html';
-    }
 
     const API_NAMA = API_ENDPOINT + '?action=nama';
     const SUBMIT_URL = API_ENDPOINT;
@@ -149,7 +146,6 @@
       }
     });
 
-    setTimeout(() => localStorage.removeItem('loggedIn'), 300000);
   </script>
 </body>
 </html>
