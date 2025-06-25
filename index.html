@@ -1,11 +1,13 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Absensi SES_GS (i-Absensi)</title>
+  <title>i-Absensi SES_GS</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
+    body { font-family: 'Inter', sans-serif; }
     .loader {
       border: 4px solid #e5e7eb;
       border-top: 4px solid #6366f1;
@@ -14,52 +16,59 @@
       height: 40px;
       animation: spin 1s linear infinite;
     }
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
-    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
   </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-100 to-white min-h-screen flex items-center justify-center p-4 relative">
+<body class="bg-gradient-to-br from-indigo-100 to-white min-h-screen flex items-center justify-center px-4 relative">
 
-  <!-- 🔹 Loading Overlay -->
+  <!-- Loading Overlay -->
   <div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
     <div class="loader"></div>
   </div>
 
-  <!-- 🔹 Tombol ke Dashboard -->
-  <a href="dashboard.html" class="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow">
-    Ke Dashboard
+  <!-- Tombol ke Dashboard -->
+  <a href="dashboard.html" class="absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl shadow-md text-sm">
+    Dashboard
   </a>
 
-  <!-- 🔹 Form Absensi -->
-  <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-8">
-    <h2 class="text-3xl font-bold text-indigo-700 mb-6 text-center">Absensi SES_GS (i-Absensi)</h2>
-    <form id="absensiForm" class="space-y-6">
+  <!-- Card Form -->
+  <div class="bg-white shadow-xl rounded-2xl w-full max-w-md p-6 space-y-6">
+    <h2 class="text-2xl font-semibold text-indigo-700 text-center">i-Absensi SES_GS</h2>
+
+    <form id="absensiForm" class="space-y-4">
+      <!-- Nama -->
       <div>
-        <label for="nama" class="block text-sm font-medium text-gray-600">Nama</label>
-        <select id="nama" required class="mt-2 block w-full border border-gray-300 rounded-lg shadow-sm p-3"></select>
+        <label for="nama" class="text-sm text-gray-600 font-medium">👤 Nama</label>
+        <select id="nama" required class="mt-1 block w-full rounded-lg border border-gray-300 p-2.5 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-gray-50">
+          <option value="">Memuat...</option>
+        </select>
       </div>
+
+      <!-- Tipe -->
       <div>
-        <label for="tipe" class="block text-sm font-medium text-gray-600">Tipe Absen</label>
-        <select id="tipe" required class="mt-2 block w-full border border-gray-300 rounded-lg shadow-sm p-3">
+        <label for="tipe" class="text-sm text-gray-600 font-medium">📌 Tipe Absen</label>
+        <select id="tipe" required class="mt-1 block w-full rounded-lg border border-gray-300 p-2.5 focus:ring-indigo-500 focus:border-indigo-500 text-sm bg-gray-50">
           <option value="Masuk">Masuk</option>
           <option value="Pulang">Pulang</option>
         </select>
       </div>
+
+      <!-- Kamera -->
       <div>
-        <label class="block text-sm font-medium text-gray-600"></label>
-        <video id="camera" autoplay playsinline class="w-full rounded-lg border"></video>
+        <label class="text-sm text-gray-600 font-medium">📷 Kamera</label>
+        <video id="camera" autoplay playsinline class="mt-2 w-full rounded-lg border shadow-sm"></video>
         <canvas id="canvas" class="hidden"></canvas>
       </div>
-      <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-lg">
-        Absen
+
+      <!-- Tombol Submit -->
+      <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg shadow">
+        ✅ Absen Sekarang
       </button>
     </form>
   </div>
 
   <script src="config.js"></script>
   <script>
-
     const API_NAMA = API_ENDPOINT + '?action=nama';
     const SUBMIT_URL = API_ENDPOINT;
 
@@ -73,10 +82,11 @@
 
     let userLocation = "Tidak diketahui";
 
-    // Load nama
+    // Ambil daftar nama
     fetch(API_NAMA)
       .then(r => r.json())
       .then(data => {
+        namaEl.innerHTML = '<option value="">-- Pilih Nama --</option>';
         data.forEach(n => {
           const o = document.createElement('option');
           o.value = o.textContent = n;
@@ -84,34 +94,31 @@
         });
       });
 
-    // Kamera depan
+    // Akses kamera depan
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
       .then(stream => video.srcObject = stream)
       .catch(err => alert("Gagal akses kamera: " + err.message));
 
-    // Lokasi
+    // Ambil lokasi
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      pos => {
         const lat = pos.coords.latitude;
         const lon = pos.coords.longitude;
-        userLocation = https://www.google.com/maps?q=${lat},${lon};
+        userLocation = `https://www.google.com/maps?q=${lat},${lon}`;
       },
-      (err) => {
-        console.warn("Gagal ambil lokasi: " + err.message);
-      }
+      err => console.warn("Lokasi gagal: " + err.message)
     );
 
-    form.addEventListener('submit', async function (e) {
+    // Submit form
+    form.addEventListener('submit', async e => {
       e.preventDefault();
-
-      // Aktifkan overlay loading dan nonaktifkan tombol
       loadingOverlay.classList.remove('hidden');
       submitBtn.disabled = true;
 
       const nama = namaEl.value;
       const tipe = tipeEl.value;
 
-      // Ambil foto
+      // Tangkap foto
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
@@ -133,19 +140,18 @@
         });
         const result = await res.json();
         if (result.status === 'success') {
-          alert("✅ Absen berhasil dikirim!");
+          alert("✅ Absen berhasil!");
           form.reset();
         } else {
           alert("❌ Gagal: " + result.message);
         }
       } catch (err) {
-        alert("❌ Error koneksi: " + err.message);
+        alert("❌ Koneksi gagal: " + err.message);
       } finally {
         loadingOverlay.classList.add('hidden');
         submitBtn.disabled = false;
       }
     });
-
   </script>
 </body>
 </html>
