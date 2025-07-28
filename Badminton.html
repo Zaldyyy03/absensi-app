@@ -16,11 +16,13 @@
     }
     .scoreboard {
       display: flex;
+      flex-direction: row;
       justify-content: space-around;
       margin-top: 40px;
+      flex-wrap: wrap;
     }
     .player {
-      flex: 1;
+      flex: 1 1 40%;
       margin: 10px;
     }
     .score {
@@ -43,8 +45,17 @@
       background-color: #f44336;
       color: white;
     }
-    audio {
-      display: none;
+    input.name-input {
+      font-size: 1.2rem;
+      padding: 5px 10px;
+      text-align: center;
+      border-radius: 5px;
+      border: none;
+    }
+    @media (max-width: 600px) {
+      .score {
+        font-size: 50px;
+      }
     }
   </style>
 </head>
@@ -54,12 +65,12 @@
 
   <div class="scoreboard">
     <div class="player">
-      <h2>Pemain A</h2>
+      <input class="name-input" id="nameA" value="Pemain A" />
       <div id="scoreA" class="score">0</div>
       <button class="add-btn" onclick="addScore('A')">+1</button>
     </div>
     <div class="player">
-      <h2>Pemain B</h2>
+      <input class="name-input" id="nameB" value="Pemain B" />
       <div id="scoreB" class="score">0</div>
       <button class="add-btn" onclick="addScore('B')">+1</button>
     </div>
@@ -67,15 +78,30 @@
 
   <button class="reset-btn" onclick="resetScore()">🔄 Reset</button>
 
-  <!-- Suara -->
-  <audio id="scoreSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_3cdeb7637e.mp3?filename=correct-2-46134.mp3"></audio>
-
+  <!-- Audio context init -->
   <script>
     let scoreA = 0;
     let scoreB = 0;
-    const scoreSound = document.getElementById('scoreSound');
+    let audioContext, buffer;
+
+    // Load suara sekali saat page dibuka
+    async function initSound() {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const response = await fetch("https://cdn.pixabay.com/download/audio/2022/03/15/audio_3cdeb7637e.mp3?filename=correct-2-46134.mp3");
+      const arrayBuffer = await response.arrayBuffer();
+      buffer = await audioContext.decodeAudioData(arrayBuffer);
+    }
+
+    function playSound() {
+      if (!buffer || !audioContext) return;
+      const source = audioContext.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioContext.destination);
+      source.start(0);
+    }
 
     function addScore(player) {
+      if (!audioContext) initSound(); // Trigger once
       if (player === 'A') {
         scoreA++;
         document.getElementById('scoreA').textContent = scoreA;
@@ -83,7 +109,7 @@
         scoreB++;
         document.getElementById('scoreB').textContent = scoreB;
       }
-      scoreSound.play();
+      playSound();
     }
 
     function resetScore() {
@@ -91,8 +117,15 @@
       scoreB = 0;
       document.getElementById('scoreA').textContent = scoreA;
       document.getElementById('scoreB').textContent = scoreB;
-      scoreSound.play();
+      playSound();
     }
+
+    window.addEventListener('click', function initOnce() {
+      if (!audioContext) {
+        initSound();
+      }
+      window.removeEventListener('click', initOnce);
+    });
   </script>
 
 </body>
