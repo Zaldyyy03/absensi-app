@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Papan Skor Badminton</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    .scoreboard {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 40px;
+    }
+    .player {
+      flex: 1;
+      margin: 10px;
+    }
+    .score {
+      font-size: 80px;
+      margin: 20px 0;
+    }
+    button {
+      font-size: 1.5rem;
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .add-btn {
+      background-color: #4caf50;
+      color: white;
+    }
+    .reset-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Papan Skor Badminton</h1>
+
+  <div class="scoreboard">
+    <div class="player">
+      <h2>Pemain A</h2>
+      <div id="scoreA" class="score">0</div>
+      <button class="add-btn" onclick="addScore('A')">+1</button>
+    </div>
+    <div class="player">
+      <h2>Pemain B</h2>
+      <div id="scoreB" class="score">0</div>
+      <button class="add-btn" onclick="addScore('B')">+1</button>
+    </div>
+  </div>
+
+  <button class="reset-btn" onclick="resetScore()">🔄 Reset</button>
+
+  <!-- Suara -->
+  <audio id="scoreSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_3cdeb7637e.mp3?filename=correct-2-46134.mp3"></audio>
+
+  <script>
+    let scoreA = 0;
+    let scoreB = 0;
+    const scoreSound = document.getElementById('scoreSound');
+
+    function addScore(player) {
+      if (player === 'A') {
+        scoreA++;
+        document.getElementById('scoreA').textContent = scoreA;
+      } else {
+        scoreB++;
+        document.getElementById('scoreB').textContent = scoreB;
+      }
+      scoreSound.play();
+    }
+
+    function resetScore() {
+      scoreA = 0;
+      scoreB = 0;
+      document.getElementById('scoreA').textContent = scoreA;
+      document.getElementById('scoreB').textContent = scoreB;
+      scoreSound.play();
+    }
+  </script>
+
+</body>
+</html>
