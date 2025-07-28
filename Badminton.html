@@ -1,158 +1,118 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Papan Skor Badminton</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
   <style>
     body {
-      background: #111;
+      font-family: Arial, sans-serif;
+      background: #000;
       color: #fff;
-      font-family: 'Orbitron', sans-serif;
-      margin: 0;
-      padding: 20px;
       text-align: center;
+      padding: 20px;
     }
-
     h1 {
-      margin-bottom: 20px;
       font-size: 2rem;
-      letter-spacing: 2px;
     }
-
     .scoreboard {
       display: flex;
       justify-content: space-around;
       flex-wrap: wrap;
-      margin-bottom: 20px;
+      margin-top: 30px;
     }
-
     .player {
-      flex: 1 1 45%;
+      flex: 1 1 40%;
       margin: 10px;
-      background: #222;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
     }
-
-    input.name-input {
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid #fff;
-      color: #fff;
-      font-size: 1.2rem;
-      text-align: center;
-      margin-bottom: 10px;
-      width: 100%;
-    }
-
     .score {
-      font-size: 80px;
+      font-size: 60px;
       margin: 10px 0;
     }
-
-    .serve-indicator {
-      font-size: 1rem;
-      color: #ff0;
-      margin-bottom: 10px;
+    .set-score {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
     }
-
-    .controls {
-      margin-top: 15px;
-    }
-
     button {
-      font-size: 1rem;
-      padding: 10px 16px;
+      font-size: 1.2rem;
+      padding: 10px 20px;
       margin: 5px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      font-family: 'Orbitron', sans-serif;
     }
-
     .add-btn {
       background-color: #4caf50;
       color: white;
     }
-
     .serve-btn {
       background-color: #2196f3;
       color: white;
     }
-
     .reset-btn {
       background-color: #f44336;
       color: white;
     }
-
-    .set-display {
-      font-size: 1.4rem;
-      margin-top: 15px;
-      letter-spacing: 2px;
+    input.name-input {
+      font-size: 1.2rem;
+      padding: 5px 10px;
+      text-align: center;
+      border-radius: 5px;
+      border: none;
+      background: #333;
+      color: white;
     }
-
+    .serve-indicator {
+      margin-top: 5px;
+      font-weight: bold;
+      font-size: 1rem;
+      color: yellow;
+    }
     .winner {
-      margin-top: 20px;
-      font-size: 1.4rem;
-      color: #00ff90;
-    }
-
-    @media (max-width: 600px) {
-      .score {
-        font-size: 60px;
-      }
-      h1 {
-        font-size: 1.5rem;
-      }
+      color: #4caf50;
+      font-size: 1.5rem;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <h1>PAPAN SKOR BADMINTON</h1>
+  <h1>Papan Skor Badminton</h1>
 
   <div class="scoreboard">
     <div class="player">
-      <input id="nameA" class="name-input" value="Pemain A" />
+      <input class="name-input" id="nameA" value="Pemain A" />
+      <div class="set-score">Set: <span id="setA">0</span></div>
       <div id="scoreA" class="score">0</div>
-      <div id="serveA" class="serve-indicator">(Serve)</div>
-      <div class="controls">
-        <button class="add-btn" onclick="addScore('A')">+1</button>
-      </div>
+      <div class="serve-indicator" id="serveA">(Serve)</div>
+      <button class="add-btn" onclick="addScore('A')">+1</button>
     </div>
     <div class="player">
-      <input id="nameB" class="name-input" value="Pemain B" />
+      <input class="name-input" id="nameB" value="Pemain B" />
+      <div class="set-score">Set: <span id="setB">0</span></div>
       <div id="scoreB" class="score">0</div>
-      <div id="serveB" class="serve-indicator" style="display:none">(Serve)</div>
-      <div class="controls">
-        <button class="add-btn" onclick="addScore('B')">+1</button>
-      </div>
+      <div class="serve-indicator" id="serveB" style="display:none">(Serve)</div>
+      <button class="add-btn" onclick="addScore('B')">+1</button>
     </div>
   </div>
 
-  <div class="set-display">Set: <span id="setScore">0 - 0</span></div>
-
-  <div class="controls">
-    <button class="serve-btn" onclick="switchServe()">🔄 Pindah Bola</button>
-    <button class="reset-btn" onclick="resetMatch()">🔁 Reset</button>
-  </div>
-
-  <div class="winner" id="winnerMsg"></div>
+  <button class="serve-btn" onclick="switchServe()">🔄 Pindah Bola</button>
+  <button class="reset-btn" onclick="resetMatch()">🔁 Reset Semua</button>
+  <div id="winner" class="winner"></div>
 
   <script>
     let scoreA = 0, scoreB = 0;
     let setA = 0, setB = 0;
     let server = 'A';
-    let gameOver = false, matchOver = false;
+    let gameOver = false;
+    let matchOver = false;
 
     function updateDisplay() {
       document.getElementById('scoreA').textContent = scoreA;
       document.getElementById('scoreB').textContent = scoreB;
-      document.getElementById('setScore').textContent = `${setA}  ${setB}`;
-      document.getElementById('serveA').style.display = server === 'A' ? 'block' : 'none';
-      document.getElementById('serveB').style.display = server === 'B' ? 'block' : 'none';
+      document.getElementById('setA').textContent = setA;
+      document.getElementById('setB').textContent = setB;
+      document.getElementById('serveA').style.display = (server === 'A') ? 'block' : 'none';
+      document.getElementById('serveB').style.display = (server === 'B') ? 'block' : 'none';
     }
 
     function speak(text) {
@@ -180,7 +140,7 @@
 
     function switchServe() {
       if (matchOver) return;
-      server = server === 'A' ? 'B' : 'A';
+      server = (server === 'A') ? 'B' : 'A';
       updateDisplay();
       speak(`Giliran ${getPlayerName(server)} servis`);
     }
@@ -191,24 +151,24 @@
         gameOver = true;
         let winner = scoreA > scoreB ? 'A' : 'B';
         if (winner === 'A') setA++; else setB++;
-        document.getElementById('setScore').textContent = `${setA} - ${setB}`;
         updateDisplay();
         speak(`Set dimenangkan oleh ${getPlayerName(winner)}`);
-        document.getElementById('winnerMsg').textContent = `Set dimenangkan oleh ${getPlayerName(winner)}`;
+        document.getElementById('winner').textContent = `Set dimenangkan oleh ${getPlayerName(winner)}`;
 
         if (setA === 2 || setB === 2) {
           matchOver = true;
-          speak(`${getPlayerName(winner)} memenangkan pertandingan`);
-          document.getElementById('winnerMsg').textContent = `🏆 ${getPlayerName(winner)} MENANG PERTANDINGAN!`;
+          speak(`${getPlayerName(winner)} memenangkan pertandingan!`);
+          document.getElementById('winner').textContent = `🏆 ${getPlayerName(winner)} MENANG PERTANDINGAN!`;
         } else {
+          // Mulai set baru
           setTimeout(() => {
             scoreA = 0;
             scoreB = 0;
             gameOver = false;
-            document.getElementById('winnerMsg').textContent = "";
+            document.getElementById('winner').textContent = "";
             updateDisplay();
-            speak(`Set berikutnya dimulai. Servis oleh ${getPlayerName(server)}`);
-          }, 2500);
+            speak(`Mulai set berikutnya. Giliran ${getPlayerName(server)} servis.`);
+          }, 2000);
         }
       }
     }
@@ -217,8 +177,9 @@
       scoreA = 0; scoreB = 0;
       setA = 0; setB = 0;
       server = 'A';
-      gameOver = false; matchOver = false;
-      document.getElementById('winnerMsg').textContent = "";
+      gameOver = false;
+      matchOver = false;
+      document.getElementById('winner').textContent = "";
       updateDisplay();
       speak("Pertandingan direset. Mulai dari awal.");
     }
