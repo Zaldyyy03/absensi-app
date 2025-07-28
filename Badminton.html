@@ -16,10 +16,9 @@
     }
     .scoreboard {
       display: flex;
-      flex-direction: row;
       justify-content: space-around;
-      margin-top: 40px;
       flex-wrap: wrap;
+      margin-top: 30px;
     }
     .player {
       flex: 1 1 40%;
@@ -30,7 +29,7 @@
       margin: 20px 0;
     }
     button {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       padding: 10px 20px;
       margin: 5px;
       border: none;
@@ -39,6 +38,10 @@
     }
     .add-btn {
       background-color: #4caf50;
+      color: white;
+    }
+    .serve-btn {
+      background-color: #2196f3;
       color: white;
     }
     .reset-btn {
@@ -51,11 +54,19 @@
       text-align: center;
       border-radius: 5px;
       border: none;
+      background: #333;
+      color: white;
     }
-    @media (max-width: 600px) {
-      .score {
-        font-size: 50px;
-      }
+    .serve-indicator {
+      margin-top: 5px;
+      font-weight: bold;
+      font-size: 1rem;
+      color: yellow;
+    }
+    .winner {
+      color: #4caf50;
+      font-size: 1.5rem;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -67,65 +78,97 @@
     <div class="player">
       <input class="name-input" id="nameA" value="Pemain A" />
       <div id="scoreA" class="score">0</div>
+      <div class="serve-indicator" id="serveA">(Serve)</div>
       <button class="add-btn" onclick="addScore('A')">+1</button>
     </div>
     <div class="player">
       <input class="name-input" id="nameB" value="Pemain B" />
       <div id="scoreB" class="score">0</div>
+      <div class="serve-indicator" id="serveB" style="display:none">(Serve)</div>
       <button class="add-btn" onclick="addScore('B')">+1</button>
     </div>
   </div>
 
-  <button class="reset-btn" onclick="resetScore()">🔄 Reset</button>
+  <button class="serve-btn" onclick="switchServe()">🔄 Pindah Bola</button>
+  <button class="reset-btn" onclick="resetScore()">🔁 Reset</button>
+  <div id="winner" class="winner"></div>
 
-  <!-- Audio context init -->
   <script>
     let scoreA = 0;
     let scoreB = 0;
-    let audioContext, buffer;
+    let server = 'A'; // 'A' atau 'B'
+    let gameOver = false;
 
-    // Load suara sekali saat page dibuka
-    async function initSound() {
-      audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const response = await fetch("https://cdn.pixabay.com/download/audio/2022/03/15/audio_3cdeb7637e.mp3?filename=correct-2-46134.mp3");
-      const arrayBuffer = await response.arrayBuffer();
-      buffer = await audioContext.decodeAudioData(arrayBuffer);
+    function updateDisplay() {
+      document.getElementById('scoreA').textContent = scoreA;
+      document.getElementById('scoreB').textContent = scoreB;
+      document.getElementById('serveA').style.display = (server === 'A') ? 'block' : 'none';
+      document.getElementById('serveB').style.display = (server === 'B') ? 'block' : 'none';
     }
 
-    function playSound() {
-      if (!buffer || !audioContext) return;
-      const source = audioContext.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioContext.destination);
-      source.start(0);
+    function speak(text) {
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'id-ID';
+      speechSynthesis.speak(msg);
     }
 
     function addScore(player) {
-      if (!audioContext) initSound(); // Trigger once
+      if (gameOver) return;
+
+      if (server !== player) {
+        speak("Bukan giliran servis!");
+        return;
+      }
+
       if (player === 'A') {
         scoreA++;
-        document.getElementById('scoreA').textContent = scoreA;
       } else {
         scoreB++;
-        document.getElementById('scoreB').textContent = scoreB;
       }
-      playSound();
+
+      updateDisplay();
+      speak(`${getPlayerName(player)} dapat poin. Skor ${scoreA} - ${scoreB}`);
+      checkWinner();
+    }
+
+    function getPlayerName(player) {
+      return document.getElementById(player === 'A' ? 'nameA' : 'nameB').value;
+    }
+
+    function switchServe() {
+      if (gameOver) return;
+      server = (server === 'A') ? 'B' : 'A';
+      updateDisplay();
+      speak(`Giliran ${getPlayerName(server)} servis`);
+    }
+
+    function checkWinner() {
+      const diff = Math.abs(scoreA - scoreB);
+      if ((scoreA >= 21 || scoreB >= 21) && diff >= 2) {
+        gameOver = true;
+        let winner = (scoreA > scoreB) ? getPlayerName('A') : getPlayerName('B');
+        document.getElementById('winner').textContent = `${winner} MENANG!`;
+        speak(`${winner} menang! Skor akhir ${scoreA} - ${scoreB}`);
+      } else if (scoreA === 30 || scoreB === 30) {
+        gameOver = true;
+        let winner = (scoreA > scoreB) ? getPlayerName('A') : getPlayerName('B');
+        document.getElementById('winner').textContent = `${winner} MENANG 30!`;
+        speak(`${winner} menang dengan 30 poin`);
+      }
     }
 
     function resetScore() {
       scoreA = 0;
       scoreB = 0;
-      document.getElementById('scoreA').textContent = scoreA;
-      document.getElementById('scoreB').textContent = scoreB;
-      playSound();
+      server = 'A';
+      gameOver = false;
+      document.getElementById('winner').textContent = "";
+      updateDisplay();
+      speak("Skor direset. Giliran Pemain A servis.");
     }
 
-    window.addEventListener('click', function initOnce() {
-      if (!audioContext) {
-        initSound();
-      }
-      window.removeEventListener('click', initOnce);
-    });
+    // Initial render
+    updateDisplay();
   </script>
 
 </body>
