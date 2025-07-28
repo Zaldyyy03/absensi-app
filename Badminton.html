@@ -25,8 +25,12 @@
       margin: 10px;
     }
     .score {
-      font-size: 80px;
-      margin: 20px 0;
+      font-size: 60px;
+      margin: 10px 0;
+    }
+    .set-score {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
     }
     button {
       font-size: 1.2rem;
@@ -77,12 +81,14 @@
   <div class="scoreboard">
     <div class="player">
       <input class="name-input" id="nameA" value="Pemain A" />
+      <div class="set-score">Set: <span id="setA">0</span></div>
       <div id="scoreA" class="score">0</div>
       <div class="serve-indicator" id="serveA">(Serve)</div>
       <button class="add-btn" onclick="addScore('A')">+1</button>
     </div>
     <div class="player">
       <input class="name-input" id="nameB" value="Pemain B" />
+      <div class="set-score">Set: <span id="setB">0</span></div>
       <div id="scoreB" class="score">0</div>
       <div class="serve-indicator" id="serveB" style="display:none">(Serve)</div>
       <button class="add-btn" onclick="addScore('B')">+1</button>
@@ -90,18 +96,21 @@
   </div>
 
   <button class="serve-btn" onclick="switchServe()">🔄 Pindah Bola</button>
-  <button class="reset-btn" onclick="resetScore()">🔁 Reset</button>
+  <button class="reset-btn" onclick="resetMatch()">🔁 Reset Semua</button>
   <div id="winner" class="winner"></div>
 
   <script>
-    let scoreA = 0;
-    let scoreB = 0;
-    let server = 'A'; // 'A' atau 'B'
+    let scoreA = 0, scoreB = 0;
+    let setA = 0, setB = 0;
+    let server = 'A';
     let gameOver = false;
+    let matchOver = false;
 
     function updateDisplay() {
       document.getElementById('scoreA').textContent = scoreA;
       document.getElementById('scoreB').textContent = scoreB;
+      document.getElementById('setA').textContent = setA;
+      document.getElementById('setB').textContent = setB;
       document.getElementById('serveA').style.display = (server === 'A') ? 'block' : 'none';
       document.getElementById('serveB').style.display = (server === 'B') ? 'block' : 'none';
     }
@@ -112,64 +121,70 @@
       speechSynthesis.speak(msg);
     }
 
-    function addScore(player) {
-      if (gameOver) return;
+    function getPlayerName(player) {
+      return document.getElementById(player === 'A' ? 'nameA' : 'nameB').value;
+    }
 
+    function addScore(player) {
+      if (matchOver || gameOver) return;
       if (server !== player) {
         speak("Bukan giliran servis!");
         return;
       }
 
-      if (player === 'A') {
-        scoreA++;
-      } else {
-        scoreB++;
-      }
-
+      if (player === 'A') scoreA++; else scoreB++;
       updateDisplay();
-      speak(`${getPlayerName(player)} dapat poin. Skor ${scoreA}  ${scoreB}`);
-      checkWinner();
-    }
-
-    function getPlayerName(player) {
-      return document.getElementById(player === 'A' ? 'nameA' : 'nameB').value;
+      speak(`${getPlayerName(player)} dapat poin. Skor ${scoreA} - ${scoreB}`);
+      checkSetWin();
     }
 
     function switchServe() {
-      if (gameOver) return;
+      if (matchOver) return;
       server = (server === 'A') ? 'B' : 'A';
       updateDisplay();
       speak(`Giliran ${getPlayerName(server)} servis`);
     }
 
-    function checkWinner() {
+    function checkSetWin() {
       const diff = Math.abs(scoreA - scoreB);
-      if ((scoreA >= 21 || scoreB >= 21) && diff >= 2) {
+      if ((scoreA >= 21 || scoreB >= 21) && diff >= 2 || scoreA === 30 || scoreB === 30) {
         gameOver = true;
-        let winner = (scoreA > scoreB) ? getPlayerName('A') : getPlayerName('B');
-        document.getElementById('winner').textContent = `${winner} MENANG!`;
-        speak(`${winner} menang! Skor akhir ${scoreA} - ${scoreB}`);
-      } else if (scoreA === 30 || scoreB === 30) {
-        gameOver = true;
-        let winner = (scoreA > scoreB) ? getPlayerName('A') : getPlayerName('B');
-        document.getElementById('winner').textContent = `${winner} MENANG 30!`;
-        speak(`${winner} menang dengan 30 poin`);
+        let winner = scoreA > scoreB ? 'A' : 'B';
+        if (winner === 'A') setA++; else setB++;
+        updateDisplay();
+        speak(`Set dimenangkan oleh ${getPlayerName(winner)}`);
+        document.getElementById('winner').textContent = `Set dimenangkan oleh ${getPlayerName(winner)}`;
+
+        if (setA === 2 || setB === 2) {
+          matchOver = true;
+          speak(`${getPlayerName(winner)} memenangkan pertandingan!`);
+          document.getElementById('winner').textContent = `🏆 ${getPlayerName(winner)} MENANG PERTANDINGAN!`;
+        } else {
+          // Mulai set baru
+          setTimeout(() => {
+            scoreA = 0;
+            scoreB = 0;
+            gameOver = false;
+            document.getElementById('winner').textContent = "";
+            updateDisplay();
+            speak(`Mulai set berikutnya. Giliran ${getPlayerName(server)} servis.`);
+          }, 2000);
+        }
       }
     }
 
-    function resetScore() {
-      scoreA = 0;
-      scoreB = 0;
+    function resetMatch() {
+      scoreA = 0; scoreB = 0;
+      setA = 0; setB = 0;
       server = 'A';
       gameOver = false;
+      matchOver = false;
       document.getElementById('winner').textContent = "";
       updateDisplay();
-      speak("Skor direset. Giliran Pemain A servis.");
+      speak("Pertandingan direset. Mulai dari awal.");
     }
 
-    // Initial render
     updateDisplay();
   </script>
-
 </body>
 </html>
