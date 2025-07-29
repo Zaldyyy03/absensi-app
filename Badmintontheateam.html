@@ -1,89 +1,77 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Papan Skor Badminton</title>
   <style>
     * {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
     }
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(120deg, #000000, #0f0f0f);
+      background: linear-gradient(to right, #0f0f0f, #1a1a1a);
       color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      min-height: 70vh;
-      overflow: hidden;
-      padding: 20px;
+      justify-content: flex-start;
+      min-height: 100vh;
+      padding: 30px 20px;
     }
 
     h1 {
-      font-size: 2.5rem;
+      font-size: 2rem;
       margin-bottom: 20px;
       text-shadow: 0 0 10px #00ffe1;
     }
 
     .scoreboard {
       display: flex;
-      flex-direction: row;
-      gap: 30px;
-      justify-content: center;
-      align-items: center;
       flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
       width: 100%;
-      max-width: 1000px;
+      max-width: 900px;
     }
 
     .player {
       background: #1a1a1a;
-      padding: 25px;
-      border-radius: 20px;
-      width: 45%;
-      min-width: 300px;
-      box-shadow: 0 0 15px #00ffe1aa;
-      transition: 0.3s ease-in-out;
-    }
-
-    .player:hover {
-      transform: scale(1.02);
+      padding: 20px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 0 10px #00ffe1aa;
+      text-align: center;
     }
 
     input.name-input {
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       text-align: center;
-      padding: 10px;
+      padding: 8px 12px;
       background: #111;
       color: #fff;
-      border: 2px solid #00ffe1;
-      border-radius: 10px;
-      width: 100%;
+      border: 1px solid #00ffe1;
+      border-radius: 8px;
       margin-bottom: 10px;
+      width: 100%;
     }
 
     .score {
-      font-size: 5rem;
+      font-size: 4rem;
       font-weight: bold;
-      margin: 20px 0;
       color: #00ffe1;
-      text-shadow: 0 0 20px #00ffe1;
-    }
-
-    .set-score {
-      font-size: 1.2rem;
-      margin-bottom: 5px;
-      color: #ccc;
+      text-shadow: 0 0 10px #00ffe1;
+      margin: 15px 0;
     }
 
     .set-line {
-      margin-top: 10px;
-      font-size: 1.2rem;
-      color: #0ff;
+      font-size: 1.1rem;
+      color: #ccc;
+      margin-bottom: 10px;
     }
 
     .serve-indicator {
@@ -93,7 +81,7 @@
     }
 
     .buttons {
-      margin-top: 20px;
+      margin-top: 25px;
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
@@ -101,27 +89,27 @@
     }
 
     button {
-      font-size: 1.2rem;
-      padding: 12px 24px;
+      font-size: 1rem;
+      padding: 10px 18px;
       border: none;
-      border-radius: 12px;
+      border-radius: 8px;
       cursor: pointer;
       transition: 0.2s ease-in-out;
     }
 
     .add-btn {
       background-color: #00c853;
-      color: #fff;
+      color: white;
     }
 
     .serve-btn {
       background-color: #2962ff;
-      color: #fff;
+      color: white;
     }
 
     .reset-btn {
       background-color: #d50000;
-      color: #fff;
+      color: white;
     }
 
     button:hover {
@@ -129,18 +117,21 @@
     }
 
     #winner {
-      margin-top: 30px;
-      font-size: 1.5rem;
+      margin-top: 20px;
+      font-size: 1.3rem;
+      font-weight: bold;
       color: gold;
-      text-shadow: 0 0 10px #ff0;
+      text-shadow: 0 0 5px #ff0;
     }
 
-    @media (max-width: 768px) {
-      .scoreboard {
-        flex-direction: column;
+    @media (max-width: 600px) {
+      .score {
+        font-size: 3rem;
       }
-      .player {
-        width: 90%;
+
+      button {
+        font-size: 0.9rem;
+        padding: 8px 14px;
       }
     }
   </style>
