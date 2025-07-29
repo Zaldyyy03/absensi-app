@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Papan Skor Badminton</title>
+  <style>
+    * {
+      margin: 0; padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(145deg, #000000, #0f0f0f);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #00ffe1;
+    }
+
+    .scoreboard {
+      display: flex;
+      flex-direction: row;
+      gap: 30px;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1000px;
+    }
+
+    .player {
+      background: #1a1a1a;
+      padding: 25px;
+      border-radius: 20px;
+      width: 45%;
+      min-width: 300px;
+      box-shadow: 0 0 15px #00ffe1aa;
+      transition: 0.3s ease-in-out;
+    }
+
+    .player:hover {
+      transform: scale(1.02);
+    }
+
+    input.name-input {
+      font-size: 1.5rem;
+      text-align: center;
+      padding: 10px;
+      background: #111;
+      color: #fff;
+      border: 2px solid #00ffe1;
+      border-radius: 10px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .score {
+      font-size: 5rem;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #00ffe1;
+      text-shadow: 0 0 20px #00ffe1;
+    }
+
+    .set-score {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+      color: #ccc;
+    }
+
+    .set-line {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      color: #0ff;
+    }
+
+    .serve-indicator {
+      font-size: 1rem;
+      color: yellow;
+      margin-bottom: 10px;
+    }
+
+    .buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    button {
+      font-size: 1.2rem;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s ease-in-out;
+    }
+
+    .add-btn {
+      background-color: #00c853;
+      color: #fff;
+    }
+
+    .serve-btn {
+      background-color: #2962ff;
+      color: #fff;
+    }
+
+    .reset-btn {
+      background-color: #d50000;
+      color: #fff;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    #winner {
+      margin-top: 30px;
+      font-size: 1.5rem;
+      color: gold;
+      text-shadow: 0 0 10px #ff0;
+    }
+
+    @media (max-width: 768px) {
+      .scoreboard {
+        flex-direction: column;
+      }
+      .player {
+        width: 90%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Papan Skor Badminton</h1>
+
+  <div class="scoreboard">
+    <div class="player">
+      <input class="name-input" id="nameA" value="Pemain A" />
+      <div class="score" id="scoreA">0</div>
+      <div class="set-line">Set: <span id="setA">0</span></div>
+      <div class="serve-indicator" id="serveA">(Serve)</div>
+      <button class="add-btn" onclick="addScore('A')">+1</button>
+    </div>
+    <div class="player">
+      <input class="name-input" id="nameB" value="Pemain B" />
+      <div class="score" id="scoreB">0</div>
+      <div class="set-line">Set: <span id="setB">0</span></div>
+      <div class="serve-indicator" id="serveB" style="display:none">(Serve)</div>
+      <button class="add-btn" onclick="addScore('B')">+1</button>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button class="serve-btn" onclick="switchServe()">🔄 Pindah Bola</button>
+    <button class="reset-btn" onclick="resetMatch()">🔁 Reset Semua</button>
+  </div>
+
+  <div id="winner"></div>
+
+  <script>
+    let scoreA = 0, scoreB = 0;
+    let setA = 0, setB = 0;
+    let server = 'A';
+    let gameOver = false;
+    let matchOver = false;
+
+    function updateDisplay() {
+      document.getElementById('scoreA').textContent = scoreA;
+      document.getElementById('scoreB').textContent = scoreB;
+      document.getElementById('setA').textContent = setA;
+      document.getElementById('setB').textContent = setB;
+      document.getElementById('serveA').style.display = (server === 'A') ? 'block' : 'none';
+      document.getElementById('serveB').style.display = (server === 'B') ? 'block' : 'none';
+    }
+
+    function speak(text) {
+      const msg = new SpeechSynthesisUtterance(text);
+      msg.lang = 'id-ID';
+      speechSynthesis.speak(msg);
+    }
+
+    function getPlayerName(player) {
+      return document.getElementById(player === 'A' ? 'nameA' : 'nameB').value;
+    }
+
+    function addScore(player) {
+      if (matchOver || gameOver) return;
+      if (server !== player) {
+        speak("Bukan giliran servis!");
+        return;
+      }
+
+      if (player === 'A') scoreA++; else scoreB++;
+      updateDisplay();
+      speak(`${getPlayerName(player)} dapat poin. Skor ${scoreA} ${scoreB}`);
+      checkSetWin();
+    }
+
+    function switchServe() {
+      if (matchOver) return;
+      server = (server === 'A') ? 'B' : 'A';
+      updateDisplay();
+      speak(`Giliran ${getPlayerName(server)} servis`);
+    }
+
+    function checkSetWin() {
+      const diff = Math.abs(scoreA - scoreB);
+      if ((scoreA >= 21 || scoreB >= 21) && diff >= 2 || scoreA === 30 || scoreB === 30) {
+        gameOver = true;
+        let winner = scoreA > scoreB ? 'A' : 'B';
+        if (winner === 'A') setA++; else setB++;
+        updateDisplay();
+        speak(`Set dimenangkan oleh ${getPlayerName(winner)}`);
+        document.getElementById('winner').textContent = `Set dimenangkan oleh ${getPlayerName(winner)}`;
+
+        if (setA === 2 || setB === 2) {
+          matchOver = true;
+          speak(`${getPlayerName(winner)} memenangkan pertandingan!`);
+          document.getElementById('winner').textContent = `🏆 ${getPlayerName(winner)} MENANG PERTANDINGAN!`;
+        } else {
+          setTimeout(() => {
+            scoreA = 0;
+            scoreB = 0;
+            gameOver = false;
+            document.getElementById('winner').textContent = "";
+            updateDisplay();
+            speak(`Mulai set berikutnya. Giliran ${getPlayerName(server)} servis.`);
+          }, 2000);
+        }
+      }
+    }
+
+    function resetMatch() {
+      scoreA = 0; scoreB = 0;
+      setA = 0; setB = 0;
+      server = 'A';
+      gameOver = false;
+      matchOver = false;
+      document.getElementById('winner').textContent = "";
+      updateDisplay();
+      speak("Pertandingan direset. Mulai dari awal.");
+    }
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>
