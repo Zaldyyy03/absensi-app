@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Jam Catur</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #555;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .clock {
+      width: 100%;
+      height: 42%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 4em;
+      color: white;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .top {
+      background: #999;
+      transform: rotate(180deg);
+    }
+
+    .bottom {
+      background: #4CAF50;
+    }
+
+    .moves {
+      position: absolute;
+      bottom: 10px;
+      right: 15px;
+      font-size: 0.5em;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      padding: 5px 10px;
+      width: 100%;
+      background: #444;
+      color: white;
+      font-size: 1em;
+    }
+
+    .controls button, .controls select, .controls input {
+      font-size: 1em;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="clock top" onclick="switchTurn('top')">
+    <div id="time-top">3:00</div>
+    <div class="moves">Moves: <span id="moves-top">0</span></div>
+  </div>
+
+  <div class="controls">
+    <label>Waktu:
+      <select id="selectTime">
+        <option value="180">3 Menit</option>
+        <option value="300">5 Menit</option>
+        <option value="600">10 Menit</option>
+      </select>
+    </label>
+
+    <label>+ Detik:
+      <input type="number" id="increment" value="2" min="0" style="width:50px;">
+    </label>
+
+    <button onclick="startGame()">Mulai</button>
+    <button onclick="pauseGame()">⏸</button>
+    <button onclick="resetGame()">🔄</button>
+  </div>
+
+  <div class="clock bottom" onclick="switchTurn('bottom')">
+    <div id="time-bottom">3:00</div>
+    <div class="moves">Moves: <span id="moves-bottom">0</span></div>
+  </div>
+
+  <script>
+    let timeTop = 180;
+    let timeBottom = 180;
+    let movesTop = 0;
+    let movesBottom = 0;
+    let active = null;
+    let interval = null;
+    let increment = 2;
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60).toString();
+      const s = (seconds % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateDisplay() {
+      document.getElementById('time-top').textContent = formatTime(timeTop);
+      document.getElementById('time-bottom').textContent = formatTime(timeBottom);
+      document.getElementById('moves-top').textContent = movesTop;
+      document.getElementById('moves-bottom').textContent = movesBottom;
+    }
+
+    function tick() {
+      if (active === 'top') {
+        timeTop--;
+        if (timeTop <= 0) {
+          clearInterval(interval);
+          alert("Waktu atas habis!");
+        }
+      } else if (active === 'bottom') {
+        timeBottom--;
+        if (timeBottom <= 0) {
+          clearInterval(interval);
+          alert("Waktu bawah habis!");
+        }
+      }
+      updateDisplay();
+    }
+
+    function switchTurn(turn) {
+      if (!interval) return;
+
+      if (turn === 'top' && active === 'bottom') {
+        timeBottom += increment;
+        movesBottom++;
+        active = 'top';
+      } else if (turn === 'bottom' && active === 'top') {
+        timeTop += increment;
+        movesTop++;
+        active = 'bottom';
+      }
+      updateDisplay();
+    }
+
+    function startGame() {
+      pauseGame();
+      const selectedTime = parseInt(document.getElementById('selectTime').value);
+      increment = parseInt(document.getElementById('increment').value) || 0;
+      timeTop = selectedTime;
+      timeBottom = selectedTime;
+      movesTop = 0;
+      movesBottom = 0;
+      active = 'bottom'; // Mulai dari bawah
+      updateDisplay();
+      interval = setInterval(tick, 1000);
+    }
+
+    function pauseGame() {
+      clearInterval(interval);
+      interval = null;
+    }
+
+    function resetGame() {
+      pauseGame();
+      timeTop = 180;
+      timeBottom = 180;
+      movesTop = 0;
+      movesBottom = 0;
+      active = null;
+      updateDisplay();
+    }
+
+    // Inisialisasi awal
+    updateDisplay();
+  </script>
+</body>
+</html>
