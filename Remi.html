@@ -2,104 +2,113 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Remi Scoreboard</title>
+  <title>BRImo FSTVL 2025</title>
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      padding: 20px;
-      background: #f3f3f3;
-      color: #333;
-    }
-    h1 {
+      background: linear-gradient(to bottom, #f5f5ff, #e6e6ff);
+      color: #000;
+      margin: 0;
+      padding: 0;
       text-align: center;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 15px;
+
+    .header img {
+      width: 80px;
+      margin: 10px;
     }
-    th, td {
-      border: 1px solid #aaa;
-      padding: 8px;
-      text-align: center;
+
+    .logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      margin-top: 10px;
     }
-    input[type="number"], input[type="text"] {
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .add-btn, .reset-btn {
-      padding: 10px 20px;
-      margin-right: 10px;
-      font-size: 16px;
-    }
-    .total {
+
+    .title {
+      font-size: 32px;
       font-weight: bold;
-      background: #ddd;
+      margin: 10px 0;
+      color: #1a1a1a;
+    }
+
+    .subtitle {
+      font-size: 22px;
+      color: red;
+    }
+
+    .prizes {
+      margin: 20px 0;
+    }
+
+    .prizes img {
+      width: 150px;
+      margin: 10px;
+    }
+
+    .kupon-section {
+      margin-top: 30px;
+      background-color: #ddeeff;
+      padding: 20px;
+    }
+
+    .kupon-img {
+      width: 300px;
+      margin-top: 10px;
+    }
+
+    .btn-cetak {
+      background-color: #0047AB;
+      color: white;
+      padding: 15px 25px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .btn-cetak:hover {
+      background-color: #003380;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 20px;
+      color: #0047AB;
     }
   </style>
 </head>
 <body>
 
-<h1>Remi Scoreboard</h1>
+  <div class="header">
+    <div class="logos">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Bank_Rakyat_Indonesia_logo.svg/2560px-Bank_Rakyat_Indonesia_logo.svg.png" alt="Logo BRI">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Logo_BUMN_Baru_2020.svg/2560px-Logo_BUMN_Baru_2020.svg.png" alt="Logo BUMN">
+    </div>
+    <div class="title">BRImo FSTVL 2025</div>
+    <div class="subtitle">GRAND PRIZE</div>
+  </div>
 
-<table id="scoreTable">
-  <thead>
-    <tr>
-      <th>Match</th>
-      <th><input type="text" id="p1" value="Pemain 1" onchange="updateHeaders()"></th>
-      <th><input type="text" id="p2" value="Pemain 2" onchange="updateHeaders()"></th>
-      <th><input type="text" id="p3" value="Pemain 3" onchange="updateHeaders()"></th>
-      <th><input type="text" id="p4" value="Pemain 4" onchange="updateHeaders()"></th>
-    </tr>
-  </thead>
-  <tbody id="scoreBody">
-    <!-- Match rows will be added here -->
-  </tbody>
-  <tfoot>
-    <tr class="total">
-      <td>Total</td>
-      <td id="total1">0</td>
-      <td id="total2">0</td>
-      <td id="total3">0</td>
-      <td id="total4">0</td>
-    </tr>
-  </tfoot>
-</table>
+  <div class="prizes">
+    <img src="https://www.honda-indonesia.com/assets/uploads/2022/05/HRV_RS_Phoenix-Orange-Pearl-Two-Tone.png" alt="Honda HR-V">
+    <img src="https://www.toyota.astra.co.id/sites/default/files/2022-10/Fortuner2.8GRAttitudeBlack.png" alt="Fortuner 2.8">
+    <p>5 unit Honda HR-V &nbsp;&nbsp;|&nbsp;&nbsp; 3 unit Fortuner 2.8</p>
+    <p>50 unit Honda Beat Street &nbsp;&nbsp;|&nbsp;&nbsp; 120 unit Handphone &nbsp;&nbsp;|&nbsp;&nbsp; 110 unit Sepeda Listrik</p>
+  </div>
 
-<button class="add-btn" onclick="addMatch()">+ Tambah Match</button>
-<button class="reset-btn" onclick="resetScores()">🔄 Reset</button>
+  <div class="kupon-section">
+    <h2>AMBIL KUPONMU<br>RIBUAN HADIAH MENANTI ANDA</h2>
+    <button class="btn-cetak">Klik Disini Untuk Cetak Kupon</button>
+    <br>
+    <img class="kupon-img" src="https://via.placeholder.com/300x100.png?text=Kupon+Undian+BRI" alt="Kupon">
+  </div>
 
-<script>
-let matchCount = 0;
+  <div class="footer">
+    BRImo FSTVL Berlimpah Hadiah!
+  </div>
 
-function addMatch() {
-  matchCount++;
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td>Match ${matchCount}</td>
-    <td><input type="number" onchange="updateTotal()"></td>
-    <td><input type="number" onchange="updateTotal()"></td>
-    <td><input type="number" onchange="updateTotal()"></td>
-    <td><input type="number" onchange="updateTotal()"></td>
-  `;
-  document.getElementById("scoreBody").appendChild(row);
-}
-
-function updateTotal() {
-  let totals = [0, 0, 0, 0];
-  const rows = document.querySelectorAll("#scoreBody tr");
-  rows.forEach(row => {
-    const inputs = row.querySelectorAll("input");
-    inputs.forEach((input, idx) => {
-      const val = parseInt(input.value);
-      if (!isNaN(val)) totals[idx] += val;
-    });
-  });
-
-  for (let i = 0; i < 4; i++) {
-    document.getElementById(`total${i+1}`).textContent = totals[i];
-  }
-
-  // Baca skor
-  const names = [
-    document.getElementById("p1").
+</body>
+</html>
