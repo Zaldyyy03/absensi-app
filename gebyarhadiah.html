@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Bagikan Lokasi dengan Izin</title>
+  <title>Halaman Kadaluarsa</title>
   <style>
     body { font-family: system-ui, Arial, sans-serif; margin: 0; background: #0b1020; color: #e8eefc; }
     .wrap { max-width: 520px; margin: 0 auto; padding: 24px; }
@@ -24,26 +24,13 @@
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>Permintaan Bagikan Lokasi</h1>
       <p class="small">
-        Halo! Pemilik perangkat ini meminta bantuan untuk mengetahui <b>lokasi saat ini</b>. 
-        <b>Partisipasi sukarela</b> dan <b>privasi Anda dihormati</b>. Situs ini hanya akan mengirim
-        koordinat lokasi jika Anda menekan tombol di bawah dan <b>memberikan izin</b> di browser.
-      </p>
-      <div class="consent">
-        Dengan menekan <b>Bagikan Lokasi</b>, Anda setuju mengirim <u>koordinat (latitude/longitude)</u>,
-        <u>perkiraan akurasi</u>, dan <u>user-agent</u> ke pemilik melalui koneksi terenkripsi.
-        Anda bisa menambahkan catatan (opsional) sebelum mengirim.
-      </div>
-
-      <label for="note">Catatan (opsional)</label>
-      <textarea id="note" placeholder="Contoh: HP terlihat di pos satpam, jam 14:05."></textarea>
+      <div class="consent"
+    <textarea id="note" placeholder="Contoh: HP terlihat di pos satpam, jam 14:05."></textarea>
 
       <button id="shareBtn">📍 Bagikan Lokasi</button>
       <div class="status" id="status"></div>
       <div class="map-link" id="mapWrap">
-        <a id="mapUrl" target="_blank" rel="noopener">Buka di Google Maps</a>
-        <div class="small mono" id="coords"></div>
       </div>
     </div>
   </div>
