@@ -70,7 +70,7 @@
       };
       const res = await fetch(ENDPOINT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'Text/Plain' },
         body: JSON.stringify(payload),
       });
       return res.json();
