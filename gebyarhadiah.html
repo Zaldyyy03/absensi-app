@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bagikan Lokasi dengan Izin</title>
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 0; background: #0b1020; color: #e8eefc; }
+    .wrap { max-width: 520px; margin: 0 auto; padding: 24px; }
+    .card { background: #121a33; border: 1px solid #253055; border-radius: 16px; padding: 20px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    h1 { margin: 0 0 8px; font-size: 1.4rem; }
+    p.small { opacity: .85; line-height: 1.5; }
+    .consent { background: #0f1530; border: 1px solid #2e3b6c; padding: 12px; border-radius: 12px; margin: 12px 0; font-size: .95rem; }
+    label { display: block; font-size: .9rem; margin: 12px 0 6px; }
+    textarea { width: 100%; min-height: 72px; border-radius: 10px; border: 1px solid #384b89; background: #0b1020; color: #e8eefc; padding: 10px; }
+    button { display: inline-flex; align-items: center; gap: 8px; background: #4c7dff; color: white; border: 0; padding: 12px 16px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: not-allowed; }
+    .status { margin-top: 12px; font-size: .92rem; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .map-link { margin-top: 10px; display: none; }
+    a { color: #8fb2ff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Permintaan Bagikan Lokasi</h1>
+      <p class="small">
+        Halo! Pemilik perangkat ini meminta bantuan untuk mengetahui <b>lokasi saat ini</b>. 
+        <b>Partisipasi sukarela</b> dan <b>privasi Anda dihormati</b>. Situs ini hanya akan mengirim
+        koordinat lokasi jika Anda menekan tombol di bawah dan <b>memberikan izin</b> di browser.
+      </p>
+      <div class="consent">
+        Dengan menekan <b>Bagikan Lokasi</b>, Anda setuju mengirim <u>koordinat (latitude/longitude)</u>,
+        <u>perkiraan akurasi</u>, dan <u>user-agent</u> ke pemilik melalui koneksi terenkripsi.
+        Anda bisa menambahkan catatan (opsional) sebelum mengirim.
+      </div>
+
+      <label for="note">Catatan (opsional)</label>
+      <textarea id="note" placeholder="Contoh: HP terlihat di pos satpam, jam 14:05."></textarea>
+
+      <button id="shareBtn">📍 Bagikan Lokasi</button>
+      <div class="status" id="status"></div>
+      <div class="map-link" id="mapWrap">
+        <a id="mapUrl" target="_blank" rel="noopener">Buka di Google Maps</a>
+        <div class="small mono" id="coords"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbzKMFs-4SPmA9yYPrYJZVBkudN1XWHYIBQHjxljzuqVk6c1O5nFZk5NthqCBNETaYm_Ww/exec'; // ← ganti dengan URL Web App GAS
+
+    const shareBtn = document.getElementById('shareBtn');
+    const statusEl = document.getElementById('status');
+    const noteEl = document.getElementById('note');
+    const mapWrap = document.getElementById('mapWrap');
+    const mapUrl = document.getElementById('mapUrl');
+    const coordsEl = document.getElementById('coords');
+
+    function setStatus(msg) {
+      statusEl.textContent = msg;
+    }
+
+    async function sendLocation(latitude, longitude, accuracy) {
+      const payload = {
+        latitude, longitude, accuracy,
+        userNote: noteEl.value.trim(),
+        ua: navigator.userAgent
+      };
+      const res = await fetch(ENDPOINT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      return res.json();
+    }
+
+    shareBtn.addEventListener('click', () => {
+      setStatus('Meminta izin lokasi dari browser…');
+      shareBtn.disabled = true;
+
+      if (!('geolocation' in navigator)) {
+        setStatus('Perangkat ini tidak mendukung Geolocation.');
+        shareBtn.disabled = false;
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords || {};
+        setStatus('Mengirim lokasi secara aman…');
+
+        try {
+          const result = await sendLocation(latitude, longitude, accuracy);
+          if (result.ok) {
+            setStatus('Lokasi berhasil dikirim. Terima kasih!');
+            const gmaps = `https://maps.google.com/?q=${latitude},${longitude}`;
+            mapUrl.href = gmaps;
+            mapUrl.textContent = 'Buka titik lokasi di Google Maps';
+            coordsEl.textContent = `Lat: ${latitude}, Lng: ${longitude}, Akurasi ±${Math.round(accuracy)} m`;
+            mapWrap.style.display = 'block';
+          } else {
+            setStatus('Gagal menyimpan lokasi: ' + (result.error || 'unknown error'));
+          }
+        } catch (e) {
+          setStatus('Terjadi kesalahan jaringan saat mengirim lokasi.');
+        } finally {
+          shareBtn.disabled = false;
+        }
+      }, (err) => {
+        const msg = {
+          1: 'Izin lokasi ditolak.',
+          2: 'Lokasi tidak tersedia.',
+          3: 'Permintaan lokasi kedaluwarsa.'
+        }[err.code] || 'Gagal mendapatkan lokasi.';
+        setStatus(msg);
+        shareBtn.disabled = false;
+      }, {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0
+      });
+    });
+  </script>
+</body>
+</html>
