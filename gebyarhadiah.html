@@ -87,7 +87,6 @@
           const gmaps = `https://maps.google.com/?q=${latitude},${longitude}`;
           mapUrl.href = gmaps;
           mapUrl.textContent = '-';
-          coordsEl.textContent = `Lat: ${latitude}, Lng: ${longitude}, Akurasi ±${Math.round(accuracy)} m`;
           mapWrap.style.display = 'block';
         } else {
           setStatus('Muat Ulang Kembali: ' + (result.error || 'unknown'));
