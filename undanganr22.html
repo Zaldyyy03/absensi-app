@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Undangan Rizaldy & Fransiska</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {font-family: 'Poppins', sans-serif; background: #fffaf3; color: #3d3d3d;}
+    h1, h2, h3 {font-family: 'Great Vibes', cursive; color: #c19b47;}
+    .overlay {background: rgba(0,0,0,0.4);} 
+    .btn-primary {background-color: #c19b47; color: white; padding: 10px 25px; border-radius: 9999px;}
+    .btn-primary:hover {background-color: #a58335;}
+  </style>
+</head>
+<body class="text-center">
+
+  <!-- Hero Section -->
+  <section class="relative h-screen flex flex-col justify-center items-center bg-cover bg-center" style="background-image:url('https://images.unsplash.com/photo-1529634899531-9e3ea9f1a2d6?auto=format&fit=crop&w=1500&q=80');">
+    <div class="overlay absolute inset-0"></div>
+    <div class="relative z-10 text-white">
+      <h2 class="text-4xl md:text-6xl mb-2">Undangan Pernikahan</h2>
+      <h1 class="text-5xl md:text-7xl mb-4">Rizaldy & Fransiska</h1>
+      <p class="text-lg mb-6">29 September 2025</p>
+      <a href="#acara" class="btn-primary">Lihat Undangan</a>
+    </div>
+  </section>
+
+  <!-- Countdown -->
+  <section class="py-12 bg-[#fff5e1]" id="countdown">
+    <h2 class="text-4xl mb-4">Menuju Hari Bahagia</h2>
+    <div id="timer" class="text-2xl font-semibold"></div>
+  </section>
+
+  <!-- Detail Acara -->
+  <section id="acara" class="py-12">
+    <h2 class="text-5xl mb-8">Detail Acara</h2>
+    <div class="max-w-2xl mx-auto">
+      <p class="mb-4">Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan kami:</p>
+      <h3 class="text-3xl mb-2">Rizaldy Kurniadiredja</h3>
+      <h3 class="text-3xl mb-6">&</h3>
+      <h3 class="text-3xl mb-8">Fransiska Rivka Latif</h3>
+      <div class="bg-white rounded-2xl shadow-md p-6">
+        <p><strong>🕌 Akad Nikah:</strong><br>Senin, 29 September 2025 — Pukul 09.00 WIB</p>
+        <p class="mt-4"><strong>🎉 Resepsi:</strong><br>Senin, 29 September 2025 — Pukul 11.00 WIB - Selesai</p>
+        <p class="mt-4"><strong>📍 Lokasi:</strong><br>Hotel Santika Premiere Bandung<br><a href="https://maps.google.com" target="_blank" class="text-[#c19b47] underline">Lihat di Google Maps</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Galeri Foto -->
+  <section id="galeri" class="py-12 bg-[#fff5e1]">
+    <h2 class="text-5xl mb-8">Galeri Kami</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+      <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow">
+      <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow">
+      <img src="https://images.unsplash.com/photo-1501973801540-537f08ccae7b?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow">
+    </div>
+  </section>
+
+  <!-- RSVP -->
+  <section id="rsvp" class="py-12">
+    <h2 class="text-5xl mb-8">Konfirmasi Kehadiran</h2>
+    <form id="rsvpForm" class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-md">
+      <input type="text" id="nama" placeholder="Nama Anda" class="w-full border p-3 rounded mb-3">
+      <select id="status" class="w-full border p-3 rounded mb-3">
+        <option value="Hadir">Hadir</option>
+        <option value="Tidak Hadir">Tidak Hadir</option>
+      </select>
+      <textarea id="ucapan" placeholder="Ucapan untuk kami" class="w-full border p-3 rounded mb-3"></textarea>
+      <button type="submit" class="btn-primary w-full">Kirim</button>
+    </form>
+    <div id="listUcapan" class="mt-8 max-w-lg mx-auto text-left"></div>
+  </section>
+
+  <!-- Penutup -->
+  <section class="py-12 bg-[#fff5e1]">
+    <h2 class="text-5xl mb-4">Terima Kasih</h2>
+    <p class="max-w-xl mx-auto">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu di hari bahagia kami.</p>
+  </section>
+
+  <audio id="music" autoplay loop hidden>
+    <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mp3">
+  </audio>
+
+  <script>
+    // Countdown Timer
+    const countDownDate = new Date("Sep 29, 2025 09:00:00").getTime();
+    const timer = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = countDownDate - now;
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      document.getElementById("timer").innerHTML = `${days} Hari ${hours} Jam ${minutes} Menit ${seconds} Detik`;
+      if (distance < 0) {
+        clearInterval(timer);
+        document.getElementById("timer").innerHTML = "Hari Bahagia Telah Tiba!";
+      }
+    }, 1000);
+
+    // RSVP Form
+    document.getElementById("rsvpForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const nama = document.getElementById("nama").value;
+      const status = document.getElementById("status").value;
+      const ucapan = document.getElementById("ucapan").value;
+      const list = document.getElementById("listUcapan");
+      const div = document.createElement("div");
+      div.className = "bg-white shadow p-4 rounded mb-3";
+      div.innerHTML = `<strong>${nama}</strong> (${status})<br><em>${ucapan}</em>`;
+      list.prepend(div);
+      document.getElementById("rsvpForm").reset();
+    });
+  </script>
+</body>
+</html>
