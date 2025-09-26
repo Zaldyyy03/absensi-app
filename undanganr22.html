@@ -6,20 +6,31 @@
   <title>Undangan Rizaldy & Fransiska</title>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
   <style>
-    body {font-family: 'Poppins', sans-serif; background: #fffaf3; color: #3d3d3d;}
+    body {font-family: 'Poppins', sans-serif; background: #fffaf3; color: #3d3d3d; overflow-x:hidden;}
     h1, h2, h3 {font-family: 'Great Vibes', cursive; color: #c19b47;}
     .overlay {background: rgba(0,0,0,0.4);} 
-    .btn-primary {background-color: #c19b47; color: white; padding: 10px 25px; border-radius: 9999px;}
-    .btn-primary:hover {background-color: #a58335;}
+    .btn-primary {background-color: #c19b47; color: white; padding: 10px 25px; border-radius: 9999px; transition:0.3s;}
+    .btn-primary:hover {background-color: #a58335; transform:scale(1.05);}
+    .fade-in {opacity: 0; transform: translateY(40px);}
+    .slide-in {opacity: 0; transform: translateX(-40px);}
+    #loadingScreen {position:fixed; inset:0; background:#fff5e1; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:50;}
+    #loadingScreen h2 {font-family:'Great Vibes',cursive; color:#c19b47; font-size:2.5rem; margin-top:1rem;}
   </style>
 </head>
 <body class="text-center">
 
+  <!-- Splash Screen -->
+  <div id="loadingScreen">
+    <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-[#c19b47]"></div>
+    <h2>Rizaldy & Fransiska</h2>
+  </div>
+
   <!-- Hero Section -->
-  <section class="relative h-screen flex flex-col justify-center items-center bg-cover bg-center" style="background-image:url('https://images.unsplash.com/photo-1529634899531-9e3ea9f1a2d6?auto=format&fit=crop&w=1500&q=80');">
+  <section id="hero" class="relative h-screen flex flex-col justify-center items-center bg-cover bg-center" style="background-image:url('https://images.unsplash.com/photo-1529634899531-9e3ea9f1a2d6?auto=format&fit=crop&w=1500&q=80');">
     <div class="overlay absolute inset-0"></div>
-    <div class="relative z-10 text-white">
+    <div class="relative z-10 text-white fade-in">
       <h2 class="text-4xl md:text-6xl mb-2">Undangan Pernikahan</h2>
       <h1 class="text-5xl md:text-7xl mb-4">Rizaldy & Fransiska</h1>
       <p class="text-lg mb-6">29 September 2025</p>
@@ -28,20 +39,20 @@
   </section>
 
   <!-- Countdown -->
-  <section class="py-12 bg-[#fff5e1]" id="countdown">
+  <section class="py-12 bg-[#fff5e1] fade-in" id="countdown">
     <h2 class="text-4xl mb-4">Menuju Hari Bahagia</h2>
     <div id="timer" class="text-2xl font-semibold"></div>
   </section>
 
   <!-- Detail Acara -->
-  <section id="acara" class="py-12">
+  <section id="acara" class="py-12 fade-in">
     <h2 class="text-5xl mb-8">Detail Acara</h2>
     <div class="max-w-2xl mx-auto">
       <p class="mb-4">Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan kami:</p>
       <h3 class="text-3xl mb-2">Rizaldy Kurniadiredja</h3>
       <h3 class="text-3xl mb-6">&</h3>
       <h3 class="text-3xl mb-8">Fransiska Rivka Latif</h3>
-      <div class="bg-white rounded-2xl shadow-md p-6">
+      <div class="bg-white rounded-2xl shadow-md p-6 slide-in">
         <p><strong>🕌 Akad Nikah:</strong><br>Senin, 29 September 2025 — Pukul 09.00 WIB</p>
         <p class="mt-4"><strong>🎉 Resepsi:</strong><br>Senin, 29 September 2025 — Pukul 11.00 WIB - Selesai</p>
         <p class="mt-4"><strong>📍 Lokasi:</strong><br>Hotel Santika Premiere Bandung<br><a href="https://maps.google.com" target="_blank" class="text-[#c19b47] underline">Lihat di Google Maps</a></p>
@@ -50,18 +61,18 @@
   </section>
 
   <!-- Galeri Foto -->
-  <section id="galeri" class="py-12 bg-[#fff5e1]">
+  <section id="galeri" class="py-12 bg-[#fff5e1] fade-in">
     <h2 class="text-5xl mb-8">Galeri Kami</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-      <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow">
-      <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow">
-      <img src="https://images.unsplash.com/photo-1501973801540-537f08ccae7b?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow">
-      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow">
+      <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow hover:scale-105 transition-transform">
+      <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow hover:scale-105 transition-transform">
+      <img src="https://images.unsplash.com/photo-1501973801540-537f08ccae7b?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow hover:scale-105 transition-transform">
+      <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=500&q=80" class="rounded-2xl shadow hover:scale-105 transition-transform">
     </div>
   </section>
 
   <!-- RSVP -->
-  <section id="rsvp" class="py-12">
+  <section id="rsvp" class="py-12 fade-in">
     <h2 class="text-5xl mb-8">Konfirmasi Kehadiran</h2>
     <form id="rsvpForm" class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-md">
       <input type="text" id="nama" placeholder="Nama Anda" class="w-full border p-3 rounded mb-3">
@@ -76,7 +87,7 @@
   </section>
 
   <!-- Penutup -->
-  <section class="py-12 bg-[#fff5e1]">
+  <section class="py-12 bg-[#fff5e1] fade-in">
     <h2 class="text-5xl mb-4">Terima Kasih</h2>
     <p class="max-w-xl mx-auto">Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu di hari bahagia kami.</p>
   </section>
@@ -86,6 +97,16 @@
   </audio>
 
   <script>
+    window.addEventListener('load', () => {
+      gsap.to('#loadingScreen', {opacity:0, duration:1, onComplete:()=>document.getElementById('loadingScreen').remove()});
+      gsap.utils.toArray('.fade-in').forEach((el, i)=>{
+        gsap.to(el, {opacity:1, y:0, duration:1, delay:i*0.3, scrollTrigger:{trigger:el, start:'top 90%'}});
+      });
+      gsap.utils.toArray('.slide-in').forEach((el, i)=>{
+        gsap.to(el, {opacity:1, x:0, duration:1, delay:i*0.3, scrollTrigger:{trigger:el, start:'top 90%'}});
+      });
+    });
+
     // Countdown Timer
     const countDownDate = new Date("Sep 29, 2025 09:00:00").getTime();
     const timer = setInterval(() => {
@@ -110,7 +131,7 @@
       const ucapan = document.getElementById("ucapan").value;
       const list = document.getElementById("listUcapan");
       const div = document.createElement("div");
-      div.className = "bg-white shadow p-4 rounded mb-3";
+      div.className = "bg-white shadow p-4 rounded mb-3 animate-fade-in";
       div.innerHTML = `<strong>${nama}</strong> (${status})<br><em>${ucapan}</em>`;
       list.prepend(div);
       document.getElementById("rsvpForm").reset();
