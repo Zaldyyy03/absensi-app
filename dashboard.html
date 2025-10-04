@@ -108,7 +108,6 @@
 <body>
 
   <div class="container">
-    <button class="logout-btn" onclick="logout()">Logout</button>
     <div class="header">
       <img src="pertamina-logoicon.png" alt="Logo Pertamina" class="logo-img">
       <h1>Dashboard Admin</h1>
@@ -118,37 +117,7 @@
         <button onclick="location.href='rekap.html'">📊 Rekap Absensi</button>
       </div>
 
-      <div class="absen-row">
-        <button class="absen-btn" onclick="location.href='index.html'">📝 Form Absensi</button>
-        <button class="copy-btn" onclick="copyLink()">🔗 Bagikan Link Form Absensi</button>
-      </div>
-      <div class="copy-msg" id="copy-msg">Link berhasil disalin!</div>
-    </div>
-  </div>
 
-  <script>
-    // Cek status login
-    if (localStorage.getItem('loggedIn') !== 'true') {
-      window.location.href = 'login.html';
-    }
-
-    // Fungsi Logout
-    function logout() {
-      localStorage.removeItem('loggedIn');
-      window.location.href = 'login.html';
-    }
-
-    // Fungsi untuk menyalin link
-    function copyLink() {
-      const link = window.location.origin + '/absensi-app';
-      navigator.clipboard.writeText(link).then(() => {
-        const msg = document.getElementById('copy-msg');
-        msg.style.display = 'block';
-        setTimeout(() => {
-          msg.style.display = 'none';
-        }, 2000);
-      });
-    }
   </script>
 </body>
 </html>
