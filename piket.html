@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Jadwal Piket Kebersihan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #f3f4f6;
+    }
+
+    .app {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 1.6rem;
+      text-align: center;
+      color: #111827;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: #eef2ff;
+      color: #3730a3;
+      margin-bottom: 10px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #4f46e5;
+    }
+
+    .card {
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      margin-bottom: 18px;
+    }
+
+    .card h2 {
+      margin: 0 0 6px;
+      font-size: 1.05rem;
+      color: #1d4ed8;
+    }
+
+    .card p {
+      margin: 2px 0;
+      font-size: 0.9rem;
+      color: #111827;
+    }
+
+    .today-team {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: #1f2933;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .controls-left {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #111827;
+      color: #f9fafb;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s ease;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+    }
+
+    button.secondary {
+      background: #e5e7eb;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
+    }
+
+    .week-label {
+      font-size: 0.9rem;
+      color: #4b5563;
+      font-weight: 500;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      font-size: 0.87rem;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #4b5563;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr.today-row {
+      background: #eef2ff;
+    }
+
+    .day-text {
+      font-weight: 600;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 60px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .note {
+      font-size: 0.78rem;
+      color: #6b7280;
+      margin-top: 10px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 0.78rem;
+      margin-top: 6px;
+    }
+
+    .dot-pulse {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #16a34a;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: pulse 1.4s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        padding: 14px;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      th, td {
+        font-size: 0.8rem;
+        padding: 8px 6px;
+      }
+      h1 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Jadwal Piket 5 Hari • Tim A, B, C
+    </div>
+
+    <h1>Aplikasi Piket Kebersihan</h1>
+    <div class="subtitle">Selasa – Sabtu, 3 tim bergantian, looping otomatis tiap minggu.</div>
+
+    <!-- Pengingat hari ini -->
+    <div class="card" id="todayCard">
+      <h2>Pengingat Piket Hari Ini</h2>
+      <p id="todayDateText">Hari ini: -</p>
+      <p id="todayTeamText" class="today-team">Tim Piket: -</p>
+      <div class="pill">
+        <span class="dot-pulse"></span>
+        Piket hanya aktif Selasa s/d Sabtu
+      </div>
+    </div>
+
+    <!-- Kontrol minggu & notifikasi -->
+    <div class="controls">
+      <div class="controls-left">
+        <button id="prevWeekBtn" class="secondary">← Minggu Sebelumnya</button>
+        <button id="thisWeekBtn" class="secondary">Minggu Ini</button>
+        <button id="nextWeekBtn" class="secondary">Minggu Berikutnya →</button>
+      </div>
+      <div>
+        <button id="notifBtn">Aktifkan Pengingat Browser</button>
+      </div>
+    </div>
+
+    <div class="week-label" id="weekLabel">Minggu: -</div>
+
+    <!-- Tabel jadwal -->
+    <table>
+      <thead>
+        <tr>
+          <th>Hari</th>
+          <th>Tanggal</th>
+          <th>Tim Piket</th>
+        </tr>
+      </thead>
+      <tbody id="scheduleBody">
+        <!-- Diisi oleh JavaScript -->
+      </tbody>
+    </table>
+
+    <div class="note">
+      • Jadwal otomatis looping tiap minggu (Tim A → B → C → A → B ...).<br>
+      • Tombol "Aktifkan Pengingat Browser" akan menampilkan notifikasi setiap kali halaman ini terbuka saat jam 07:00–08:00.
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // KONFIGURASI
+    // =========================
+
+    const TEAMS_PATTERN = ["Tim A", "Tim B", "Tim C", "Tim A", "Tim B"]; // 5 hari
+    const ACTIVE_DAY_INDICES = [2, 3, 4, 5, 6]; // Selasa–Sabtu (0 = Minggu, 1 = Senin, dst)
+
+    // Base week untuk perhitungan rotasi tim (boleh bebas, penting konsisten)
+    const BASE_WEEK_START = getStartOfWeek(new Date(2025, 0, 7)); // minggu dari 7 Jan 2025
+
+    let currentWeekOffset = 0; // 0 = minggu ini, -1 = kemarin, dst
+    let notifInterval = null;
+
+    // =========================
+    // UTIL TANGGAL
+    // =========================
+
+    function getStartOfWeek(date) {
+      const d = new Date(date);
+      const day = (d.getDay() + 6) % 7; // jadikan Senin = 0
+      d.setDate(d.getDate() - day);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function formatDateId(date) {
+      const d = String(date.getDate()).padStart(2, "0");
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const y = date.getFullYear();
+      return `${d}/${m}/${y}`;
+    }
+
+    function getIndonesianDayName(dayIndex) {
+      const names = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      return names[dayIndex];
+    }
+
+    function calculateWeekIndex(weekStart) {
+      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+      return Math.floor((weekStart - BASE_WEEK_START) / msPerWeek);
+    }
+
+    function getTeamForDate(date) {
+      const weekStart = getStartOfWeek(date);
+      const weekIndex = calculateWeekIndex(weekStart);
+      const msPerDay = 24 * 60 * 60 * 1000;
+      const dayOffset = Math.round((date - weekStart) / msPerDay); // 0 = Senin, 1 = Selasa, dst
+      const patternIndex = (dayOffset - 1 + TEAMS_PATTERN.length + weekIndex) % TEAMS_PATTERN.length;
+      return TEAMS_PATTERN[patternIndex];
+    }
+
+    // =========================
+    // RENDER JADWAL
+    // =========================
+
+    function renderSchedule() {
+      const today = new Date();
+      const baseWeek = getStartOfWeek(today);
+      const weekStart = new Date(baseWeek.getTime() + currentWeekOffset * 7 * 24 * 60 * 60 * 1000);
+
+      const scheduleBody = document.getElementById("scheduleBody");
+      scheduleBody.innerHTML = "";
+
+      const weekEnd = new Date(weekStart.getTime() + 6 * 24 * 60 * 60 * 1000);
+      document.getElementById("weekLabel").textContent =
+        `Minggu: ${formatDateId(weekStart)} s/d ${formatDateId(weekEnd)}`;
+
+      ACTIVE_DAY_INDICES.forEach((dayIndex) => {
+        const date = new Date(weekStart.getTime() + dayIndex * 24 * 60 * 60 * 1000);
+        const team = getTeamForDate(date);
+
+        const tr = document.createElement("tr");
+
+        // highlight baris hari ini
+        if (
+          date.getFullYear() === today.getFullYear() &&
+          date.getMonth() === today.getMonth() &&
+          date.getDate() === today.getDate()
+        ) {
+          tr.classList.add("today-row");
+        }
+
+        const tdDay = document.createElement("td");
+        tdDay.innerHTML = `<span class="day-text">${getIndonesianDayName(dayIndex)}</span>`;
+        const tdDate = document.createElement("td");
+        tdDate.textContent = formatDateId(date);
+        const tdTeam = document.createElement("td");
+        tdTeam.innerHTML = `<span class="tag">${team}</span>`;
+
+        tr.appendChild(tdDay);
+        tr.appendChild(tdDate);
+        tr.appendChild(tdTeam);
+        scheduleBody.appendChild(tr);
+      });
+    }
+
+    // =========================
+    // PENGINGAT HARI INI
+    // =========================
+
+    function updateTodayReminder() {
+      const today = new Date();
+      const dayIndex = today.getDay(); // 0–6
+
+      const todayDateText = document.getElementById("todayDateText");
+      const todayTeamText = document.getElementById("todayTeamText");
+
+      const dayName = getIndonesianDayName(dayIndex);
+      todayDateText.textContent = `Hari ini: ${dayName}, ${formatDateId(today)}`;
+
+      if (!ACTIVE_DAY_INDICES.includes(dayIndex)) {
+        todayTeamText.textContent = "Tidak ada piket (di luar hari Selasa–Sabtu).";
+        return;
+      }
+
+      const team = getTeamForDate(today);
+      todayTeamText.textContent = `Tim Piket: ${team}`;
+    }
+
+    // =========================
+    // NOTIFIKASI BROWSER
+    // =========================
+
+    function showBrowserNotification() {
+      if (!("Notification" in window)) return;
+
+      if (Notification.permission === "granted") {
+        const today = new Date();
+        const dayIndex = today.getDay();
+
+        if (!ACTIVE_DAY_INDICES.includes(dayIndex)) return;
+
+        const team = getTeamForDate(today);
+        const dayName = getIndonesianDayName(dayIndex);
+
+        new Notification("Pengingat Piket Kebersihan", {
+          body: `${dayName}, ${formatDateId(today)}\nTim piket hari ini: ${team}`,
+        });
+      }
+    }
+
+    function startNotificationLoop() {
+      // cek tiap 1 menit, kalau jam antara 07:00–08:00, kirim notif (sekali per buka halaman)
+      if (!("Notification" in window)) return;
+
+      if (notifInterval) {
+        clearInterval(notifInterval);
+      }
+
+      let alreadyNotifiedToday = false;
+
+      notifInterval = setInterval(() => {
+        const now = new Date();
+        const hour = now.getHours();
+
+        // reset flag tiap lewat jam 00
+        if (hour === 0) {
+          alreadyNotifiedToday = false;
+        }
+
+        if (hour >= 7 && hour < 8 && !alreadyNotifiedToday) {
+          showBrowserNotification();
+          alreadyNotifiedToday = true;
+        }
+      }, 60 * 1000); // 1 menit
+    }
+
+    function handleNotifButtonClick() {
+      if (!("Notification" in window)) {
+        alert("Browser kamu tidak mendukung notifikasi.");
+        return;
+      }
+
+      if (Notification.permission === "granted") {
+        alert("Notifikasi sudah diizinkan. Pengingat akan muncul otomatis sekitar jam 07:00–08:00 saat halaman ini dibuka.");
+        startNotificationLoop();
+      } else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            alert("Notifikasi diizinkan. Pengingat akan muncul otomatis sekitar jam 07:00–08:00 saat halaman ini dibuka.");
+            startNotificationLoop();
+          } else {
+            alert("Notifikasi ditolak. Kamu tetap bisa lihat jadwal di tabel.");
+          }
+        });
+      } else {
+        alert("Notifikasi sudah ditolak di browser. Aktifkan lewat pengaturan browser kalau ingin menyalakan lagi.");
+      }
+    }
+
+    // =========================
+    // EVENT LISTENER
+    // =========================
+
+    document.getElementById("prevWeekBtn").addEventListener("click", () => {
+      currentWeekOffset -= 1;
+      renderSchedule();
+    });
+
+    document.getElementById("nextWeekBtn").addEventListener("click", () => {
+      currentWeekOffset += 1;
+      renderSchedule();
+    });
+
+    document.getElementById("thisWeekBtn").addEventListener("click", () => {
+      currentWeekOffset = 0;
+      renderSchedule();
+    });
+
+    document.getElementById("notifBtn").addEventListener("click", handleNotifButtonClick);
+
+    // =========================
+    // INIT
+    // =========================
+
+    updateTodayReminder();
+    renderSchedule();
+  </script>
+</body>
+</html>
