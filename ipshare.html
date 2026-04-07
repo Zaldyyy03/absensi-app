@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>VPN Config</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+padding:20px;
+}
+
+textarea{
+width:100%;
+height:300px;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>WireGuard Config</h2>
+
+<textarea id="config"></textarea>
+
+<button onclick="copy()">Copy</button>
+<button onclick="share()">Share</button>
+
+<script>
+
+const API = "https://script.google.com/macros/s/AKfycbwtNWRWuoc1__SyEs8lzY3wL97bERSIEVGeoQEFFp5CC2n9bPyQuQbf4zHchJ8Mr8d-/exec";
+
+async function loadConfig(){
+
+const res = await fetch(API);
+const data = await res.json();
+
+document.getElementById("config").value = data.config;
+
+}
+
+loadConfig();
+
+function copy(){
+
+const text = document.getElementById("config");
+
+text.select();
+
+document.execCommand("copy");
+
+alert("Copied");
+
+}
+
+function share(){
+
+navigator.share({
+title:"WireGuard Config",
+text:document.getElementById("config").value
+});
+
+}
+
+</script>
+
+</body>
+
+</html>
