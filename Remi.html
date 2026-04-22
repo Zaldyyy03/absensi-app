@@ -1,247 +1,616 @@
-export default function WeddingInvitation() {
-  const gallery = [
-    "https://raw.githubusercontent.com/USERNAME/REPO/main/foto1.jpg",
-    "https://raw.githubusercontent.com/USERNAME/REPO/main/foto2.jpg",
-    "https://raw.githubusercontent.com/USERNAME/REPO/main/foto3.jpg",
-    "https://raw.githubusercontent.com/USERNAME/REPO/main/foto4.jpg",
-  ];
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wedding Invitation | Rizaldy & Fransiska</title>
 
-  return (
-    <div className="bg-[#f8f1ea] text-[#4a3b32] overflow-hidden font-serif">
-      {/* HERO */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511285560929-80b456fea0bc?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center scale-110 opacity-30" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 
-        <div className="absolute top-0 left-0 w-72 h-72 bg-pink-200 rounded-full blur-3xl opacity-30 animate-pulse" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-200 rounded-full blur-3xl opacity-30 animate-pulse" />
+  <style>
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      scroll-behavior:smooth;
+    }
 
-        <div className="relative z-10 max-w-4xl animate-[fadeIn_2s_ease]">
-          <p className="tracking-[0.4em] uppercase text-sm mb-4">The Wedding Of</p>
+    body{
+      background:#f8f1ea;
+      color:#3d3028;
+      overflow-x:hidden;
+      font-family:'Montserrat',sans-serif;
+    }
 
-          <h1 className="text-5xl md:text-8xl leading-tight font-bold mb-6">
-            Rizaldy <br />
-            <span className="text-[#b48b63]">&</span> <br />
-            Fransiska
-          </h1>
+    h1,h2,h3{
+      font-family:'Cormorant Garamond',serif;
+    }
 
-          <p className="text-lg md:text-2xl italic mb-10">
-            "And one of His signs is that He created for you mates from among yourselves so that you may find tranquility in them."
-          </p>
+    section{
+      padding:100px 20px;
+      position:relative;
+    }
 
-          <a
-            href="#couple"
-            className="inline-block px-8 py-4 rounded-full bg-[#b48b63] text-white text-lg hover:scale-105 transition-all duration-300 shadow-2xl"
-          >
-            Buka Undangan
-          </a>
-        </div>
+    .container{
+      max-width:1200px;
+      margin:auto;
+    }
 
-        <style>{`
-          @keyframes fadeIn {
-            from {
-              opacity: 0;
-              transform: translateY(40px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}</style>
-      </section>
+    /* HERO */
 
-      {/* COUPLE */}
-      <section
-        id="couple"
-        className="py-24 px-6 md:px-16 bg-gradient-to-b from-[#f8f1ea] to-[#fff]"
-      >
-        <div className="max-w-6xl mx-auto text-center">
-          <h2 className="text-5xl mb-6 font-bold">Mempelai</h2>
-          <div className="w-32 h-1 bg-[#b48b63] mx-auto mb-16 rounded-full" />
+    .hero{
+      height:100vh;
+      overflow:hidden;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      color:white;
+      position:relative;
+    }
 
-          <div className="grid md:grid-cols-2 gap-12">
-            {/* Groom */}
-            <div className="bg-white/80 backdrop-blur-lg rounded-[40px] p-8 shadow-2xl hover:-translate-y-2 transition-all duration-500">
-              <img
-                src="https://raw.githubusercontent.com/USERNAME/REPO/main/pria.jpg"
-                alt="Rizaldy"
-                className="w-72 h-72 mx-auto object-cover rounded-full border-8 border-[#e7d2bf] shadow-xl"
-              />
+    .hero video{
+      position:absolute;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      filter:brightness(0.4);
+    }
 
-              <h3 className="text-4xl mt-8 font-bold">Rizaldy Kurniadiredja</h3>
-              <p className="mt-4 text-lg leading-relaxed">
-                Putra ke 2 dari <br />
-                <span className="font-semibold">Rony Kurnia</span> & <span className="font-semibold">Heni Sudirdja</span>
-              </p>
-            </div>
+    .overlay{
+      position:absolute;
+      inset:0;
+      background:rgba(0,0,0,.3);
+    }
 
-            {/* Bride */}
-            <div className="bg-white/80 backdrop-blur-lg rounded-[40px] p-8 shadow-2xl hover:-translate-y-2 transition-all duration-500">
-              <img
-                src="https://raw.githubusercontent.com/USERNAME/REPO/main/wanita.jpg"
-                alt="Fransiska"
-                className="w-72 h-72 mx-auto object-cover rounded-full border-8 border-[#e7d2bf] shadow-xl"
-              />
+    .hero-content{
+      z-index:2;
+      animation:fadeUp 2s ease;
+    }
 
-              <h3 className="text-4xl mt-8 font-bold">Fransiska R Latif</h3>
-              <p className="mt-4 text-lg leading-relaxed">
-                Putri pertama dari <br />
-                <span className="font-semibold">Rahman Latif</span> & <span className="font-semibold">Melia Saman</span>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+    .hero h1{
+      font-size:90px;
+      line-height:1;
+    }
 
-      {/* SAVE THE DATE */}
-      <section className="relative py-24 px-6 overflow-hidden bg-[#2f241e] text-white">
-        <div className="absolute inset-0 opacity-20 bg-[url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1974&auto=format&fit=crop')] bg-cover bg-center" />
+    .hero p{
+      margin-top:20px;
+      letter-spacing:5px;
+      font-size:14px;
+    }
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl font-bold mb-6">Save The Date</h2>
-          <p className="text-xl mb-12">Kami mengundang Anda untuk menjadi bagian dari hari bahagia kami</p>
+    .btn{
+      display:inline-block;
+      margin-top:40px;
+      padding:16px 40px;
+      background:#c7a17a;
+      color:white;
+      border-radius:50px;
+      text-decoration:none;
+      transition:.4s;
+    }
 
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md rounded-[30px] p-10">
-              <h3 className="text-3xl font-bold mb-4">Akad Nikah</h3>
-              <p className="text-lg">Sabtu, 12 Desember 2026</p>
-              <p className="mt-2">09:00 WIB</p>
-              <p className="mt-4 leading-relaxed">
-                Ballroom Grand Wedding Hall<br />
-                Bandung, Jawa Barat
-              </p>
-            </div>
+    .btn:hover{
+      transform:scale(1.05);
+    }
 
-            <div className="bg-white/10 border border-white/20 backdrop-blur-md rounded-[30px] p-10">
-              <h3 className="text-3xl font-bold mb-4">Resepsi</h3>
-              <p className="text-lg">Sabtu, 12 Desember 2026</p>
-              <p className="mt-2">11:00 WIB - Selesai</p>
-              <p className="mt-4 leading-relaxed">
-                Ballroom Grand Wedding Hall<br />
-                Bandung, Jawa Barat
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+    /* COUPLE */
 
-      {/* COUNTDOWN */}
-      <section className="py-24 px-6 bg-white text-center">
-        <h2 className="text-5xl font-bold mb-10">Menuju Hari Bahagia</h2>
+    .title{
+      text-align:center;
+      margin-bottom:70px;
+    }
 
-        <Countdown />
-      </section>
+    .title h2{
+      font-size:60px;
+    }
 
-      {/* GALLERY */}
-      <section className="py-24 px-6 bg-[#f8f1ea]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-5xl font-bold">Gallery</h2>
-            <p className="mt-4 text-lg">Our beautiful moments together</p>
-          </div>
+    .couple-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:40px;
+    }
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {gallery.map((img, index) => (
-              <div
-                key={index}
-                className="overflow-hidden rounded-[30px] shadow-2xl group"
-              >
-                <img
-                  src={img}
-                  alt={`gallery-${index}`}
-                  className="w-full h-80 object-cover group-hover:scale-110 transition-all duration-700"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+    .card{
+      background:white;
+      padding:40px;
+      border-radius:40px;
+      text-align:center;
+      box-shadow:0 10px 40px rgba(0,0,0,.1);
+      transition:.5s;
+    }
 
-      {/* STORY */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-5xl font-bold mb-12">Our Story</h2>
+    .card:hover{
+      transform:translateY(-10px);
+    }
 
-          <div className="space-y-10">
-            <div className="bg-[#f8f1ea] rounded-[30px] p-8 shadow-lg">
-              <h3 className="text-3xl font-bold mb-4">Awal Bertemu</h3>
-              <p className="text-lg leading-relaxed">
-                Tulis cerita awal pertemuan kalian di sini. Bisa tentang bagaimana pertama kali bertemu, kenalan, atau momen spesial yang tidak terlupakan.
-              </p>
-            </div>
+    .card img{
+      width:250px;
+      height:250px;
+      border-radius:50%;
+      object-fit:cover;
+      border:8px solid #ecd7c3;
+    }
 
-            <div className="bg-[#f8f1ea] rounded-[30px] p-8 shadow-lg">
-              <h3 className="text-3xl font-bold mb-4">Lamaran</h3>
-              <p className="text-lg leading-relaxed">
-                Ceritakan perjalanan hubungan kalian sampai akhirnya memutuskan untuk melangkah ke jenjang pernikahan.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+    .card h3{
+      font-size:45px;
+      margin-top:25px;
+    }
 
-      {/* RSVP */}
-      <section className="py-24 px-6 bg-[#2f241e] text-white">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-5xl font-bold mb-8">RSVP</h2>
-          <p className="text-lg mb-12">
-            Mohon konfirmasi kehadiran Anda untuk turut merayakan hari bahagia kami.
-          </p>
+    .card p{
+      margin-top:15px;
+      line-height:1.8;
+    }
 
-          <form className="space-y-6 text-left">
-            <input
-              type="text"
-              placeholder="Nama Lengkap"
-              className="w-full p-5 rounded-2xl bg-white/10 border border-white/20 outline-none"
-            />
+    /* DATE */
 
-            <select className="w-full p-5 rounded-2xl bg-white/10 border border-white/20 outline-none text-white">
-              <option className="text-black">Hadir</option>
-              <option className="text-black">Tidak Hadir</option>
-            </select>
+    .date{
+      background:#2f241e;
+      color:white;
+      text-align:center;
+    }
 
-            <textarea
-              placeholder="Ucapan & doa"
-              rows="5"
-              className="w-full p-5 rounded-2xl bg-white/10 border border-white/20 outline-none"
-            />
+    .date-box{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:30px;
+      margin-top:50px;
+    }
 
-            <button
-              type="submit"
-              className="w-full py-5 rounded-2xl bg-[#b48b63] hover:scale-[1.02] transition-all duration-300 text-xl"
-            >
-              Kirim RSVP
-            </button>
-          </form>
-        </div>
-      </section>
+    .event{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.1);
+      padding:40px;
+      border-radius:30px;
+      backdrop-filter:blur(10px);
+    }
 
-      {/* FOOTER */}
-      <footer className="py-16 text-center bg-black text-white">
-        <h2 className="text-5xl font-bold mb-4">Rizaldy & Fransiska</h2>
-        <p className="text-lg opacity-80">Terima kasih atas doa dan kehadiran Anda</p>
-      </footer>
-    </div>
-  );
+    .event h3{
+      font-size:40px;
+      margin-bottom:20px;
+    }
+
+    /* COUNTDOWN */
+
+    .countdown{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:20px;
+      max-width:900px;
+      margin:auto;
+    }
+
+    .time{
+      background:#2f241e;
+      color:white;
+      padding:40px;
+      border-radius:30px;
+      text-align:center;
+    }
+
+    .time h3{
+      font-size:55px;
+    }
+
+    /* GALLERY */
+
+    .gallery-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:20px;
+    }
+
+    .gallery-grid img{
+      width:100%;
+      height:350px;
+      object-fit:cover;
+      border-radius:30px;
+      transition:.6s;
+    }
+
+    .gallery-grid img:hover{
+      transform:scale(1.05);
+    }
+
+    /* STORY */
+
+    .story-box{
+      background:white;
+      padding:40px;
+      border-radius:30px;
+      margin-bottom:30px;
+      box-shadow:0 5px 30px rgba(0,0,0,.08);
+    }
+
+    /* RSVP */
+
+    .rsvp{
+      background:#2f241e;
+      color:white;
+    }
+
+    form{
+      max-width:700px;
+      margin:auto;
+    }
+
+    input, textarea, select{
+      width:100%;
+      padding:20px;
+      margin-bottom:20px;
+      border:none;
+      border-radius:20px;
+      background:rgba(255,255,255,.08);
+      color:white;
+    }
+
+    button{
+      width:100%;
+      padding:20px;
+      border:none;
+      border-radius:20px;
+      background:#c7a17a;
+      color:white;
+      font-size:18px;
+      cursor:pointer;
+    }
+
+    footer{
+      background:black;
+      color:white;
+      text-align:center;
+      padding:70px 20px;
+    }
+
+    .flower{
+      position:fixed;
+      top:-10px;
+      animation:fall linear infinite;
+      z-index:999;
+      opacity:.7;
+    }
+
+    @keyframes fall{
+      to{
+        transform:translateY(110vh) rotate(360deg);
+      }
+    }
+
+    @keyframes fadeUp{
+      from{
+        opacity:0;
+        transform:translateY(40px);
+      }
+      to{
+        opacity:1;
+        transform:translateY(0);
+      }
+    }
+
+    @media(max-width:768px){
+
+      .hero h1{
+        font-size:55px;
+      }
+
+      .title h2{
+        font-size:45px;
+      }
+
+      .countdown{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+<!-- FLOWER EFFECT -->
+<script>
+for(let i=0;i<25;i++){
+  let flower=document.createElement('div');
+  flower.innerHTML='❀';
+  flower.classList.add('flower');
+
+  flower.style.left=Math.random()*100+'vw';
+  flower.style.fontSize=(Math.random()*20+10)+'px';
+  flower.style.animationDuration=(Math.random()*10+5)+'s';
+
+  document.body.appendChild(flower);
 }
+</script>
 
-function Countdown() {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-      {[
-        { label: "Hari", value: "120" },
-        { label: "Jam", value: "08" },
-        { label: "Menit", value: "45" },
-        { label: "Detik", value: "12" },
-      ].map((item, index) => (
-        <div
-          key={index}
-          className="bg-[#2f241e] text-white rounded-[30px] p-10 shadow-2xl hover:scale-105 transition-all duration-500"
-        >
-          <h3 className="text-5xl font-bold">{item.value}</h3>
-          <p className="mt-3 text-lg">{item.label}</p>
-        </div>
-      ))}
+<!-- HERO -->
+
+<section class="hero">
+
+  <!-- GANTI VIDEO -->
+  <video autoplay muted loop playsinline>
+    <source src="https://cdn.coverr.co/videos/coverr-wedding-toast-1560087636327?download=1080p" type="video/mp4">
+  </video>
+
+  <div class="overlay"></div>
+
+  <div class="hero-content">
+
+    <p>THE WEDDING OF</p>
+
+    <h1>
+      Rizaldy <br>
+      & <br>
+      Fransiska
+    </h1>
+
+    <a href="#couple" class="btn">
+      Buka Undangan
+    </a>
+
+  </div>
+
+</section>
+
+<!-- COUPLE -->
+
+<section id="couple">
+
+  <div class="container">
+
+    <div class="title">
+      <h2>Mempelai</h2>
     </div>
-  );
-}
+
+    <div class="couple-grid">
+
+      <div class="card">
+
+        <!-- FOTO PRIA -->
+        <img src="https://raw.githubusercontent.com/USERNAME/REPO/main/pria.jpg">
+
+        <h3>Rizaldy Kurniadiredja</h3>
+
+        <p>
+          Putra ke 2 dari <br>
+          <b>Rony Kurnia</b> & <b>Heni Sudirdja</b>
+        </p>
+
+      </div>
+
+      <div class="card">
+
+        <!-- FOTO WANITA -->
+        <img src="https://raw.githubusercontent.com/USERNAME/REPO/main/wanita.jpg">
+
+        <h3>Fransiska R Latif</h3>
+
+        <p>
+          Putri pertama dari <br>
+          <b>Rahman Latif</b> & <b>Melia Saman</b>
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- SAVE DATE -->
+
+<section class="date">
+
+  <div class="container">
+
+    <div class="title">
+      <h2>Save The Date</h2>
+    </div>
+
+    <div class="date-box">
+
+      <div class="event">
+
+        <h3>Akad</h3>
+
+        <p>12 Desember 2026</p>
+        <p>09.00 WIB</p>
+
+        <br>
+
+        <p>
+          Ballroom Wedding Hall <br>
+          Bandung
+        </p>
+
+      </div>
+
+      <div class="event">
+
+        <h3>Resepsi</h3>
+
+        <p>12 Desember 2026</p>
+        <p>11.00 WIB</p>
+
+        <br>
+
+        <p>
+          Ballroom Wedding Hall <br>
+          Bandung
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- COUNTDOWN -->
+
+<section>
+
+  <div class="title">
+    <h2>Menuju Hari Bahagia</h2>
+  </div>
+
+  <div class="countdown">
+
+    <div class="time">
+      <h3 id="days">0</h3>
+      <p>Hari</p>
+    </div>
+
+    <div class="time">
+      <h3 id="hours">0</h3>
+      <p>Jam</p>
+    </div>
+
+    <div class="time">
+      <h3 id="minutes">0</h3>
+      <p>Menit</p>
+    </div>
+
+    <div class="time">
+      <h3 id="seconds">0</h3>
+      <p>Detik</p>
+    </div>
+
+  </div>
+
+</section>
+
+<!-- GALLERY -->
+
+<section>
+
+  <div class="container">
+
+    <div class="title">
+      <h2>Gallery</h2>
+    </div>
+
+    <div class="gallery-grid">
+
+      <!-- GANTI FOTO -->
+
+      <img src="https://raw.githubusercontent.com/USERNAME/REPO/main/1.jpg">
+      <img src="https://raw.githubusercontent.com/USERNAME/REPO/main/2.jpg">
+      <img src="https://raw.githubusercontent.com/USERNAME/REPO/main/3.jpg">
+      <img src="https://raw.githubusercontent.com/USERNAME/REPO/main/4.jpg">
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- STORY -->
+
+<section>
+
+  <div class="container">
+
+    <div class="title">
+      <h2>Our Story</h2>
+    </div>
+
+    <div class="story-box">
+
+      <h3>Awal Bertemu</h3>
+
+      <br>
+
+      <p>
+        Tulis cerita awal pertemuan kalian di sini...
+      </p>
+
+    </div>
+
+    <div class="story-box">
+
+      <h3>Lamaran</h3>
+
+      <br>
+
+      <p>
+        Tulis perjalanan cinta kalian di sini...
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- RSVP -->
+
+<section class="rsvp">
+
+  <div class="container">
+
+    <div class="title">
+      <h2>RSVP</h2>
+    </div>
+
+    <form>
+
+      <input type="text" placeholder="Nama">
+
+      <select>
+        <option>Hadir</option>
+        <option>Tidak Hadir</option>
+      </select>
+
+      <textarea rows="5" placeholder="Ucapan & Doa"></textarea>
+
+      <button>
+        Kirim RSVP
+      </button>
+
+    </form>
+
+  </div>
+
+</section>
+
+<footer>
+
+  <h2 style="font-size:60px;">
+    Rizaldy & Fransiska
+  </h2>
+
+  <br>
+
+  <p>Terima kasih atas doa dan kehadiran Anda</p>
+
+</footer>
+
+<script>
+
+const targetDate = new Date("Dec 12, 2026 09:00:00").getTime();
+
+setInterval(()=>{
+
+  const now = new Date().getTime();
+
+  const gap = targetDate - now;
+
+  const days = Math.floor(gap / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((gap % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((gap % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((gap % (1000 * 60)) / 1000);
+
+  document.getElementById("days").innerHTML = days;
+  document.getElementById("hours").innerHTML = hours;
+  document.getElementById("minutes").innerHTML = minutes;
+  document.getElementById("seconds").innerHTML = seconds;
+
+},1000);
+
+</script>
+
+</body>
+</html>
