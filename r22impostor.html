@@ -1,0 +1,371 @@
+```html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who the Impostor</title>
+    <!-- Tailwind CSS untuk Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+            overflow-x: hidden;
+        }
+        
+        /* Animasi Transisi Halus */
+        .screen {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
+            transform: translateY(20px);
+        }
+        .screen.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Neon Glow Effects */
+        .neon-text-red {
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.7), 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+        .neon-text-blue {
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.7), 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+        .neon-border {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+        }
+
+        /* Custom Scrollbar untuk list pemain */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Container Utama (Maksimal seukuran layar HP di Desktop) -->
+    <div class="w-full max-w-md bg-slate-800 rounded-3xl shadow-2xl p-6 neon-border relative overflow-hidden min-h-[500px] flex flex-col">
+        
+        <!-- ================= SCREEN 1: MENU UTAMA ================= -->
+        <div id="screen-home" class="screen active flex-col items-center justify-center h-full text-center flex-grow">
+            <div class="mb-8">
+                <h1 class="text-4xl font-extrabold mb-2 leading-tight">WHO THE <br><span class="text-red-500 neon-text-red">IMPOSTOR</span></h1>
+                <p class="text-slate-400 text-sm">Satu kata beda, temukan pembohongnya!</p>
+            </div>
+            
+            <div class="w-full mb-6">
+                <label for="playerCount" class="block text-sm font-medium text-slate-300 mb-2">Jumlah Pemain (3 - 20)</label>
+                <div class="flex items-center justify-center gap-4 bg-slate-900 rounded-xl p-2">
+                    <button id="btn-min" class="w-10 h-10 bg-slate-700 rounded-lg text-xl font-bold hover:bg-slate-600 transition">-</button>
+                    <input type="number" id="playerCount" value="4" min="3" max="20" class="w-16 bg-transparent text-center text-2xl font-bold focus:outline-none" readonly>
+                    <button id="btn-plus" class="w-10 h-10 bg-slate-700 rounded-lg text-xl font-bold hover:bg-slate-600 transition">+</button>
+                </div>
+            </div>
+
+            <button onclick="goToSetup()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transform transition hover:scale-105">
+                MULAI GAME
+            </button>
+        </div>
+
+        <!-- ================= SCREEN 2: SETUP NAMA PEMAIN ================= -->
+        <div id="screen-setup" class="screen flex-col h-full flex-grow">
+            <h2 class="text-2xl font-bold mb-4 text-center text-blue-400 neon-text-blue">Masukkan Nama</h2>
+            <div id="names-container" class="flex-col gap-3 overflow-y-auto pr-2 mb-6 flex-grow" style="max-height: 60vh;">
+                <!-- Input nama akan di-generate di sini via JS -->
+            </div>
+            <div class="flex gap-3 mt-auto">
+                <button onclick="changeScreen('screen-home')" class="w-1/3 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition">Batal</button>
+                <button onclick="startGame()" class="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition shadow-lg">Lanjut</button>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 3: PASS & PLAY (PEMBAGIAN KATA) ================= -->
+        <div id="screen-passplay" class="screen flex-col items-center justify-center h-full text-center flex-grow">
+            <div class="bg-slate-900 px-6 py-2 rounded-full mb-6">
+                <span class="text-slate-400 text-sm">Giliran Pemain</span>
+                <p id="current-player-name" class="text-2xl font-bold text-white"></p>
+            </div>
+
+            <!-- Box Kata (Awalnya tersembunyi) -->
+            <div id="word-box" class="w-full bg-slate-700 rounded-2xl p-8 mb-8 relative hidden">
+                <p class="text-slate-300 text-sm mb-2">Kata Rahasia Kamu:</p>
+                <h3 id="secret-word" class="text-3xl font-extrabold text-blue-400 neon-text-blue tracking-wider">???</h3>
+            </div>
+
+            <!-- Pesan Instruksi -->
+            <p id="passplay-instruction" class="text-slate-300 mb-8 px-4">Pastikan tidak ada yang melihat layar ini selain <b id="instruction-name" class="text-white"></b>.</p>
+
+            <button id="btn-action-word" onclick="handleWordAction()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition">
+                LIHAT KATA
+            </button>
+        </div>
+
+        <!-- ================= SCREEN 4: DISKUSI ================= -->
+        <div id="screen-discussion" class="screen flex-col items-center justify-center h-full text-center flex-grow">
+            <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mb-6">
+                <svg class="w-10 h-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path></svg>
+            </div>
+            <h2 class="text-3xl font-bold mb-4">Waktunya Diskusi!</h2>
+            <div class="bg-slate-700 rounded-xl p-5 mb-8 text-left text-sm text-slate-200">
+                <ul class="list-disc pl-5 space-y-2">
+                    <li>Setiap pemain secara bergiliran mendeskripsikan kata mereka dengan <b>satu kalimat</b> (jangan sebutkan kata aslinya!).</li>
+                    <li>Perhatikan deskripsi pemain lain.</li>
+                    <li>Satu orang (Impostor) memiliki kata yang <b>mirip tapi berbeda</b>.</li>
+                    <li>Impostor tidak tahu bahwa dirinya adalah Impostor!</li>
+                </ul>
+            </div>
+            <button onclick="changeScreen('screen-voting')" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform hover:scale-105">
+                MULAI VOTING
+            </button>
+        </div>
+
+        <!-- ================= SCREEN 5: VOTING ================= -->
+        <div id="screen-voting" class="screen flex-col h-full flex-grow">
+            <h2 class="text-2xl font-bold mb-2 text-center text-red-500 neon-text-red">Voting Eliminasi</h2>
+            <p class="text-center text-slate-400 text-sm mb-6">Berdasarkan hasil diskusi, siapa yang sepakat kalian tuduh sebagai Impostor?</p>
+            
+            <div id="voting-container" class="flex flex-col gap-3 overflow-y-auto pr-2 mb-6 flex-grow" style="max-height: 50vh;">
+                <!-- Tombol voting akan di-generate di sini -->
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 6: RESULT ================= -->
+        <div id="screen-result" class="screen flex-col items-center justify-center h-full text-center flex-grow">
+            <h2 id="result-title" class="text-3xl font-extrabold mb-2"></h2>
+            <p id="result-desc" class="text-lg text-slate-300 mb-6"></p>
+            
+            <div class="w-full bg-slate-700 rounded-xl p-5 mb-8 text-left">
+                <div class="mb-3">
+                    <span class="text-slate-400 text-sm block">Kata Crewmate:</span>
+                    <span id="result-crewmate-word" class="text-xl font-bold text-blue-400"></span>
+                </div>
+                <div>
+                    <span class="text-slate-400 text-sm block">Kata Impostor:</span>
+                    <span id="result-impostor-word" class="text-xl font-bold text-red-400"></span>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-600">
+                    <span class="text-slate-400 text-sm block">Impostor Sebenarnya:</span>
+                    <span id="result-real-impostor" class="text-lg font-bold text-white"></span>
+                </div>
+            </div>
+
+            <button onclick="resetGame()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform hover:scale-105">
+                MAIN LAGI
+            </button>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT GAME LOGIC -->
+    <script>
+        // === DATABASE KATA (100 Pasang Kata) ===
+        const wordDatabase = [
+            // Makanan & Minuman (20)
+            ["Kopi", "Teh"], ["Nasi Goreng", "Mie Goreng"], ["Sate", "Bakso"], ["Apel", "Jeruk"], ["Susu", "Yogurt"],
+            ["Kue", "Roti"], ["Es Krim", "Gelato"], ["Keju", "Mentega"], ["Pizza", "Burger"], ["Cokelat", "Permen"],
+            ["Air Putih", "Air Soda"], ["Mangga", "Pisang"], ["Anggur", "Stroberi"], ["Tahu", "Tempe"], ["Kecap", "Saus Sambal"],
+            ["Gula", "Garam"], ["Bawang Merah", "Bawang Putih"], ["Bubur", "Nasi"], ["Semangka", "Melon"], ["Susu Sapi", "Susu Kedelai"],
+            
+            // Hewan (20)
+            ["Kucing", "Anjing"], ["Singa", "Harimau"], ["Kuda", "Keledai"], ["Elang", "Burung Hantu"], ["Ular", "Buaya"],
+            ["Hiu", "Paus"], ["Kupu-kupu", "Lebah"], ["Semut", "Nyamuk"], ["Ayam", "Bebek"], ["Sapi", "Kambing"],
+            ["Gajah", "Jerapah"], ["Monyet", "Gorila"], ["Katak", "Kodok"], ["Ikan Mas", "Ikan Koi"], ["Lumba-lumba", "Anjing Laut"],
+            ["Pinguin", "Burung Unta"], ["Kura-kura", "Penyu"], ["Tikus", "Hamster"], ["Serigala", "Rubah"], ["Beruang", "Panda"],
+            
+            // Tempat (20)
+            ["Pantai", "Gunung"], ["Sekolah", "Kampus"], ["Rumah Sakit", "Klinik"], ["Bioskop", "Teater"], ["Pasar", "Supermarket"],
+            ["Mall", "Pasar Malam"], ["Taman", "Hutan"], ["Kolam Renang", "Danau"], ["Stasiun", "Bandara"], ["Halte", "Terminal"],
+            ["Restoran", "Kafe"], ["Hotel", "Villa"], ["Museum", "Galeri Seni"], ["Perpustakaan", "Toko Buku"], ["Apotek", "Toko Obat"],
+            ["Bank", "Kantor Pos"], ["Desa", "Kota"], ["Istana", "Kastil"], ["Masjid", "Gereja"], ["Jalan Raya", "Jalan Tol"],
+            
+            // Pekerjaan & Profesi (20)
+            ["Dokter", "Perawat"], ["Polisi", "Tentara"], ["Guru", "Dosen"], ["Koki", "Pelayan"], ["Pilot", "Nahkoda"],
+            ["Sopir", "Masinis"], ["Aktor", "Penyanyi"], ["Penulis", "Wartawan"], ["Pelukis", "Fotografer"], ["Petani", "Nelayan"],
+            ["Arsitek", "Insinyur"], ["Hakim", "Pengacara"], ["Presiden", "Menteri"], ["Pramugari", "Resepsionis"], ["Satpam", "Bodyguard"],
+            ["Tukang Cukur", "Make Up Artist"], ["Pemadam Kebakaran", "Tim SAR"], ["Kasir", "Akuntan"], ["Atlet", "Pelatih"], ["Direktur", "Manajer"],
+            
+            // Benda & Objek (20)
+            ["Buku", "Majalah"], ["Pensil", "Pulpen"], ["Sepatu", "Sandal"], ["Baju", "Jaket"], ["Jam Tangan", "Jam Dinding"],
+            ["Kacamata", "Softlens"], ["Handphone", "Tablet"], ["Laptop", "Komputer"], ["Televisi", "Radio"], ["Meja", "Kursi"],
+            ["Kasur", "Sofa"], ["Piring", "Mangkok"], ["Sendok", "Garpu"], ["Pisau", "Gunting"], ["Kunci", "Gembok"],
+            ["Sabun", "Sampo"], ["Sikat Gigi", "Pasta Gigi"], ["Tas", "Koper"], ["Dompet", "Tas Ransel"], ["Payung", "Jas Hujan"]
+        ];
+
+        // === STATE GAME ===
+        let playerCount = 4;
+        let players = []; 
+        /* Format player: { name: string, isImpostor: boolean, word: string } */
+        let currentTurnIndex = 0;
+        let passPlayPhase = 0; // 0: Siap lihat, 1: Sedang lihat, 2: Siap oper
+        
+        let crewmateWord = "";
+        let impostorWord = "";
+        let impostorName = "";
+
+        // === KONTROL JUMLAH PEMAIN ===
+        const countInput = document.getElementById('playerCount');
+        document.getElementById('btn-minus').addEventListener('click', () => {
+            if (playerCount > 3) { playerCount--; countInput.value = playerCount; }
+        });
+        document.getElementById('btn-plus').addEventListener('click', () => {
+            if (playerCount < 20) { playerCount++; countInput.value = playerCount; }
+        });
+        // ID selector fix untuk tombol min
+        document.getElementById('btn-min').addEventListener('click', () => {
+            if (playerCount > 3) { playerCount--; countInput.value = playerCount; }
+        });
+
+        // === SISTEM TRANSISI LAYAR ===
+        function changeScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            });
+            setTimeout(() => {
+                document.getElementById(screenId).classList.add('active');
+            }, 50); // Delay kecil agar transisi CSS berjalan
+        }
+
+        // === PERSIAPAN SETUP ===
+        function goToSetup() {
+            const container = document.getElementById('names-container');
+            container.innerHTML = '';
+            for(let i = 0; i < playerCount; i++) {
+                container.innerHTML += `
+                    <div class="mb-3">
+                        <input type="text" id="player-name-${i}" placeholder="Nama Pemain ${i+1}" 
+                               class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 transition" required>
+                    </div>
+                `;
+            }
+            changeScreen('screen-setup');
+        }
+
+        // === MEMULAI GAME & GENERATE PERAN ===
+        function startGame() {
+            players = [];
+            // Ambil dan validasi nama
+            for(let i = 0; i < playerCount; i++) {
+                let nameVal = document.getElementById(`player-name-${i}`).value.trim();
+                if(nameVal === "") nameVal = `Pemain ${i+1}`;
+                players.push({ name: nameVal, isImpostor: false, word: "" });
+            }
+
+            // Acak pemain agar urutan pass & play random
+            players = players.sort(() => Math.random() - 0.5);
+
+            // Pilih kata acak
+            const randomPair = wordDatabase[Math.floor(Math.random() * wordDatabase.length)];
+            
+            // Tentukan mana kata crewmate mana kata impostor secara acak
+            const isFirstCrewmate = Math.random() < 0.5;
+            crewmateWord = isFirstCrewmate ? randomPair[0] : randomPair[1];
+            impostorWord = isFirstCrewmate ? randomPair[1] : randomPair[0];
+
+            // Tentukan 1 Impostor
+            const impostorIndex = Math.floor(Math.random() * playerCount);
+            impostorName = players[impostorIndex].name;
+
+            // Assign peran & kata
+            players.forEach((p, index) => {
+                if(index === impostorIndex) {
+                    p.isImpostor = true;
+                    p.word = impostorWord;
+                } else {
+                    p.word = crewmateWord;
+                }
+            });
+
+            // Mulai fase Pass & Play
+            currentTurnIndex = 0;
+            passPlayPhase = 0;
+            updatePassPlayUI();
+            changeScreen('screen-passplay');
+        }
+
+        // === LOGIKA PASS & PLAY (ESTAFET HP) ===
+        function updatePassPlayUI() {
+            const player = players[currentTurnIndex];
+            const btn = document.getElementById('btn-action-word');
+            const wordBox = document.getElementById('word-box');
+            const secretWord = document.getElementById('secret-word');
+            const instruction = document.getElementById('passplay-instruction');
+            const instructionName = document.getElementById('instruction-name');
+            const playerNameDisplay = document.getElementById('current-player-name');
+
+            playerNameDisplay.innerText = player.name;
+            instructionName.innerText = player.name;
+
+            if (passPlayPhase === 0) {
+                // State: Bersiap melihat kata
+                wordBox.classList.add('hidden');
+                instruction.innerHTML = `Pastikan tidak ada yang melihat layar ini selain <b class="text-white">${player.name}</b>.`;
+                btn.innerText = "LIHAT KATA";
+                btn.className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition";
+            } 
+            else if (passPlayPhase === 1) {
+                // State: Sedang melihat kata
+                secretWord.innerText = player.word;
+                wordBox.classList.remove('hidden');
+                instruction.innerHTML = "Hafalkan kata ini, jangan beri tahu siapapun!";
+                btn.innerText = "SEMBUNYIKAN KATA";
+                btn.className = "w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition mt-4";
+            }
+            else if (passPlayPhase === 2) {
+                // State: Selesai melihat, siap oper
+                wordBox.classList.add('hidden');
+                
+                if (currentTurnIndex < playerCount - 1) {
+                    const nextPlayer = players[currentTurnIndex + 1].name;
+                    instruction.innerHTML = `Kata telah disembunyikan. Berikan HP ini kepada <b class="text-yellow-400">${nextPlayer}</b>.`;
+                    btn.innerText = "LANJUT KE PEMAIN BERIKUTNYA";
+                    btn.className = "w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition";
+                } else {
+                    instruction.innerHTML = "Semua pemain telah melihat kata mereka!";
+                    btn.innerText = "MULAI DISKUSI";
+                    btn.className = "w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition animate-pulse";
+                }
+            }
+        }
+
+        function handleWordAction() {
+            if (passPlayPhase === 0) {
+                passPlayPhase = 1; // Lihat kata
+            } else if (passPlayPhase === 1) {
+                passPlayPhase = 2; // Sembunyikan
+            } else if (passPlayPhase === 2) {
+                if (currentTurnIndex < playerCount - 1) {
+                    currentTurnIndex++;
+                    passPlayPhase = 0; // Reset state untuk pemain berikutnya
+                } else {
+                    // Masuk ke fase diskusi
+                    changeScreen('screen-discussion');
+                    generateVotingButtons();
+                    return;
+                }
+            }
+            updatePassPlayUI();
+        }
+
+        // === FASE VOTING ===
+        function generateVotingButtons() {
+            const container = document.getElementById('voting-container');
+            container.innerHTML = '';
+            
+            // Urutkan nama abjad untuk
