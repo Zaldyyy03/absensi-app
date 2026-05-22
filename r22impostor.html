@@ -1,4 +1,4 @@
-
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -12,17 +12,18 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
-            color: #f8fafc; /* Slate 50 */
+            background-color: #0f172a; 
+            color: #f8fafc; 
             overflow-x: hidden;
+            /* Mencegah highlight biru/abu-abu saat di-tap di HP */
+            -webkit-tap-highlight-color: transparent; 
         }
         
-        /* Animasi Transisi Halus */
         .screen {
             display: none;
             opacity: 0;
-            transition: opacity 0.4s ease-in-out, transform 0.4s ease-in-out;
-            transform: translateY(20px);
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+            transform: translateY(15px);
         }
         .screen.active {
             display: flex;
@@ -30,29 +31,13 @@
             transform: translateY(0);
         }
 
-        /* Neon Glow Effects */
-        .neon-text-red {
-            text-shadow: 0 0 10px rgba(239, 68, 68, 0.7), 0 0 20px rgba(239, 68, 68, 0.5);
-        }
-        .neon-text-blue {
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.7), 0 0 20px rgba(56, 189, 248, 0.5);
-        }
-        .neon-border {
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
-        }
+        .neon-text-red { text-shadow: 0 0 10px rgba(239, 68, 68, 0.7), 0 0 20px rgba(239, 68, 68, 0.5); }
+        .neon-text-blue { text-shadow: 0 0 10px rgba(56, 189, 248, 0.7), 0 0 20px rgba(56, 189, 248, 0.5); }
+        .neon-border { box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1e293b; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569; 
-            border-radius: 4px;
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
@@ -70,13 +55,13 @@
             <div class="w-full mb-6">
                 <label for="playerCount" class="block text-sm font-medium text-slate-300 mb-2">Jumlah Pemain (3 - 20)</label>
                 <div class="flex items-center justify-center gap-4 bg-slate-900 rounded-xl p-2">
-                    <button id="btn-min" class="w-10 h-10 bg-slate-700 rounded-lg text-xl font-bold hover:bg-slate-600 transition focus:outline-none">-</button>
-                    <input type="number" id="playerCount" value="4" min="3" max="20" class="w-16 bg-transparent text-center text-2xl font-bold focus:outline-none" readonly>
-                    <button id="btn-plus" class="w-10 h-10 bg-slate-700 rounded-lg text-xl font-bold hover:bg-slate-600 transition focus:outline-none">+</button>
+                    <button type="button" id="btn-min" class="w-12 h-12 bg-slate-700 rounded-lg text-2xl font-bold active:bg-slate-500 active:scale-90 transition transform">-</button>
+                    <input type="number" id="playerCount" value="4" min="3" max="20" class="w-16 bg-transparent text-center text-3xl font-bold focus:outline-none" readonly>
+                    <button type="button" id="btn-plus" class="w-12 h-12 bg-slate-700 rounded-lg text-2xl font-bold active:bg-slate-500 active:scale-90 transition transform">+</button>
                 </div>
             </div>
 
-            <button onclick="goToSetup()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transform transition hover:scale-105">
+            <button type="button" onclick="goToSetup()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 active:from-blue-700 active:to-purple-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transform transition active:scale-95">
                 MULAI GAME
             </button>
         </div>
@@ -88,8 +73,8 @@
                 <!-- Input nama di-generate via JS -->
             </div>
             <div class="flex gap-3 mt-auto">
-                <button onclick="changeScreen('screen-home')" class="w-1/3 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 rounded-xl transition">Batal</button>
-                <button onclick="startGame()" class="w-2/3 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition shadow-lg">Lanjut</button>
+                <button type="button" onclick="changeScreen('screen-home')" class="w-1/3 bg-slate-700 active:bg-slate-600 text-white font-semibold py-3 rounded-xl transition transform active:scale-95">Batal</button>
+                <button type="button" onclick="startGame()" class="w-2/3 bg-blue-600 active:bg-blue-700 text-white font-bold py-3 rounded-xl transition shadow-lg transform active:scale-95">Lanjut</button>
             </div>
         </div>
 
@@ -100,7 +85,7 @@
                 <p id="current-player-name" class="text-2xl font-bold text-white"></p>
             </div>
 
-            <!-- Box Kata (Sekarang selalu tampil, isinya saja yang berubah) -->
+            <!-- Box Kata Statis -->
             <div id="word-box" class="w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-8 mb-8 relative transition-all duration-300">
                 <p id="box-label" class="text-slate-300 text-sm mb-2">Status Kata:</p>
                 <h3 id="secret-word" class="text-3xl font-extrabold text-slate-500 tracking-wider">TERKUNCI 🔒</h3>
@@ -108,7 +93,7 @@
 
             <p id="passplay-instruction" class="text-slate-300 mb-8 px-4 h-12 flex items-center justify-center">Pastikan tidak ada yang melihat layar ini selain <b id="instruction-name" class="text-white ml-1"></b>.</p>
 
-            <button id="btn-action-word" onclick="handleWordAction()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition">
+            <button type="button" id="btn-action-word" onclick="handleWordAction()" class="w-full bg-blue-600 active:bg-blue-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform active:scale-95">
                 BUKA KUNCI & LIHAT KATA
             </button>
         </div>
@@ -126,7 +111,7 @@
                     <li>Impostor tidak tahu bahwa dirinya adalah Impostor!</li>
                 </ul>
             </div>
-            <button onclick="changeScreen('screen-voting')" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform hover:scale-105">
+            <button type="button" onclick="changeScreen('screen-voting')" class="w-full bg-red-600 active:bg-red-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform active:scale-95">
                 MULAI VOTING
             </button>
         </div>
@@ -161,7 +146,7 @@
                 </div>
             </div>
 
-            <button onclick="resetGame()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform hover:scale-105">
+            <button type="button" onclick="resetGame()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 active:from-blue-700 active:to-purple-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform active:scale-95">
                 MAIN LAGI
             </button>
         </div>
@@ -200,6 +185,9 @@
         let crewmateWord = "";
         let impostorWord = "";
         let impostorName = "";
+        
+        // Timer ringan untuk mencegah klik beruntun tanpa membuat UI hang
+        let lastClickTime = 0;
 
         const countInput = document.getElementById('playerCount');
         
@@ -216,7 +204,40 @@
             setTimeout(() => document.getElementById(screenId).classList.add('active'), 50); 
         }
 
+        // FUNGSI SUARA DIBUAT ASINKRON (TIDAK MEMBEKUKAN TOMBOL)
+        function speakVoice(text) {
+            if (!('speechSynthesis' in window)) return;
+            
+            // Dijalankan di background thread agar tidak menghambat respons klik
+            setTimeout(() => {
+                try {
+                    window.speechSynthesis.cancel(); 
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'id-ID'; 
+                    utterance.pitch = 1.2; 
+                    utterance.rate = 1.0;  
+                    
+                    const voices = window.speechSynthesis.getVoices();
+                    const idVoices = voices.filter(v => v.lang.includes('id'));
+                    if (idVoices.length > 0) {
+                        utterance.voice = idVoices[0];
+                    }
+                    
+                    window.speechSynthesis.speak(utterance);
+                } catch(e) {
+                    console.log("Suara dimatikan / tidak didukung");
+                }
+            }, 10);
+        }
+
+        function unlockAudio() {
+            if ('speechSynthesis' in window) {
+                setTimeout(() => window.speechSynthesis.speak(new SpeechSynthesisUtterance('')), 10);
+            }
+        }
+
         function goToSetup() {
+            unlockAudio();
             const container = document.getElementById('names-container');
             container.innerHTML = '';
             for(let i = 0; i < playerCount; i++) {
@@ -255,8 +276,11 @@
 
             currentTurnIndex = 0;
             passPlayPhase = 0;
+            
             updatePassPlayUI();
             changeScreen('screen-passplay');
+            
+            speakVoice("Giliran, " + players[0].name);
         }
 
         function updatePassPlayUI() {
@@ -273,7 +297,6 @@
             instructionName.innerText = player.name;
 
             if (passPlayPhase === 0) {
-                // Tampilan Terkunci
                 wordBox.className = "w-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-8 mb-4 relative transition-all duration-300";
                 boxLabel.innerText = "Status Kata:";
                 secretWord.innerText = "TERKUNCI 🔒";
@@ -281,10 +304,9 @@
                 
                 instruction.innerHTML = `Pastikan tidak ada yang melihat layar ini selain <b class="text-white ml-1">${player.name}</b>.`;
                 btn.innerText = "BUKA KUNCI & LIHAT KATA";
-                btn.className = "w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition";
+                btn.className = "w-full bg-blue-600 active:bg-blue-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform active:scale-95";
             } 
             else if (passPlayPhase === 1) {
-                // Tampilan Kata Terbuka
                 wordBox.className = "w-full bg-slate-700 border-2 border-blue-500 rounded-2xl p-8 mb-4 relative shadow-[0_0_15px_rgba(59,130,246,0.4)] transition-all duration-300 scale-[1.02]";
                 boxLabel.innerText = "Kata Rahasia Kamu:";
                 secretWord.innerText = player.word;
@@ -292,10 +314,9 @@
                 
                 instruction.innerHTML = "Hafalkan kata ini, jangan beri tahu siapapun!";
                 btn.innerText = "SEMBUNYIKAN KATA";
-                btn.className = "w-full bg-red-600 hover:bg-red-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition";
+                btn.className = "w-full bg-red-600 active:bg-red-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform active:scale-95";
             }
             else if (passPlayPhase === 2) {
-                // Tampilan Selesai Dilihat
                 wordBox.className = "w-full bg-slate-800 border-2 border-green-900 rounded-2xl p-8 mb-4 relative transition-all duration-300";
                 boxLabel.innerText = "Status Kata:";
                 secretWord.innerText = "DISEMBUNYIKAN ✓";
@@ -305,16 +326,22 @@
                     const nextPlayer = players[currentTurnIndex + 1].name;
                     instruction.innerHTML = `Kata diamankan. Berikan HP ke <b class="text-yellow-400 ml-1">${nextPlayer}</b>.`;
                     btn.innerText = "LANJUT KE PEMAIN BERIKUTNYA";
-                    btn.className = "w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition";
+                    btn.className = "w-full bg-purple-600 active:bg-purple-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition transform active:scale-95";
                 } else {
                     instruction.innerHTML = "Semua pemain telah melihat kata mereka!";
                     btn.innerText = "MULAI DISKUSI";
-                    btn.className = "w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition animate-pulse";
+                    btn.className = "w-full bg-green-600 active:bg-green-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition animate-pulse transform active:scale-95";
                 }
             }
         }
 
+        // FUNGSI HANDLE CLICK TANPA MENGUNCI TOMBOL (LEBIH AMAN)
         function handleWordAction() {
+            // Anti-spam 0.3 detik menggunakan timestamp (tidak merusak DOM)
+            const now = Date.now();
+            if (now - lastClickTime < 300) return; 
+            lastClickTime = now;
+
             if (passPlayPhase === 0) {
                 passPlayPhase = 1; 
             } else if (passPlayPhase === 1) {
@@ -323,7 +350,9 @@
                 if (currentTurnIndex < playerCount - 1) {
                     currentTurnIndex++;
                     passPlayPhase = 0; 
+                    speakVoice("Giliran, " + players[currentTurnIndex].name);
                 } else {
+                    speakVoice("Semua pemain telah melihat kata. Waktunya diskusi.");
                     changeScreen('screen-discussion');
                     generateVotingButtons();
                     return;
@@ -340,9 +369,9 @@
 
             sortedPlayers.forEach(p => {
                 container.innerHTML += `
-                    <button onclick="submitVote('${p.name}')" class="w-full bg-slate-700 hover:bg-slate-600 border border-slate-600 hover:border-red-500 flex justify-between items-center px-5 py-4 rounded-xl transition text-left group">
+                    <button type="button" onclick="submitVote('${p.name}')" class="w-full bg-slate-700 active:bg-slate-600 border border-slate-600 active:border-red-500 flex justify-between items-center px-5 py-4 rounded-xl transition transform active:scale-95 text-left group">
                         <span class="text-white font-semibold text-lg">${p.name}</span>
-                        <span class="text-slate-500 group-hover:text-red-400 transition">Pilih 👉</span>
+                        <span class="text-slate-500 group-active:text-red-400 transition">Pilih 👉</span>
                     </button>
                 `;
             });
@@ -359,10 +388,12 @@
             document.getElementById('result-real-impostor').innerText = impostorName;
 
             if (votedName === impostorName) {
+                speakVoice("Crewmate Menang. Tebakan kalian benar.");
                 title.innerText = "CREWMATE MENANG!";
                 title.className = "text-3xl font-extrabold mb-2 text-blue-500 neon-text-blue";
                 desc.innerHTML = `Tebakan kalian benar! <b>${votedName}</b> adalah Impostornya.`;
             } else {
+                speakVoice("Impostor Menang. Kalian salah tuduh.");
                 title.innerText = "IMPOSTOR MENANG!";
                 title.className = "text-3xl font-extrabold mb-2 text-red-500 neon-text-red";
                 desc.innerHTML = `Kalian salah tuduh! <b>${votedName}</b> adalah Crewmate biasa.`;
